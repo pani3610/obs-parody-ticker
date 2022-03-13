@@ -1,6 +1,49 @@
 import feedparser
 import json
+from ticker import Ticker
+class Feed(Ticker):
+    def __init__(self,feed_name,feed_url,feed_img_path):
+        self.name = feed_name
+        self.url = feed_url
+        self.image_path = feed_img_path
+        self.size = 0
+    
+    def calculateSize(self):
+        pass
+    
+    def calculateTimeToCycle(self,size):#,Ticker.viewport_width,Ticker.text_speed):
+        pass
 
+    class FeedText():
+        def __init__(self,headline_count,separator):
+            self.headlines_list = []
+            self.headline_count = headline_count
+            self.separator = separator
+            self.courtesy_text = f'This newsreel is brought to you by {Feed.name}'
+            self.raw_string = ''
+        
+        def extractHeadlines(self):
+            self.headlines_list = []
+            pass
+
+        def calculatePadding(self):#,Ticker.empty_time):
+            pass
+
+        def changeCourtesyText():
+            pass
+
+
+    #Following code is a mockup.
+
+    # def createFeedText(self,headline_count):
+    #     ft = FeedText(headline_count,' //  ')
+    #     ft.extractHeadlines()
+    #     ft.addCourtesyText()
+    #     ft.calculatePadding()
+    #     ft.addpadding()
+    #     return (ft.raw_string)
+
+        
 def extract_headlines(url,count=10): #extracts 10 recent headlines by default. Limited to 10 because long files breaks OBS.
     headlines = []
     feed = feedparser.parse(url)
