@@ -1,0 +1,2 @@
+# About Parody Ticker Tape
+This is a small project to create a news ticker-tape at the bottom of video streams. The news items are imported from the RSS feeds of various parody new websites. This project modifies and controls the elements of the ticker. 
