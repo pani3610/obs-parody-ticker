@@ -16,14 +16,17 @@ def export_json(url):
     with open("newsfeed.json","w") as jsonfile:
         json.dump(feed,jsonfile, indent=4)
 
-def export_text(headline_list):
-    with open('feed_text.txt',"a") as txtfile:
+def export_text(headline_list,target_file,padding=0,file_mode="w"): #TODO:add padding implicitly
+
+    with open(target_file,file_mode) as txtfile:
+            txtfile.write(" "*(padding//2))
             for headline in headline_list:
                 txtfile.write(headline)
-                txtfile.write('  //  ')           
+                txtfile.write('  //  ')
+            txtfile.write(" "*(padding//2))           
 
-def empty_txtfile():
-    with open('feed_text.txt',"w") as txtfile:
+def empty_txtfile(target_file):
+    with open(target_file,"w") as txtfile:
             txtfile.write('')           
 
 def main():
