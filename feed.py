@@ -1,12 +1,13 @@
 import feedparser
 import json
-from ticker import Ticker
-class Feed(Ticker):
-    def __init__(self,feed_name,feed_url,feed_img_path):
+# from ticker import Ticker
+class Feed():
+    def __init__(self,feed_name,feed_url,feed_img_path,padding=0):
         self.name = feed_name
         self.url = feed_url
         self.image_path = feed_img_path
         self.size = 0
+        self.text = self.FeedText(self.url,padding)
     
     def calculateSize(self):
         pass

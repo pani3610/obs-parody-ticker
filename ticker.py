@@ -1,29 +1,54 @@
-from feed import *
+
+
+from feed import Feed
+
 
 class Ticker:
-    def __init__(self,savefile):
+    def __init__(self,savetextfile,saveimgfile):
         self.viewport_width = 95 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
         self.text_speed = 5 #f(ticker_width,
-        '''Average new characters introduced per second. Horizontal scroll speed in OBS set to 40.'''
-        
-        self.savefile = 'feed_text_dev.txt'
+        '''Average new characters introduced per second.'''
         
         self.empty_time = 3
-        '''Amount of time in secs we want to ticker to go blank in order'''
+        '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
+        
+        self.textcontainer = savetextfile
+        self.imgcontainer = saveimgfile
+        
+        self.feeds = []
 
-        self.SCREEN_WIDTH = None
+        self.SCREEN_WIDTH = 1205 #pixels
         self.FONT_SIZE = None
-        self.OBS_HORIZONTAL_SCROLL = 40
+        self.OBS_HORIZONTAL_SCROLL = 80
+    
+    def recalculateViewportWidth(self):
+        pass
+    
+    def recalculateTextSpeed(self):
+        pass
+
+    def updateTextContainer(self,feed:Feed):
+        with open(self.textcontainer,"w") as tickertext:
+            tickertext.write(feed.text)
+
+    def updateImageContainer(self,feed:Feed):
+        pass
+
 
     def start(self):
-        pass
+        while(True):
+            for feed in self.feeds:
+                self.updateTextContainer(feed)
+                self.udpateImageContainer(feed)
+                switchToNextFeed()
 
     def switchToNextFeed(self):
         pass
 
-    def addFeed(self,Feed):
+    def addFeed(self,feed:Feed):
+        self.feeds.append(Feed)
         pass
     
     def removeFeed(self,Feed):
@@ -53,9 +78,14 @@ def update_ticker(url,news_source,target_file,cpv):
 def switch_source():
     pass
     
-with open('feed_text.txt','r') as txt:
-    text = txt.read()
-    print(len(text))
 
-update_ticker( "https://www.theonion.com/content/feeds/daily","The Onion",ticker_text_path,cpv)
-export_json("https://babylonbee.com/feed")
+
+def main():
+    update_ticker( "https://www.theonion.com/content/feeds/daily","The Onion",ticker_text_path,cpv)
+    export_json("https://babylonbee.com/feed") 
+    with open('feed_text.txt','r') as txt:
+        text = txt.read()
+        print(len(text))   
+
+if __name__ == '__main__':
+    main()
