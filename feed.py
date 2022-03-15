@@ -10,7 +10,7 @@ class Feed():
         
         self.image_path = feed_img_path
 
-        self.headlines_count = 1
+        self.headlines_count = 10
 
         self.padding = None
 
@@ -52,7 +52,7 @@ class FeedText():
         self.headlines_list = []
         self.headlines_count = min(feed.headlines_count,len(feed.data.entries)) #to avoid IndexOutofRangeheadline_count
         self.separator = " * "
-        self.courtesy_text = ''#f'This newsreel is brought to you by {feed.name}: {feed.subtitle}'
+        self.courtesy_text = f'This newsreel is brought to you by \"{feed.name}: {feed.subtitle}\"'
         self.raw_string = self.generateText(feed)
     
     
