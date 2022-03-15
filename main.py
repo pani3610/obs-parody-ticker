@@ -2,10 +2,11 @@ from ticker import Ticker
 from feed import Feed
 
 def main():
-    f = Feed('The Onion',"https://www.theonion.com/content/feeds/daily",'src/onion.png')
-    print(f.name)
-    t = Ticker('feed_text_dev.txt')
-    t.addFeed(f)
+    t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    f1 =Feed("https://babylonbee.com/feed",None,'src/babylonbee.png')
+    f2 =Feed("https://www.theonion.com/content/feeds/daily",None,'src/onion.png')
+    t.addFeed(f1)
+    t.addFeed(f2)
     t.start()
 
 if __name__ == '__main__':
