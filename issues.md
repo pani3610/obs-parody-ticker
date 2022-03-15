@@ -7,3 +7,8 @@
 + [ ] Make file location fetching cross platform.
 + [ ] One feed will have different padding based on different tickers. One ticker can have multiple feeds.
 + [ ] How to define an attribute for the feed based on the ticker. I want to set the padding of feed based on ticker. But the same feed is used by another ticker it will overwrite the first ticker's padding. Since the Ticker class can't hold the state of a feed class without making it the attribute of ticker.
++ [ ] Make the Feed class take argument of url as input and the rest as **kw.
++ [ ] Refine OOP.
++ [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
++ [ ] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
++ [ ] Automatically reset the feed text if it goes above the ticker max length.
