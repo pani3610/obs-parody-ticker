@@ -5,10 +5,10 @@ from feed import Feed
 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
-        self.viewport_width = 95 #f(SCREEN_WIDTH,FONT_SIZE)
+        self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = 5 #f(ticker_width,
+        self.text_speed = 6 #f(ticker_width,
         '''Average new characters introduced per second.'''
         
         self.empty_time = 3
@@ -20,7 +20,7 @@ class Ticker:
         self.feeds = []
 
         self.SCREEN_WIDTH = 1205 #pixels
-        self.FONT_SIZE = None
+        self.FONT_SIZE = 22
         self.OBS_HORIZONTAL_SCROLL = 80
     
     def recalculateViewportWidth(self):

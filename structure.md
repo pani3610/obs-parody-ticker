@@ -8,7 +8,7 @@
     + FONT_SIZE
     + EMPTY_TIME : Amount of time in secs we want to ticker to go blank in order to switch feeds
     + startFeed()
-    
+    + calculatePadding() : f(TIME_TO_CYCLE) -> Depends on Ticker
     + Feed
         + SOURCE_NAME
         + SOURCE_IMAGE
@@ -17,15 +17,16 @@
         + TIME_TO_CYCLE
         + calculateTimeToCycle(SIZE,SCREEN_SIZE,SPEED,EMPTY_TIME) -> Depends on parameters based off all 3 classes.
         + saveToFile()
+        + NUMBER_OF_HEADLINES
 
         + FeedText (To be used only within Feed. Every feed will have only 1 feed text. Must be initialzied as soon as an instance of Feed is created)
             + HEADLINES_LIST f(Feed,NUMBER_OF_HEADLINES)
             + extractHeadlines()
             + SEPARATOR
             + PADDING
-            + calculatePadding() : f(TIME_TO_CYCLE) -> Depends on Ticker
+            
             + addPadding()
-            + NUMBER_OF_HEADLINES
+            
             + COURTESY_TEXT
             + raw_string
             
