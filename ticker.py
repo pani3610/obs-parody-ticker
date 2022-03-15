@@ -1,6 +1,8 @@
 
 
 from feed import Feed
+from time import sleep
+from shutil import copyfile
 
 
 class Ticker:
@@ -8,10 +10,10 @@ class Ticker:
         self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = 6 #f(ticker_width,
+        self.text_speed = 6 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
-        self.empty_time = 3
+        self.empty_time = 4
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
         
         self.textcontainer = savetextfile
@@ -22,6 +24,7 @@ class Ticker:
         self.SCREEN_WIDTH = 1205 #pixels
         self.FONT_SIZE = 22
         self.OBS_HORIZONTAL_SCROLL = 80
+        self.max_text_size = 1260
     
     def recalculateViewportWidth(self):
         pass
@@ -31,29 +34,44 @@ class Ticker:
 
     def updateTextContainer(self,feed:Feed):
         with open(self.textcontainer,"w") as tickertext:
-            tickertext.write(feed.text)
+            tickertext.write(feed.text.raw_string)
 
     def updateImageContainer(self,feed:Feed):
-        pass
+        copyfile(feed.image_path,self.imgcontainer)
 
 
     def start(self):
         while(True):
             for feed in self.feeds:
+                print(feed.name)
                 self.updateTextContainer(feed)
-                self.udpateImageContainer(feed)
-                switchToNextFeed()
+                self.updateImageContainer(feed)
+                self.switchToNextFeed(feed)
 
-    def switchToNextFeed(self):
-        pass
+    def switchToNextFeed(self,feed:Feed):
+        sleep_time = (feed.calculateSize()/self.text_speed-1) #Padding space - 1.
+        print(f'Going to sleep for {sleep_time} seconds')
+        sleep(sleep_time)
 
     def addFeed(self,feed:Feed):
-        self.feeds.append(Feed)
-        pass
+        self.addPaddingToFeed(feed)
+        self.feeds.append(feed)
+
     
     def removeFeed(self,Feed):
         pass
 
+
+    def addPaddingToFeed(self,feed:Feed):
+        size = feed.calculateSize()
+        padding = self.viewport_width + self.text_speed*self.empty_time
+        if size+padding<self.max_text_size:
+            feed.text.raw_string = (padding)*" "+feed.text.raw_string
+        else:
+            print('Feed text too large. Reduce number of headlines')
+        
+
+'''
 screen_width = None
 font_size = None
 
@@ -78,14 +96,14 @@ def update_ticker(url,news_source,target_file,cpv):
 def switch_source():
     pass
     
-
+'''
 
 def main():
-    update_ticker( "https://www.theonion.com/content/feeds/daily","The Onion",ticker_text_path,cpv)
-    export_json("https://babylonbee.com/feed") 
-    with open('feed_text.txt','r') as txt:
-        text = txt.read()
-        print(len(text))   
-
+    t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    f1 =Feed("https://babylonbee.com/feed",None,'src/babylonbee.png')
+    f2 =Feed("https://www.theonion.com/content/feeds/daily",None,'src/onion.png')
+    t.addFeed(f1)
+    t.addFeed(f2)
+    t.start()
 if __name__ == '__main__':
     main()

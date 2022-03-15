@@ -6,3 +6,4 @@
     __Workaround: Use Monospace fonts.__ Currently using Roboto Mono.
 + [ ] Make file location fetching cross platform.
 + [ ] One feed will have different padding based on different tickers. One ticker can have multiple feeds.
++ [ ] How to define an attribute for the feed based on the ticker. I want to set the padding of feed based on ticker. But the same feed is used by another ticker it will overwrite the first ticker's padding. Since the Ticker class can't hold the state of a feed class without making it the attribute of ticker.
