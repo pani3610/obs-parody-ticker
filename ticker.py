@@ -10,10 +10,10 @@ class Ticker:
         self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = 6 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
+        self.text_speed = 6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
-        self.empty_time = 4
+        self.empty_time = 5
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
         
         self.textcontainer = savetextfile
@@ -22,7 +22,7 @@ class Ticker:
         self.feeds = []
 
         self.SCREEN_WIDTH = 1205 #pixels
-        self.FONT_SIZE = 22
+        self.FONT = {'Type':'Roboto Mono','Size':22}
         self.OBS_HORIZONTAL_SCROLL = 80
         self.max_text_size = 1260
     
@@ -49,7 +49,7 @@ class Ticker:
                 self.switchToNextFeed(feed)
 
     def switchToNextFeed(self,feed:Feed):
-        sleep_time = (feed.calculateSize()/self.text_speed-1) #Padding space - 1.
+        sleep_time = (feed.calculateSize()/self.text_speed)
         print(f'Going to sleep for {sleep_time} seconds')
         sleep(sleep_time)
 
@@ -64,7 +64,7 @@ class Ticker:
 
     def addPaddingToFeed(self,feed:Feed):
         size = feed.calculateSize()
-        padding = self.viewport_width + self.text_speed*self.empty_time
+        padding = round(self.viewport_width + self.text_speed*self.empty_time)
         if size+padding<self.max_text_size:
             feed.text.raw_string = (padding)*" "+feed.text.raw_string
         else:
