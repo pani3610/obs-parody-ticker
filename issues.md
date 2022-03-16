@@ -14,11 +14,11 @@
     OR  
     + [ ] Add ticker to all scenes and hide where not required. Open OBS and main.py together.
 + [ ] Some parody headlines don't make sense without reading the article and getting the context. 
-+ [ ] Make the Feed class take argument of url as input and the rest as **kw.
++ [x] ~Make the Feed class take argument of url as input and the rest as **kw.~ use parameter name wherever required.
 + [ ] Refine OOP.
 + [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
 + [ ] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
-+ [ ] Automatically reset the feed text if it goes above the ticker max length.
++ [x] Automatically reset the feed text if it goes above the ticker max length.
 + [ ] End the program gracefully.
 + [ ] Add feedback to switch feed on receiving some kind of feedback from OBS.
 + [ ] Reduce fps and crop video input so as to actually reduce processing work.  

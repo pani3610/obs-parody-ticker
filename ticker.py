@@ -1,5 +1,3 @@
-
-
 from feed import Feed
 from time import sleep
 from shutil import copyfile
@@ -15,6 +13,8 @@ class Ticker:
         
         self.empty_time = 5
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
+
+        self.padding = round(self.viewport_width + self.text_speed*self.empty_time)
         
         self.textcontainer = savetextfile
         self.imgcontainer = saveimgfile
@@ -37,7 +37,10 @@ class Ticker:
             tickertext.write(feed.text.raw_string)
 
     def updateImageContainer(self,feed:Feed):
-        copyfile(feed.image_path,self.imgcontainer)
+        if feed.image_path != None:
+            copyfile(feed.image_path,self.imgcontainer)
+        else:
+            print(f'{feed.name} has no image source')
 
 
     def start(self):
@@ -50,7 +53,7 @@ class Ticker:
 
     def switchToNextFeed(self,feed:Feed):
         sleep_time = (feed.calculateSize()/self.text_speed)
-        print(f'Going to sleep for {sleep_time} seconds')
+        print(f'Going to sleep for {sleep_time:.2f} seconds')
         sleep(sleep_time)
 
     def addFeed(self,feed:Feed):
@@ -64,12 +67,19 @@ class Ticker:
 
     def addPaddingToFeed(self,feed:Feed):
         size = feed.calculateSize()
-        padding = round(self.viewport_width + self.text_speed*self.empty_time)
-        if size+padding<self.max_text_size:
-            feed.text.raw_string = (padding)*" "+feed.text.raw_string
-        else:
-            print('Feed text too large. Reduce number of headlines')
+        if feed.calculateSize()+self.padding>self.max_text_size:
+            print(f'for {feed.name}: Feed text too large. Reducing number of headlines')
+            self.reduceFeedSizeToFit(feed)
         
+        feed.text.raw_string = self.padding*" "+feed.text.raw_string
+
+           
+    def reduceFeedSizeToFit(self,feed:Feed):
+        while(feed.calculateSize()+self.padding>self.max_text_size):
+            new_hl_count = feed.headlines_count - 1
+            feed.updateHeadlinesCount(new_hl_count)
+        
+        print(f'Final headline count:{new_hl_count}')
 
 '''
 screen_width = None
@@ -100,7 +110,7 @@ def switch_source():
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    f1 =Feed("https://babylonbee.com/feed",None,'src/babylonbee.png')
+    f1 =Feed("https://www.betootaadvocate.com/feed/",None,'src/betoota.png')
     f2 =Feed("https://www.theonion.com/content/feeds/daily",None,'src/onion.png')
     t.addFeed(f1)
     t.addFeed(f2)

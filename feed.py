@@ -12,7 +12,6 @@ class Feed():
 
         self.headlines_count = 10
 
-        self.padding = None
 
 
         self.text = FeedText(self)
@@ -45,7 +44,13 @@ class Feed():
         return(FeedText(self))
     
     def updateFeedText(self):
-        self.text 
+        self.text = FeedText(self)
+
+    
+    def updateHeadlinesCount(self,new_count:int):
+        self.headlines_count = new_count
+        self.updateFeedText()
+
         
 class FeedText():
     def __init__(self,feed:Feed):
@@ -84,7 +89,8 @@ class FeedText():
         self.raw_string = self.generateText(feed)
 
 def main1():
-    f = Feed("https://www.theonion.com/content/feeds/daily")
+    f = Feed('https://www.thepoke.co.uk/category/news/feed/')
+    f = Feed('https://www.betootaadvocate.com/feed/')
     # print(f.text.raw_string)
 
     # f.text.updateSeparator(' # ')
@@ -98,7 +104,7 @@ def main1():
 
 
     # print(f.size)
-
+    print(f.name,f.subtitle)
     f.exportFeedDataJson('onion.json')
 if __name__=='__main__':
     main1()
