@@ -7,12 +7,16 @@ def abs_path(filename:str):
     return(os.path.join(dir_path,filename))
 
 def main():
-    
     t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
-    f1 =Feed("https://babylonbee.com/feed",None,abs_path('src/babylonbee.png'))
-    f2 =Feed("https://www.theonion.com/content/feeds/daily",None,abs_path('src/onion.png'))
-    t.addFeed(f1)
-    t.addFeed(f2)
+    feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
+            "https://www.theonion.com/content/feeds/daily":'src/onion.png',
+            "http://newsthump.com/feed/":'src/newsthump.png',}
+            # "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
+
+    for rss_url,logo_location in feeds.items():        
+        f = Feed(rss_url,feed_img_path=abs_path(logo_location))
+        t.addFeed(f)
+    
     t.start()
 
 if __name__ == '__main__':
