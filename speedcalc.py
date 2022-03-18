@@ -9,5 +9,6 @@ while True:
         with open('feed_text_dev.txt',"w") as t:
             i = " "+a[s]+81*s+" "
             t.write(i)
-        sleep(93/6.15)
+        sleep(93/6.1575)
 
+# at 6.15 It drifts forward. From ______A it switches at _____ABCDEF

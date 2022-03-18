@@ -14,7 +14,7 @@
     OR  
     + [ ] Add ticker to all scenes and hide where not required. Open OBS and main.py together.
 + [ ] Some parody headlines don't make sense without reading the article and getting the context. 
-+ [x] ~Make the Feed class take argument of url as input and the rest as **kw.~ use parameter name wherever required.
++ [x] ~~Make the Feed class take argument of url as input and the rest as **kw.~~ use parameter name wherever required.
 + [ ] Refine OOP.
 + [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
 + [ ] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
@@ -25,4 +25,7 @@
     + [ ] Reduce fps
     + [ ] Reduce resolution
     + [ ] make grayscale
++ [ ] Optimise performance.
+    + Python is slow. But there surely is scope for optimisation.
+    + Using timeit to measure the execution time shows the main.py takes around 2 seconds to run on average.
 
