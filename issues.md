@@ -21,11 +21,18 @@
 + [x] Automatically reset the feed text if it goes above the ticker max length.
 + [ ] End the program gracefully.
 + [ ] Add feedback to switch feed on receiving some kind of feedback from OBS.
-+ [ ] Reduce fps and crop video input so as to actually reduce processing work.  
-    + [ ] Reduce fps
-    + [ ] Reduce resolution
-    + [ ] make grayscale
-+ [ ] Optimise performance.
+    + [ ] CV2 OBS Virtual Cam approach:
+        + [ ] Reduce video input processed so as to actually reduce processing work.  
+            + [ ] Reduce fps
+            + [ ] Reduce resolution
+            + [ ] make grayscale
++ [x] Optimise performance.
     + Python is slow. But there surely is scope for optimisation.
     + Using timeit to measure the execution time shows the main.py takes around 2 seconds to run on average.
+    + exectime.py creates a report to diagnose the per function call performance. Run the following after executing exectime.py
+        ```bash
+        snakeviz ./filename.prof
+        ```
+    + __Analyzing the data shows that over 95% execution time is for the http calls to retrieve rss feeds which is executed by the library. Not much scope of improvement in user-written code.__
+
 
