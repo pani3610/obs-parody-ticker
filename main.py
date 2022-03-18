@@ -10,8 +10,8 @@ def main():
     t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
     feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
             "https://www.theonion.com/content/feeds/daily":'src/onion.png',
-            "http://newsthump.com/feed/":'src/newsthump.png',}
-            # "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
+            "http://newsthump.com/feed/":'src/newsthump.png',            
+            "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
 
     for rss_url,logo_location in feeds.items():        
         f = Feed(rss_url,feed_img_path=abs_path(logo_location))
