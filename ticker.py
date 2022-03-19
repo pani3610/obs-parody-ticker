@@ -8,7 +8,7 @@ class Ticker:
         self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = 6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
+        self.text_speed = 6.155 #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
         self.empty_time = 5
