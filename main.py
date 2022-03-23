@@ -16,7 +16,7 @@ class Session:
         self.port = 4444
         load_dotenv()
         self._password = os.getenv('obswspass')
-        self.ticker = self.buildTicker()
+        self.ticker = buildTicker()
     
     def startTicker(self,transition_event):
         if(transition_event.getFromScene()=='TheStart' and transition_event.getToScene()!='TheEnd'):
@@ -40,18 +40,18 @@ class Session:
             # ws.register(on_switch,events.SwitchScenes)
 
 
-    def buildTicker(self):
-        t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
-        feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
-                "https://www.theonion.com/content/feeds/daily":'src/onion.png',
-                "http://newsthump.com/feed/":'src/newsthump.png',            
-                "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
+def buildTicker():
+    t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
+    feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
+            "https://www.theonion.com/content/feeds/daily":'src/onion.png',
+            "http://newsthump.com/feed/":'src/newsthump.png',            
+            "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
 
-        for rss_url,logo_location in feeds.items():        
-            f = Feed(rss_url,feed_img_path=abs_path(logo_location))
-            t.addFeed(f)
-        
-        return(t)
+    for rss_url,logo_location in feeds.items():        
+        f = Feed(rss_url,feed_img_path=abs_path(logo_location))
+        t.addFeed(f)
+    
+    return(t)
 
 def main():
     # t = buildTicker()
