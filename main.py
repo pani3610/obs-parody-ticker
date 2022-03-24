@@ -21,6 +21,7 @@ class Session:
     def startTicker(self,transition_event):
         if(transition_event.getFromScene()=='TheStart' and transition_event.getToScene()!='TheEnd'):
             print('restart ticker')
+            self.ticker.start()
 
     def startSession(self):
         ws = obsws(self.host,self.port,self._password)
@@ -34,7 +35,7 @@ class Session:
             return()
         if(ws.connected):
             print('Connected to OBS')
-            sleep(60)
+            sleep(600)
             ws.disconnect()
             # scene = ws.call(requests.GetCurrentScene())
             # ws.register(on_switch,events.SwitchScenes)
