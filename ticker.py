@@ -46,7 +46,7 @@ class Ticker:
     def start(self):
         while(True):
             for feed in self.feeds:
-                print(feed.name)
+                print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
                 self.switchToNextFeed(feed)
@@ -68,7 +68,7 @@ class Ticker:
     def addPaddingToFeed(self,feed:Feed):
         size = feed.calculateSize()
         if feed.calculateSize()+self.padding>self.max_text_size:
-            print(f'for {feed.name}: Feed text too large. Reducing number of headlines')
+            print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
             self.reduceFeedSizeToFit(feed)
         
         feed.text.raw_string = self.padding*" "+feed.text.raw_string
@@ -79,7 +79,7 @@ class Ticker:
             new_hl_count = feed.headlines_count - 1
             feed.updateHeadlinesCount(new_hl_count)
         
-        print(f'Final headline count:{new_hl_count}')
+        print(f'Final headline count:{feed.headlines_count}')
 
 '''
 screen_width = None
