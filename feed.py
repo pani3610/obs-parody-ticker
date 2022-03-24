@@ -1,7 +1,7 @@
 import feedparser
 import json
 class Feed():
-    def __init__(self,feed_url,feed_name=None,feed_img_path=None):
+    def __init__(self,feed_url,feed_name=None,feed_img_path=None,hl_count=None):
         self.url = feed_url
         self.data = self.importData()
 
@@ -10,14 +10,14 @@ class Feed():
         
         self.image_path = feed_img_path
 
-        self.headlines_count = 10
+        self.headlines_count = len(self.data.entries) if hl_count==None else min(hl_count,len(self.data.entries))#to avoid IndexOutofRangeheadline_count
 
-
-
+        
         self.text = FeedText(self)
         
         self.size = len(self.text.raw_string)
         
+        self.data_update_time = self.findDataUpdateTime()
 
     def importData(self):
         class Data:
@@ -26,6 +26,12 @@ class Feed():
         
         data_dict = feedparser.parse(self.url)
         return(json.loads(json.dumps(data_dict),object_hook=Data))
+
+    def findDataUpdateTime(self):
+        try:
+            return(self.data.feed.updated)
+        except:
+            return(self.data.headers.date)
     
     def exportFeedDataJson(self,savefile_location):
         data_dict = feedparser.parse(self.url)
@@ -48,14 +54,17 @@ class Feed():
 
     
     def updateHeadlinesCount(self,new_count:int):
-        self.headlines_count = new_count
+        self.headlines_count = min(new_count,len(self.data.entries))
         self.updateFeedText()
+
+    def returnFeedSummary(self):
+        return(f'{self.name} | {self.headlines_count} headlines | Feed data latest by {self.data_update_time} | {self.size} characters long')
+
 
         
 class FeedText():
     def __init__(self,feed:Feed):
         self.headlines_list = []
-        self.headlines_count = min(feed.headlines_count,len(feed.data.entries)) #to avoid IndexOutofRangeheadline_count
         self.separator = " * "
         self.courtesy_text = f'This newsreel is brought to you by \"{feed.name}: {feed.subtitle}\"'
         self.raw_string = self.generateText(feed)
@@ -71,9 +80,9 @@ class FeedText():
         return(raw_text)
         
     
-    def extractHeadlines(self,feed):
+    def extractHeadlines(self,feed:Feed):
         hl = []
-        for entry in feed.data.entries[:self.headlines_count]:
+        for entry in feed.data.entries[:feed.headlines_count]:
             punctuated_headline = entry.title.upper()
             hl.append(punctuated_headline)
         return(hl)
@@ -89,8 +98,9 @@ class FeedText():
         self.raw_string = self.generateText(feed)
 
 def main1():
-    f = Feed('https://www.thepoke.co.uk/category/news/feed/')
-    f = Feed('https://www.betootaadvocate.com/feed/')
+    # f = Feed('https://www.thepoke.co.uk/category/news/feed/')
+    f = Feed("https://babylonbee.com/feed")
+    # f = Feed("https://www.theonion.com/content/feeds/daily")
     # print(f.text.raw_string)
 
     # f.text.updateSeparator(' # ')
@@ -105,6 +115,10 @@ def main1():
 
     # print(f.size)
     print(f.name,f.subtitle)
+    print(f.headlines_count)
+    print(f.data_update_time)
+    print(f.calculateSize())
+    print(f.returnFeedSummary())
     f.exportFeedDataJson('onion.json')
 if __name__=='__main__':
     main1()
