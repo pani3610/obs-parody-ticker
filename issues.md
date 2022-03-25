@@ -37,7 +37,8 @@
 
 + [ ] If execution time cannot be predicted correctly, atleast it can be made consistent by ensuring the code executes exactly at let say 7 seconds by padding the program execution time.
 
-+ [ ] Add feeds to ticker concurrently.
++ [x] Add feeds to ticker concurrently.
+    + 4x faster than sequential. Refer threadresult.txt
 
 + [ ] We know when we switch from a non-ticker scene to a ticker scene, the ticker is refreshed i.e. The ticker starts from the beginning. Using websocket, we can identify when we switch from a non-ticker scene to a ticker scene and then run main.py.
     + [ ] To be specific we build a ticker and wait. Then we switch scene and then start the ticker.

@@ -5,3 +5,4 @@ leadin.py
 .venv/
 .env
 *.prof
+threadresult.txt
