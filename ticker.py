@@ -1,7 +1,7 @@
 from feed import Feed
 from time import sleep
 from shutil import copyfile
-
+from threading import Event,Thread
 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
@@ -44,12 +44,15 @@ class Ticker:
 
 
     def start(self):
-        while(True):
-            for feed in self.feeds:
-                print(feed.returnFeedSummary())
-                self.updateTextContainer(feed)
-                self.updateImageContainer(feed)
-                self.switchToNextFeed(feed)
+        try:
+            while(True):
+                for feed in self.feeds:
+                    print(feed.returnFeedSummary())
+                    self.updateTextContainer(feed)
+                    self.updateImageContainer(feed)
+                    self.switchToNextFeed(feed)
+        except KeyboardInterrupt:
+            print('Ticker stopped')
 
     def switchToNextFeed(self,feed:Feed):
         sleep_time = (feed.calculateSize()/self.text_speed)
@@ -80,6 +83,9 @@ class Ticker:
             feed.updateHeadlinesCount(new_hl_count)
         
         print(f'Final headline count:{feed.headlines_count}')
+
+    def stop(self):
+        pass
 
 '''
 screen_width = None

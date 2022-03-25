@@ -4,3 +4,4 @@ __pycache__
 leadin.py
 .venv/
 .env
+*.prof

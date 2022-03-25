@@ -4,6 +4,7 @@ from feed import Feed
 import os
 from obswebsocket import obsws,requests,exceptions,events
 from dotenv import load_dotenv
+from threading import Thread
 
 def abs_path(filename:str):
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -35,7 +36,7 @@ class Session:
             return()
         if(ws.connected):
             print('Connected to OBS')
-            sleep(600)
+            input('Press enter to close\n')
             ws.disconnect()
             # scene = ws.call(requests.GetCurrentScene())
             # ws.register(on_switch,events.SwitchScenes)
@@ -48,11 +49,50 @@ def buildTicker():
             "http://newsthump.com/feed/":'src/newsthump.png',            
             "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
 
-    for rss_url,logo_location in feeds.items():        
+    for rss_url,logo_location in feeds.items():
         f = Feed(rss_url,feed_img_path=abs_path(logo_location))
         t.addFeed(f)
     
     return(t)
+
+def buildTickerParallel():
+    t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
+    feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
+            "https://www.theonion.com/content/feeds/daily":'src/onion.png',
+            "http://newsthump.com/feed/":'src/newsthump.png',            
+            "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
+
+    threads =[]
+    for rss_url,logo_location in feeds.items():
+        thread = Thread(target=t.addFeed,args=(Feed(rss_url,None,abs_path(logo_location)),))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+    return(t)
+def buildTickerParallel2():
+    t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
+    feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
+            "https://www.theonion.com/content/feeds/daily":'src/onion.png',
+            "http://newsthump.com/feed/":'src/newsthump.png',            
+            "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
+
+    threads =[]
+    for rss_url,logo_location in feeds.items():
+        thread = Thread(target=addFeedToTicker,args=(rss_url,logo_location,t))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+    return(t)
+
+def addFeedToTicker(url:str,image_loc:str,ticker:Ticker):
+    f = Feed(url,feed_img_path=abs_path(image_loc))
+    ticker.addFeed(f)        
 
 def main():
     # t = buildTicker()
