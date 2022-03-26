@@ -1,7 +1,7 @@
 from feed import Feed
 from time import sleep
 from shutil import copyfile
-
+from threading import Event,Thread
 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
@@ -25,6 +25,9 @@ class Ticker:
         self.FONT = {'Type':'Roboto Mono','Size':22}
         self.OBS_HORIZONTAL_SCROLL = 80
         self.max_text_size = 1260
+
+        self.start_thread = None
+        self.stop_event = Event()
     
     def recalculateViewportWidth(self):
         pass
@@ -43,18 +46,27 @@ class Ticker:
             print(f'{feed.name} has no image source')
 
 
-    def start(self):
+    def startTickerLoop(self):
         while(True):
             for feed in self.feeds:
+                if(self.stop_event.isSet()):
+                    return()
                 print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
                 self.switchToNextFeed(feed)
+                
+        
+    def start(self):
+        self.stop_event.clear() #clearing stop event just in case you are restarting after stopping
+        self.start_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
+        self.start_thread.start()
+        
 
     def switchToNextFeed(self,feed:Feed):
         sleep_time = (feed.calculateSize()/self.text_speed)
         print(f'Going to sleep for {sleep_time:.2f} seconds')
-        sleep(sleep_time)
+        self.stop_event.wait(sleep_time)
 
     def addFeed(self,feed:Feed):
         self.addPaddingToFeed(feed)
@@ -80,6 +92,10 @@ class Ticker:
             feed.updateHeadlinesCount(new_hl_count)
         
         print(f'Final headline count:{feed.headlines_count}')
+
+    def stop(self):
+        print('Stopping ticker')
+        self.stop_event.set()
 
 '''
 screen_width = None
@@ -115,5 +131,12 @@ def main():
     t.addFeed(f1)
     t.addFeed(f2)
     t.start()
+    print('Stopping in 10 seconds')
+    sleep(10)
+    t.stop()
+    print('starting again in 5 seconds')
+    sleep(5)
+    t.start()
+    
 if __name__ == '__main__':
     main()
