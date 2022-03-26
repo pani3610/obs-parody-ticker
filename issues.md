@@ -40,11 +40,13 @@
 + [x] Add feeds to ticker concurrently.
     + 4x faster than sequential. Refer threadresult.txt
 
-+ [ ] We know when we switch from a non-ticker scene to a ticker scene, the ticker is refreshed i.e. The ticker starts from the beginning. Using websocket, we can identify when we switch from a non-ticker scene to a ticker scene and then run main.py.
-    + [ ] To be specific we build a ticker and wait. Then we switch scene and then start the ticker.
-    + [ ] When we switch to a non-ticker scene we must kill main.py
++ [x] We know when we switch from a non-ticker scene to a ticker scene, the ticker is refreshed i.e. The ticker starts from the beginning. Using websocket, we can identify when we switch from a non-ticker scene to a ticker scene and then run main.py.
+    + [x] To be specific we build a ticker and wait. Then we switch scene and then start the ticker.
+    + [x] When we switch to a non-ticker scene we must ~~kill main.py~~ stop ticker to be resumed later.
     + [ ] The TransitionBegin event isn't called while the program is within the while loop of ticker.start whereas it does work when its main.py sleep. How does it differentiates between different sleeps?
-    + [ ] Typically there is no need to switch from TheStart to any other scene more than once and its done only at the beginning. But eventually if a scene is added that doesn't have the ticker and to switch back to a ticker scene, the ticker must be restarted.
-    + [ ] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
+    + [x] Typically there is no need to switch from TheStart to any other scene more than once and its done only at the beginning. But eventually if a scene is added that doesn't have the ticker and to switch back to a ticker scene, the ticker must be restarted.
+    + [x] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker. Another check whether the ticker is rendered or not even if its present in a scene.
+    + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
+    + [x] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
     + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
  

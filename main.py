@@ -5,6 +5,7 @@ import os
 from obswebsocket import obsws,requests,exceptions,events
 from dotenv import load_dotenv
 from threading import Thread
+import json
 
 def abs_path(filename:str):
     dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -18,28 +19,46 @@ class Session:
         load_dotenv()
         self._password = os.getenv('obswspass')
         self.ticker = buildTicker()
-    
-    def startTicker(self,transition_event):
-        if(transition_event.getFromScene()=='TheStart' and transition_event.getToScene()!='TheEnd'):
-            print('restart ticker')
+        self.ws = None
+        self.ticker_scenes = []
+
+    def startOrStopTicker(self,transition_event:events.TransitionBegin):
+        # print(self.ticker_scenes)
+        if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
+            print('start ticker')
             self.ticker.start()
+        elif(transition_event.getFromScene() in self.ticker_scenes and transition_event.getToScene() not in self.ticker_scenes):
+            print('stop Ticker')
+            self.ticker.stop()
 
     def startSession(self):
-        ws = obsws(self.host,self.port,self._password)
-        ws.register(self.startTicker,events.TransitionBegin)
-        ws.connected = False
+        self.ws = obsws(self.host,self.port,self._password)
+        self.ws.connected = False
         try:
-            ws.connect()
-            ws.connected = True
+            self.ws.connect()
+            self.ws.connected = True
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             return()
-        if(ws.connected):
+        if(self.ws.connected):
+            self.ws.register(self.startOrStopTicker,events.TransitionBegin)
+            self.importTickerScenes()
             print('Connected to OBS')
-            input('Press enter to close\n')
-            ws.disconnect()
-            # scene = ws.call(requests.GetCurrentScene())
-            # ws.register(on_switch,events.SwitchScenes)
+            input('Press enter to close')
+            self.ws.disconnect()
+
+
+    def importTickerScenes(self):
+        scenes = self.ws.call(requests.GetSceneList())
+        for scene in scenes.getScenes():
+            # exportDictToJSON(scene,f'scene-{scene.get("name")}.json')
+            for source in scene['sources']:
+                if source.get("name")=="TIcker-tape" and source.get("render"):
+                    self.ticker_scenes.append(scene["name"])
+                    break
+        return(self.ticker_scenes)
+   
+
 
 
 def buildTicker():
@@ -64,6 +83,9 @@ def addFeedToTicker(url:str,image_loc:str,ticker:Ticker):
     f = Feed(url,feed_img_path=abs_path(image_loc))
     ticker.addFeed(f)        
 
+def exportDictToJSON(dictionary,savefile):
+        with open(savefile,'w') as jsonfile:
+            json.dump(dictionary,jsonfile,indent=4)
 def main():
     # t = buildTicker()
     # # start the websocket and wait for scene switch
