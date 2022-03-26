@@ -42,6 +42,6 @@
     + [ ] When we switch to a non-ticker scene we must kill main.py
     + [ ] The TransitionBegin event isn't called while the program is within the while loop of ticker.start whereas it does work when its main.py sleep. How does it differentiates between different sleeps?
     + [ ] Typically there is no need to switch from TheStart to any other scene more than once and its done only at the beginning. But eventually if a scene is added that doesn't have the ticker and to switch back to a ticker scene, the ticker must be restarted.
-    + [ ] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
+    + [x] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
     + [ ] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
  
