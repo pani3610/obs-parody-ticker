@@ -21,7 +21,7 @@ class Session:
         self.ws = None
         self.ticker_scenes = []
 
-    def startTicker(self,transition_event:events.TransitionBegin):
+    def startOrStopTicker(self,transition_event:events.TransitionBegin):
         print(self.ticker_scenes)
         if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
             print('start ticker')
@@ -38,7 +38,7 @@ class Session:
             print('Unable to connect to OBS')
             return()
         if(self.ws.connected):
-            self.ws.register(self.startTicker,events.TransitionBegin)
+            self.ws.register(self.startOrStopTicker,events.TransitionBegin)
 
             print('Connected to OBS')
             input('Press enter to close')
