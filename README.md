@@ -11,6 +11,9 @@ List of known issues and TODO can be found in [issues.md](https://github.com/pan
 + This file creates the ticker text and stores in a text file. This text file is set as the source for the OBS Text(FreeType 2). This text has a filter of horizontal scroll which gives it the effect of ticker.
 + This file also updates the image of the news source. Since all the rss feeds do not provide the logo of the source, these have been resized (400x400) and stored locally.
 + This file switches the ticker through multiple feeds depending on the size of the feeds.
++ Run main.py with [obs websocket](https://github.com/obsproject/obs-websocket) running. Whenever scene is transitioned:  
+    + from non-ticker scene to ticker scene -> ticker is (re)started.
+    + from ticker-scene to non-ticker scene -> ticker is paused.
 
 ## [ticker.py](https://github.com/pani3610/obs-parody-ticker/blob/master/ticker.py)
 + Contains details about the Ticker class.
