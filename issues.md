@@ -7,15 +7,16 @@
 + [x] Make file location fetching cross platform and location agnostic.
 + [ ] One feed will have different padding based on different tickers. One ticker can have multiple feeds.
 + [ ] How to define an attribute for the feed based on the ticker. I want to set the padding of feed based on ticker. But the same feed is used by another ticker it will overwrite the first ticker's padding. Since the Ticker class can't hold the state of a feed class without making it the attribute of ticker.
-+ [ ] The ticker restarts from the beginning when transitioned from a scene not having a ticker.  
++ [x] The ticker restarts from the beginning when transitioned from a scene not having a ticker.  
     Run code on scene Transition  
-    + [ ] Start code when transitioning to scene with ticker
-    + [ ] Stop code when transitioning to scene without ticker  
+    + [x] Start code when transitioning to scene with ticker
+    + [x] Stop code when transitioning to scene without ticker  
     OR  
     + [ ] Add ticker to all scenes and hide where not required. Open OBS and main.py together.
 + [ ] Some parody headlines don't make sense without reading the article and getting the context. 
 + [x] ~~Make the Feed class take argument of url as input and the rest as **kw.~~ use parameter name wherever required.
 + [ ] Refine OOP.
+    + [ ] Convert to staticmethod or classmethod wherever required.
 + [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
 + [ ] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
 + [x] Automatically reset the feed text if it goes above the ticker max length.
@@ -50,9 +51,11 @@
     + [x] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
     + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
 + [x] Run main.py of master branch whenever obs is run.
-    + Achieved externally through Shortcuts app on Mac.
+    + ~~Achieved externally through Shortcuts app on Mac.~~
+    + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
 + [x] Quit main.py when OBS is closed.
     + Add a hook to detect OBS exit.
     + Add a obs quit event and make it wait for hook. As the hook is activated, the event is set and main.py is closed.
 + [ ] When the transition isn't complete and we switch scene again, it raises an error and exits ticker.
++ [ ] Add logging to the project instead of using print statements.
  
