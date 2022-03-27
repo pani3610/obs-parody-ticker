@@ -10,7 +10,7 @@ def calculateExecutionTime(function):
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()
-    stats.dump_stats(filename=f'{function.__name__}.prof')
+    stats.dump_stats(filename=f'{function.__name__}.prof')#Run `snakeviz ./filename.prof` to visualize execution time
 
 def testWithTimeit(funclist,no_of_tries,filename=None):
     for function in funclist:
