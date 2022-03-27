@@ -4,7 +4,7 @@ from feed import Feed
 import os
 from obswebsocket import obsws,requests,exceptions,events
 from dotenv import load_dotenv
-from threading import Thread
+from threading import Thread,Event
 import json
 
 def abs_path(filename:str):
@@ -21,6 +21,7 @@ class Session:
         self.ticker = buildTicker()
         self.ws = None
         self.ticker_scenes = []
+        self.obs_quit_event  = Event()
 
     def startOrStopTicker(self,transition_event:events.TransitionBegin):
         # print(self.ticker_scenes)
@@ -42,10 +43,16 @@ class Session:
             return()
         if(self.ws.connected):
             self.ws.register(self.startOrStopTicker,events.TransitionBegin)
+            self.ws.register(self.stopSession,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
             self.importTickerScenes()
             print('Connected to OBS')
-            input('Press enter to close')
+            self.obs_quit_event.wait()
             self.ws.disconnect()
+
+    def stopSession(self,obs_event):
+        print('OBS closed.')
+        self.obs_quit_event.set()
+        pass
 
 
     def importTickerScenes(self):

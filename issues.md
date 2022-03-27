@@ -49,4 +49,10 @@
     + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
     + [x] Instead of checking scenes by name, check whether they contain the ticker or not. And the scene they are switching to has ticker or not. Based on that start or stop the ticker.
     + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
++ [x] Run main.py of master branch whenever obs is run.
+    + Achieved externally through Shortcuts app on Mac.
++ [x] Quit main.py when OBS is closed.
+    + Add a hook to detect OBS exit.
+    + Add a obs quit event and make it wait for hook. As the hook is activated, the event is set and main.py is closed.
++ [ ] When the transition isn't complete and we switch scene again, it raises an error and exits ticker.
  
