@@ -18,7 +18,26 @@
 + [ ] Refine OOP.
     + [ ] Convert to staticmethod or classmethod wherever required.
 + [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
-+ [ ] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
++ [x] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
+    + Changed structure of Feed and Feed text. 
+    + Realised python takes Object arguments by reference and not by value i.e.
+    ```python
+    class A:
+    def __init__(self):
+        self.x = 12
+        self.y = 24
+        self.z = 32
+
+    class B:
+        def __init__(self,a:A):
+            self.a = a
+            self.b =13
+
+    example_A = A()
+    example_B = B(example_A)
+    example_B.a.z=77
+    print(example_A.z)#will return 77
+    ```
 + [x] Automatically reset the feed text if it goes above the ticker max length.
 + [ ] End the program gracefully.
 + [ ] Add feedback to switch feed on receiving some kind of feedback from OBS.

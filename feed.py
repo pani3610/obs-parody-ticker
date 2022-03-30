@@ -46,63 +46,66 @@ class Feed():
     def calculateTimeToCycle(self,size):#,Ticker.viewport_width,Ticker.text_speed):
         pass
 
-    def createFeedText(self):
-        return(FeedText(self))
-    
-    def updateFeedText(self):
-        self.text = FeedText(self)
-
     
     def updateHeadlinesCount(self,new_count:int):
         self.headlines_count = min(new_count,len(self.data.entries))
-        self.updateFeedText()
+        self.text.updateFeedText()
 
     def returnFeedSummary(self):
         return(f'{self.name} | {self.headlines_count} headlines | Feed data latest by {self.data_update_time} | {self.size} characters long')
+    
+    def extractHeadlines(self):
+        hl = []
+        for entry in self.data.entries[:self.headlines_count]:
+            punctuated_headline = entry.title.upper()
+            hl.append(punctuated_headline)
+        return(hl)
 
 
         
 class FeedText():
     def __init__(self,feed:Feed):
-        self.headlines_list = []
+        self.feed = feed
         self.separator = " * "
         self.courtesy_text = f'This newsreel is brought to you by \"{feed.name}: {feed.subtitle}\"'
-        self.raw_string = self.generateText(feed)
+        self.raw_string = self.generateText()
     
-    
-    def generateText(self,feed:Feed):
-        raw_text = self.courtesy_text +self.separator
-        self.headlines_list = self.extractHeadlines(feed)
-        for headline in self.headlines_list:
-            raw_text += headline+self.separator
-        raw_text += self.courtesy_text
+    def generateText(self):
+        raw_list = [self.courtesy_text]*2
+        raw_list[1:1] = self.feed.extractHeadlines()
+        raw_text = self.separator.join(raw_list)      
 
         return(raw_text)
         
-    
-    def extractHeadlines(self,feed:Feed):
-        hl = []
-        for entry in feed.data.entries[:feed.headlines_count]:
-            punctuated_headline = entry.title.upper()
-            hl.append(punctuated_headline)
-        return(hl)
+    def updateFeedText(self):
+        self.raw_string = self.generateText()
+  
  
     def updateCourtesyText(self,courtesy_input:str):
         self.courtesy_text = courtesy_input
-        
+        self.updateFeedText()
         
     def updateSeparator(self,separator_input:str):
         self.separator = separator_input
-        
-    def updateRawString(self,feed:Feed):
-        self.raw_string = self.generateText(feed)
+        self.updateFeedText()
 
+    def __str__(self):
+        return(self.raw_string)
+
+        
 def main1():
     # f = Feed('https://www.thepoke.co.uk/category/news/feed/')
     f = Feed("https://babylonbee.com/feed")
+    f.text.updateCourtesyText('hello')
+    f.text.updateSeparator('#')
+    print(f.text)
+    print(f.headlines_count)
+    f.updateHeadlinesCount(f.headlines_count//2)
+    print(f.text)
+
     # f = Feed("https://www.theonion.com/content/feeds/daily")
     # print(f.text.raw_string)
-
+    # f.text.extractHeadlines()
     # f.text.updateSeparator(' # ')
     
     # f.text.updateRawString(f)
@@ -114,11 +117,11 @@ def main1():
 
 
     # print(f.size)
-    print(f.name,f.subtitle)
-    print(f.headlines_count)
-    print(f.data_update_time)
-    print(f.calculateSize())
-    print(f.returnFeedSummary())
-    f.exportFeedDataJson('onion.json')
+    # print(f.name,f.subtitle)
+    # print(f.headlines_count)
+    # print(f.data_update_time)
+    # print(f.calculateSize())
+    # print(f.returnFeedSummary())
+    # f.exportFeedDataJson('onion.json')
 if __name__=='__main__':
     main1()
