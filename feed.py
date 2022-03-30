@@ -3,7 +3,7 @@ import json
 class Feed():
     def __init__(self,feed_url,feed_name=None,feed_img_path=None,hl_count=None):
         self.url = feed_url
-        self.data = self.importData()
+        self.data = feedparser.parse(self.url)#self.importData()
 
         self.name = self.data.feed.title if feed_name == None else feed_name
         self.subtitle = self.data.feed.subtitle
@@ -19,13 +19,14 @@ class Feed():
         
         self.data_update_time = self.findDataUpdateTime()
 
-    def importData(self):
-        class Data:
-            def __init__(self,dictionary):
-                self.__dict__.update(dictionary)
+    # def importData(self): #Not Required as feedparser.parse returns a FeedParserDict not a traditional dict. FeedParserDict is already an Object.
+    #     '''This function converts a dictionary into an Object'''
+    #     class Data:
+    #         def __init__(self,dictionary):
+    #             self.__dict__.update(dictionary)
         
-        data_dict = feedparser.parse(self.url)
-        return(json.loads(json.dumps(data_dict),object_hook=Data))
+    #     data_dict = feedparser.parse(self.url)
+    #     return(json.loads(json.dumps(data_dict),object_hook=Data))
 
     def findDataUpdateTime(self):
         try:
@@ -117,9 +118,9 @@ def main1():
 
 
     # print(f.size)
-    # print(f.name,f.subtitle)
+    print(f.name,f.subtitle)
     # print(f.headlines_count)
-    # print(f.data_update_time)
+    print(f.data_update_time)
     # print(f.calculateSize())
     # print(f.returnFeedSummary())
     # f.exportFeedDataJson('onion.json')
