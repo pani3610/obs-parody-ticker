@@ -6,3 +6,4 @@ leadin.py
 .env
 *.prof
 threadresult.txt
+src/

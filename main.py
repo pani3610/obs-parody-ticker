@@ -1,4 +1,3 @@
-from time import sleep
 from ticker import Ticker
 from feed import Feed
 import os
@@ -70,14 +69,10 @@ class Session:
 
 def buildTicker():
     t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
-    feeds ={"https://babylonbee.com/feed":'src/babylonbee.png',
-            "https://www.theonion.com/content/feeds/daily":'src/onion.png',
-            "http://newsthump.com/feed/":'src/newsthump.png',            
-            "https://www.betootaadvocate.com/feed/":'src/betoota.png'}
-
+    feeds =['https://babylonbee.com/feed', 'https://www.theonion.com/content/feeds/daily', 'http://newsthump.com/feed/', 'https://www.betootaadvocate.com/feed/']
     threads =[]
-    for rss_url,logo_location in feeds.items():
-        thread = Thread(target=addFeedToTicker,args=(rss_url,logo_location,t))
+    for rss_url in feeds:
+        thread = Thread(target=addFeedToTicker,args=(rss_url,t))
         thread.start()
         threads.append(thread)
 
@@ -86,8 +81,8 @@ def buildTicker():
 
     return(t)
 
-def addFeedToTicker(url:str,image_loc:str,ticker:Ticker):
-    f = Feed(url,feed_img_path=abs_path(image_loc))
+def addFeedToTicker(url:str,ticker:Ticker):
+    f = Feed(url)
     ticker.addFeed(f)        
 
 def exportDictToJSON(dictionary,savefile):

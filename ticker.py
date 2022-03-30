@@ -25,7 +25,7 @@ class Ticker:
         self.FONT = {'Type':'Roboto Mono','Size':22}
         self.OBS_HORIZONTAL_SCROLL = 80
         self.max_text_size = 1260
-
+        self.logo_size = (32,32) #(width,height)
         self.start_thread = None
         self.stop_event = Event()
     
@@ -40,8 +40,8 @@ class Ticker:
             tickertext.write(feed.text.raw_string)
 
     def updateImageContainer(self,feed:Feed):
-        if feed.image_path != None:
-            copyfile(feed.image_path,self.imgcontainer)
+        if feed.logo.img_loc != None:
+            copyfile(feed.logo.img_loc,self.imgcontainer)
         else:
             print(f'{feed.name} has no image source')
 
@@ -70,6 +70,7 @@ class Ticker:
 
     def addFeed(self,feed:Feed):
         self.addPaddingToFeed(feed)
+        self.resizeFeedLogo(feed)
         self.feeds.append(feed)
 
     
@@ -92,7 +93,10 @@ class Ticker:
             feed.updateHeadlinesCount(new_hl_count)
         
         print(f'Final headline count:{feed.headlines_count}')
-
+    
+    def resizeFeedLogo(self,feed):
+        feed.logo.resize(self.logo_size)
+    
     def stop(self):
         print('Stopping ticker')
         self.stop_event.set()
@@ -126,8 +130,8 @@ def switch_source():
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    f1 =Feed("https://www.betootaadvocate.com/feed/",None,'src/betoota.png')
-    f2 =Feed("https://www.theonion.com/content/feeds/daily",None,'src/onion.png')
+    f1 =Feed("https://www.betootaadvocate.com/feed/")
+    f2 =Feed("https://www.theonion.com/content/feeds/daily")
     t.addFeed(f1)
     t.addFeed(f2)
     t.start()

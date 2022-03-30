@@ -77,4 +77,7 @@
     + Add a obs quit event and make it wait for hook. As the hook is activated, the event is set and main.py is closed.
 + [ ] When the transition isn't complete and we switch scene again, it raises an error and exits ticker.
 + [ ] Add logging to the project instead of using print statements.
- 
++ [x] Import feed logo from feed website.
+    + [x] Get image URL
+    + [x] Download and ~~resize to 38x38~~ ~~OBS takes care of resizing.~~ but OBS doesn't care about alignment so standardizing size.
++ [ ] Feed Last updated date exception handling
