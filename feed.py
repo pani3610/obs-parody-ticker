@@ -12,7 +12,7 @@ class Feed():
         self.name = self.data.feed.title if feed_name == None else feed_name
         self.subtitle = self.data.feed.subtitle
         
-        self.logo = FeedLogo(self,img_loc=feed_img_path)
+        self.logo = FeedLogo(feed_url) if feed_img_path == None else FeedLogo(feed_img_path)
 
         self.headlines_count = len(self.data.entries) if hl_count==None else min(hl_count,len(self.data.entries))#to avoid IndexOutofRangeheadline_count
 
@@ -68,39 +68,43 @@ class Feed():
         return(hl)
 
 class FeedLogo():
-    def __init__(self,feed:Feed,width=None,height=None,img_loc=None,format='png'):
-        self.feed = feed
-        self.name = feed.name.replace(' ','')
+    def __init__(self,source_loc:str,width=None,height=None,savefile_loc='src/',format='png'):
+        # self.feed = feed
+        self.name = source_loc.replace('.','_').replace('/','-')#feed.name.replace(' ','')
         self.format = format
-        self.img_loc = f'src/{self.name}.{self.format}' if img_loc == None else img_loc
-        self.main_url = '/'.join(feed.url.split('/')[:3])
-        
-        self.image = self.fetchLogo()
-
+        self.savefile= f'{savefile_loc}{self.name}.{self.format}' 
+        try:
+            self.image = Image.open(source_loc)
+            self.image.save(self.savefile)
+            print('local file used')
+        except FileNotFoundError:
+            self.main_url = '/'.join(source_loc.split('/')[:3])
+            self.image = self.fetchLogoFromURL()
+        # print('try works')
         if None not in (width,height):
             self.resize((width,height))
 
-    def fetchLogo(self):
+    def fetchLogoFromURL(self):
         icons = favicon.get(self.main_url)
         for icon in icons:
             if icon.format == self.format:
                 response = requests.get(icon.url,stream=True)
                 if(response.status_code==200):
-                    with open(self.img_loc,'wb') as img_file:
+                    with open(self.savefile,'wb') as img_file:
                         response.raw.decode_content = True
                         shutil.copyfileobj(response.raw,img_file)
-                    img = Image.open(self.img_loc)
+                    img = Image.open(self.savefile)
                     return(img)
         else:
-            print(f'No logo retrieved for {self.feed.name}')
+            print(f'No logo retrieved for {self.name}')
             return(None)
     
     def resize(self,new_size:tuple):
         if(self.image == None):
-            print(f"Image is not defined for logo for {self.feed.name}")
+            print(f"Image is not defined for logo for {self.name}")
             return()
         self.image = self.image.resize(new_size)
-        self.image.save(self.img_loc)
+        self.image.save(self.savefile)
     
         
 class FeedText():
@@ -135,7 +139,7 @@ class FeedText():
         
 def main1():
     # f = Feed('https://www.thepoke.co.uk/category/news/feed/')
-    f = Feed("https://babylonbee.com/feed")
+    f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
     f.text.updateCourtesyText('hello')
     f.text.updateSeparator('#')
     print(f.text)

@@ -80,4 +80,5 @@
 + [x] Import feed logo from feed website.
     + [x] Get image URL
     + [x] Download and ~~resize to 38x38~~ ~~OBS takes care of resizing.~~ but OBS doesn't care about alignment so standardizing size.
+    + [x] Retain option to provide local file as feed logo
 + [ ] Feed Last updated date exception handling

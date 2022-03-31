@@ -40,8 +40,8 @@ class Ticker:
             tickertext.write(feed.text.raw_string)
 
     def updateImageContainer(self,feed:Feed):
-        if feed.logo.img_loc != None:
-            copyfile(feed.logo.img_loc,self.imgcontainer)
+        if feed.logo.savefile != None:
+            copyfile(feed.logo.savefile,self.imgcontainer)
         else:
             print(f'{feed.name} has no image source')
 
