@@ -4,6 +4,7 @@ import requests
 import shutil
 import json
 from PIL import Image
+from extrafunctions import abs_path
 class Feed():
     def __init__(self,feed_url,feed_name=None,feed_img_path=None,hl_count=None):
         self.url = feed_url
@@ -72,7 +73,7 @@ class FeedLogo():
         # self.feed = feed
         self.name = source_loc.replace('.','_').replace('/','-')#feed.name.replace(' ','')
         self.format = format
-        self.savefile= f'{savefile_loc}{self.name}.{self.format}' 
+        self.savefile= abs_path(f'{savefile_loc}{self.name}.{self.format}')
         try:
             self.image = Image.open(source_loc)
             self.image.save(self.savefile)

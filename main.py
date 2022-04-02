@@ -5,10 +5,7 @@ from obswebsocket import obsws,requests,exceptions,events
 from dotenv import load_dotenv
 from threading import Thread,Event
 import json
-
-def abs_path(filename:str):
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    return(os.path.join(dir_path,filename))
+from extrafunctions import abs_path
 
 class Session:
     """start a new session every time you run OBS"""
