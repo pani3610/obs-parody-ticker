@@ -1,6 +1,7 @@
 + [ ] OBS Text(FreeType2) has a size limitation. It seems that if ticker size goes above a certain threshold, it does not display it in OBS.
     + Max-width of texttype2 depends on font, font-size. Max-width for current selection (Roboto,Mono,22) is 1260.
     + When the file is rewritten the start of the file moves if the length of text changes.
+    + [ ] Windows supports TextGDI+ which is supposed to be different than freetype. Not available in Mac. To be checked on windows machine.
 + [ ] Does changing font type affect the cpv and thereby cps?
 + [x] The width of all characters in a font is not the same. Calculate the no of blank space for a clean slate frame of ticker.
     __Workaround: Use Monospace fonts.__ Currently using Roboto Mono.
@@ -39,7 +40,7 @@
     print(example_A.z)#will return 77
     ```
 + [x] Automatically reset the feed text if it goes above the ticker max length.
-+ [ ] End the program gracefully.
++ [x] End the program gracefully.
 + [ ] Add feedback to switch feed on receiving some kind of feedback from OBS.
     + [ ] CV2 OBS Virtual Cam approach:
         + [ ] Reduce video input processed so as to actually reduce processing work.  
@@ -71,7 +72,14 @@
     + [x] Basically, add a stop feature in ticker. And when start is called again, restart the ticker.
 + [x] Run main.py of master branch whenever obs is run.
     + ~~Achieved externally through Shortcuts app on Mac.~~
-    + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
++ [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
+    + [ ] It lets you provide inputs via GUI component. It can be used to provide options. Some feasible options maybe:
+        + [ ] Tickbox list of sources
+        + [ ] Name and url prompt to add your own sources.
+    + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
+    + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
+        + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
+        + [ ] '$ brew install python3.6' or @3.6/3.7 throws error. Installing .pkg from python.org.[This post](https://obsproject.com/forum/threads/python-scripts-on-mac.121235/post-462492) provides hint as to which installation folder path is to be provided. __This has not worked for me. I have replied to the author of the post. I have raised this query on the OBS discord server with no satisfactory answer.__ ___Pausing this for now___ [Continue here](https://github.com/obsproject/obs-studio/wiki/Scripting-Tutorial-Source-Shake) when solution found.
 + [x] Quit main.py when OBS is closed.
     + Add a hook to detect OBS exit.
     + Add a obs quit event and make it wait for hook. As the hook is activated, the event is set and main.py is closed.
@@ -83,6 +91,11 @@
     + [x] Retain option to provide local file as feed logo
 + [ ] Feed Last updated date exception handling
 + [ ] Windows testing
-    + [ ] Replace FreeTypeText with TextGDI+
-    + [ ] Install python and check obsscript  
-    + [ ] 
+    + [x] Replace FreeTypeText with TextGDI+
+        + TextGDI+ also has an upper limit based on font size and file size. Now I understand the purpose of GDI and FreeType is to 'render' text to graphics so naturally they have to have a limit.
+        + Emojis don't work when tested. 😀 gives 🖾 even in GDI+. It works only on one font Segoe UI Emoji but there the emojis are colorless and 🇮🇳 renders as IN.
+    + [x] Install python and check obsscript  
+        + When python installed path is provided the scripts are __working__. OBS-Script on the works for sure.
+        + [ ] Change from websocket to intrisic implementation
+    + [x] Exception handling for Pillow.Image.open() on windows. This is not expected to happen. There is no such error thrown on Mac.
+        + Replacing ```except:``` with ```except Exception:``` does the trick.
