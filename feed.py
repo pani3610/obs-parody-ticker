@@ -78,7 +78,7 @@ class FeedLogo():
             self.image = Image.open(source_loc)
             self.image.save(self.savefile)
             print('local file used')
-        except FileNotFoundError:
+        except Exception:
             self.main_url = '/'.join(source_loc.split('/')[:3])
             self.image = self.fetchLogoFromURL()
         # print('try works')
@@ -139,8 +139,8 @@ class FeedText():
 
         
 def main1():
-    # f = Feed('https://www.thepoke.co.uk/category/news/feed/')
-    f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
+    f = Feed('https://www.thepoke.co.uk/category/news/feed/')
+    # f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
     f.text.updateCourtesyText('hello')
     f.text.updateSeparator('#')
     print(f.text)
