@@ -29,20 +29,23 @@ class Session:
             print('stop Ticker')
             self.ticker.stop()
 
-    def startSession(self):
+    def connect(self):
         self.ws = obsws(self.host,self.port,self._password)
         self.ws.connected = False
         try:
             self.ws.connect()
+            print('Connected to OBS')
             self.ws.connected = True
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
-            return()
+            sys.exit()
+
+    def startSession(self):
         if(self.ws.connected):
             self.ws.register(self.startOrStopTicker,events.TransitionBegin)
             self.ws.register(self.stopSession,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
             self.importTickerScenes()
-            print('Connected to OBS')
+            print('All events registered.')
             self.obs_quit_event.wait()
             self.ws.disconnect()
 
@@ -88,7 +91,7 @@ def main():
     # # start the websocket and wait for scene switch
     # t.start()
     s = Session()
+    s.connect()
     s.startSession()
-
 if __name__ == '__main__':
     main()
