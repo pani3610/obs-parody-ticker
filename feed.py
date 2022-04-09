@@ -4,7 +4,7 @@ import requests
 import shutil
 import json
 from PIL import Image
-from extrafunctions import abs_path
+from extrafunctions import abs_path,convertObjectToJson
 class Feed():
     def __init__(self,feed_url,feed_name=None,feed_img_path=None,hl_count=None):
         self.url = feed_url
@@ -41,9 +41,9 @@ class Feed():
             return(None)
     
     def exportFeedDataJson(self,savefile_location):
-        data_dict = feedparser.parse(self.url)
-        with open(savefile_location,'w') as jsonfile:
-            json.dump(data_dict,jsonfile,indent=4)
+        convertObjectToJson(self.data,savefile_location)
+
+      
 
 
     def calculateSize(self):

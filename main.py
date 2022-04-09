@@ -5,7 +5,8 @@ from obswebsocket import obsws,requests,exceptions,events
 from dotenv import load_dotenv
 from threading import Thread,Event
 import json
-from extrafunctions import abs_path
+from extrafunctions import abs_path,convertObjectToJson
+import sys
 
 class Session:
     """start a new session every time you run OBS"""
@@ -54,7 +55,7 @@ class Session:
     def importTickerScenes(self):
         scenes = self.ws.call(requests.GetSceneList())
         for scene in scenes.getScenes():
-            # exportDictToJSON(scene,f'scene-{scene.get("name")}.json')
+            #convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
             for source in scene['sources']:
                 if source.get("name")=="TIcker-tape" and source.get("render"):
                     self.ticker_scenes.append(scene["name"])
@@ -82,9 +83,6 @@ def addFeedToTicker(url:str,ticker:Ticker):
     f = Feed(url)
     ticker.addFeed(f)        
 
-def exportDictToJSON(dictionary,savefile):
-        with open(savefile,'w') as jsonfile:
-            json.dump(dictionary,jsonfile,indent=4)
 def main():
     # t = buildTicker()
     # # start the websocket and wait for scene switch
