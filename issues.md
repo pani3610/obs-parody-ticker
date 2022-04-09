@@ -1,10 +1,17 @@
-+ [ ] OBS Text(FreeType2) has a size limitation. It seems that if ticker size goes above a certain threshold, it does not display it in OBS.
-    + Max-width of texttype2 depends on font, font-size. Max-width for current selection (Roboto,Mono,22) is 1260.
++ [x] OBS Text(FreeType2) has a size limitation. It seems that if ticker size goes above a certain threshold, it does not display it in OBS.
+    + __Its not specific to FreeType2. Any OBS source when rendered if crosses the width limit of 16380 its not rendered. This is irrespective of Video Output Resolution__
+        + To check width in OBS, Right click > Transform > Edit Transform. Here you will find the size of any source.
+    + Max-width of texttype2 depends on ~~font, font-size~~ OBS Source size. Max-width for current selection (Roboto,Mono,22) is 1260.
     + When the file is rewritten the start of the file moves if the length of text changes.
     + [ ] Windows supports TextGDI+ which is supposed to be different than freetype. Not available in Mac. To be checked on windows machine.
-+ [ ] Does changing font type affect the cpv and thereby cps?
++ [x] Does changing font type affect the cpv and thereby cps?
+    + cpv : characters per viewport.
+            since size of viewport is fixed at X pixels and character size depends on font, YES it will affect.
+    + cps : characters per second.
+            text speed depends on OBS filter scroll speed which is pixel/second. Since character width depends on font it YES it will affect. 
 + [x] The width of all characters in a font is not the same. Calculate the no of blank space for a clean slate frame of ticker.
-    __Workaround: Use Monospace fonts.__ Currently using Roboto Mono.
+    ~~__Workaround: Use Monospace fonts.__ Currently using Roboto Mono.~~
+    + Since switch time is being decided on pixel count any font can be chosen.
 + [x] Make file location fetching cross platform and location agnostic.
 + [ ] One feed will have different padding based on different tickers. One ticker can have multiple feeds.
 + [ ] How to define an attribute for the feed based on the ticker. I want to set the padding of feed based on ticker. But the same feed is used by another ticker it will overwrite the first ticker's padding. Since the Ticker class can't hold the state of a feed class without making it the attribute of ticker.
@@ -18,7 +25,8 @@
 + [x] ~~Make the Feed class take argument of url as input and the rest as **kw.~~ use parameter name wherever required.
 + [ ] Refine OOP.
     + [ ] Convert to staticmethod or classmethod wherever required.
-+ [ ] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
++ [x] Calculate relation between text_speed and FONT and OBS_SCROLL_SPEED
+    + text_speed (characters per second) = OBS_SCROLL_SPEED/FONT-WIDTH
 + [x] Find out ways to dynamically update feed text when the courtesy text or the separator text or the number of headlines change.
     + Changed structure of Feed and Feed text. 
     + Realised python takes Object arguments by reference and not by value i.e.
@@ -41,7 +49,7 @@
     ```
 + [x] Automatically reset the feed text if it goes above the ticker max length.
 + [x] End the program gracefully.
-+ [ ] Add feedback to switch feed on receiving some kind of feedback from OBS.
++ [x] Add feedback to switch feed on receiving some kind of feedback from OBS.
     + [ ] CV2 OBS Virtual Cam approach:
         + [ ] Reduce video input processed so as to actually reduce processing work.  
             + [ ] Reduce fps
