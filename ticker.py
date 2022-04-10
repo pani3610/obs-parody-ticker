@@ -10,16 +10,16 @@ import sys
 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
-        self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
+        # self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = 6.155 #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
+        # self.text_speed = 6.155 #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
         self.empty_time = 5
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
-        self.padding = round(self.viewport_width + self.text_speed*self.empty_time)
+        self.padding = None#round(self.viewport_width + self.text_speed*self.empty_time)
         
         self.textcontainer = savetextfile
         self.imgcontainer = saveimgfile
@@ -43,19 +43,40 @@ class Ticker:
     
     
     def start(self):
+        #getOBSTickerObject details or create if required
         # self.video_info = self.getObsVideoData()
         # self.obs_text = self.getObsSourceData()
         print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
-        #getOBSTickerObject details or create if required
+        self.calculatePadding()
         #calculate padding based on font and viewportwidth
         #startsession
         pass
-    def recalculateViewportWidth(self):
-        pass
+    def calculateViewportWidth(self):
+        self.viewport_width = self.obs.getVideoData().baseWidth - self.obs.getSourceData().position.x
+        return(self.viewport_width)
     
-    def recalculateTextSpeed(self):
-        pass
+    def calculatePadding(self):
+        self.calculateViewportWidth()
+        self.getScrollSpeed()
+        resolution = 100
+        with open(self.textcontainer,"w") as txtfile:
+            txtfile.write(resolution*" ")
+        single_space_width = self.obs.getSourceData().sourceWidth/resolution
+        # print('SSW',single_space_width)
+        self.padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
+        return(self.padding)
+
+    def getScrollSpeed(self):
+        filters = self.obs.getSourceData().filters
+        self.scroll_speed = 0
+        for filter in filters:
+            print(filter.__dict__)
+            if (filter.type == "scroll_filter" and filter.enabled):
+                print('scroll conditions met')
+                print(filter.settings.__dict__)
+                self.scroll_speed = filter.settings.speed_x
+        return(self.scroll_speed)
 
     def updateTextContainer(self,feed:Feed):
         with open(self.textcontainer,"w") as tickertext:
@@ -91,7 +112,7 @@ class Ticker:
         self.pause_event.wait(sleep_time)
 
     def addFeed(self,feed:Feed):
-        self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
+        #self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
         self.resizeFeedLogo(feed) #Maybe resize the containerfile than the feedlogo file
         self.feeds.append(feed)
 
@@ -239,7 +260,12 @@ def main():
     t.addFeed(f2)
     t.connect()
     print('testing')
-    t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    # t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    # print(t.padding)
+    # print(t.viewport_width)
+    # print(t.getScrollSpeed())
+    t.calculatePadding()
+    print(t.padding)
     # t.play()
     # t.pause()
     # t.stop()

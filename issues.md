@@ -87,6 +87,7 @@
         + [ ] Slider to control scroll speed
         + [ ] Font selection
         + [ ] Checkbox of all scenes where to add the ticker
+        + [ ] Time between 2 feeds
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
