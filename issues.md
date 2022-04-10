@@ -107,3 +107,4 @@
         + [ ] Change from websocket to intrisic implementation
     + [x] Exception handling for Pillow.Image.open() on windows. This is not expected to happen. There is no such error thrown on Mac.
         + Replacing ```except:``` with ```except Exception:``` does the trick.
++ [x] Kill orphan threads when starting and stopping ticker.

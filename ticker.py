@@ -1,7 +1,7 @@
 from feed import Feed
 from time import sleep
 from shutil import copyfile
-from threading import Event,Thread
+from threading import Event,Thread,activeCount
 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
@@ -100,6 +100,7 @@ class Ticker:
     def stop(self):
         print('Stopping ticker')
         self.stop_event.set()
+        self.start_thread.join()
 
 '''
 screen_width = None
@@ -134,13 +135,14 @@ def main():
     f2 =Feed("https://www.theonion.com/content/feeds/daily")
     t.addFeed(f1)
     t.addFeed(f2)
-    t.start()
-    print('Stopping in 10 seconds')
-    sleep(10)
-    t.stop()
-    print('starting again in 5 seconds')
-    sleep(5)
-    t.start()
+    for i in range(5):
+        print(f'Loop {i}')
+        t.start()
+        print('Threadcount after start',activeCount())
+        print('Stopping in 10 seconds')
+        sleep(10)
+        t.stop()
+        print('Threadcount after stop',activeCount())
     
 if __name__ == '__main__':
     main()
