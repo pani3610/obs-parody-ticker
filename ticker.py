@@ -5,7 +5,7 @@ from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
 import os
 from dotenv import load_dotenv
-from extrafunctions import abs_path,convertObjectToJson
+from extrafunctions import * 
 import sys
 
 class Ticker:
@@ -31,14 +31,26 @@ class Ticker:
         self.OBS_HORIZONTAL_SCROLL = 80
         self.max_text_size = 1260
         self.logo_size = (32,32) #(width,height)
-        self.start_thread = None
+        self.play_thread = None
         self.pause_event = Event()
     
+        self.ticker_scenes = []
+        self.obs_quit_event  = Event()
 
     def connect(self,host=None,port=None,password=None):
-        self.session = OBSSession(host,port,password)
-        self.session.connect()
-        
+        self.obs = OBSSession(host,port,password)
+        self.obs.connect()
+    
+    
+    def start(self):
+        # self.video_info = self.getObsVideoData()
+        # self.obs_text = self.getObsSourceData()
+        print(self.obs.getVideoData().baseWidth)
+        #calculateviewportwidth
+        #getOBSTickerObject details or create if required
+        #calculate padding based on font and viewportwidth
+        #startsession
+        pass
     def recalculateViewportWidth(self):
         pass
     
@@ -69,8 +81,8 @@ class Ticker:
         
     def play(self):
         self.pause_event.clear() #clearing stop event just in case you are restarting after stopping
-        self.start_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
-        self.start_thread.start()
+        self.play_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
+        self.play_thread.start()
         
 
     def switchToNextFeed(self,feed:Feed):
@@ -79,7 +91,7 @@ class Ticker:
         self.pause_event.wait(sleep_time)
 
     def addFeed(self,feed:Feed):
-        # self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
+        self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
         self.resizeFeedLogo(feed) #Maybe resize the containerfile than the feedlogo file
         self.feeds.append(feed)
 
@@ -110,8 +122,39 @@ class Ticker:
     def pause(self):
         print('Stopping ticker')
         self.pause_event.set()
-        self.start_thread.join()
+        self.play_thread.join()
 
+    def startOrStopTicker(self,transition_event:events.TransitionBegin):
+        # print(self.ticker_scenes)
+        if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
+            print('start ticker')
+            self.ticker.start()
+        elif(transition_event.getFromScene() in self.ticker_scenes and transition_event.getToScene() not in self.ticker_scenes):
+            print('stop Ticker')
+            self.ticker.stop()
+
+    def startSession(self):
+        if(self.connected):
+            self.ws.register(self.startOrStopTicker,events.TransitionBegin)
+            self.ws.register(self.stopSession,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
+            print('All events registered.')
+            self.obs_quit_event.wait()
+            self.ws.disconnect()
+
+    def stopSession(self,obs_event):
+        print('OBS closed.')
+        self.obs_quit_event.set()
+
+
+    def importTickerScenes(self):
+        scenes = self.ws.call(requests.GetSceneList())
+        for scene in scenes.getScenes():
+            #convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
+            for source in scene['sources']:
+                if source.get("name")=="TIcker-tape" and source.get("render"):
+                    self.ticker_scenes.append(scene["name"])
+                    break
+        return(self.ticker_scenes)
 '''
 screen_width = None
 font_size = None
@@ -146,21 +189,12 @@ class OBSSession:
         load_dotenv()
         self._password = os.getenv('obswspass')
         self.ws = None
-        self.ticker_scenes = []
-        self.obs_quit_event  = Event()
-
-    def startOrStopTicker(self,transition_event:events.TransitionBegin):
-        # print(self.ticker_scenes)
-        if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
-            print('start ticker')
-            self.ticker.start()
-        elif(transition_event.getFromScene() in self.ticker_scenes and transition_event.getToScene() not in self.ticker_scenes):
-            print('stop Ticker')
-            self.ticker.stop()
+        self.connected = False
+        # self.connect()
+        # return(self.ws)
 
     def connect(self):
         self.ws = obsws(self.host,self.port,self._password)
-        self.connected = False
         try:
             self.ws.connect()
             print('Connected to OBS')
@@ -169,29 +203,21 @@ class OBSSession:
             print('Unable to connect to OBS')
             sys.exit()
 
-    def startSession(self):
-        if(self.connected):
-            self.ws.register(self.startOrStopTicker,events.TransitionBegin)
-            self.ws.register(self.stopSession,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
-            self.importTickerScenes()
-            print('All events registered.')
-            self.obs_quit_event.wait()
-            self.ws.disconnect()
+    def getVideoData(self):
+        response = self.ws.call(requests.GetVideoInfo())
+        self.video = convertDictToObject(response.datain)
+        return(self.video)
+    
+    def getSourceData(self,sourcename='tickertext',scenename='Coding'):
+        prop=self.ws.call(requests.GetSceneItemProperties(sourcename,scenename))
+        settings = self.ws.call(requests.GetSourceSettings(sourcename))
+        filters = self.ws.call(requests.GetSourceFilters(sourcename))
+        OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        # print(OBSdict)
+        convertObjectToJson(OBSdict,'obssourcedata.json')
+        self.source = convertDictToObject(OBSdict)
+        return(self.source)
 
-    def stopSession(self,obs_event):
-        print('OBS closed.')
-        self.obs_quit_event.set()
-
-
-    def importTickerScenes(self):
-        scenes = self.ws.call(requests.GetSceneList())
-        for scene in scenes.getScenes():
-            #convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
-            for source in scene['sources']:
-                if source.get("name")=="TIcker-tape" and source.get("render"):
-                    self.ticker_scenes.append(scene["name"])
-                    break
-        return(self.ticker_scenes)
    
 def main():
     # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
@@ -213,7 +239,7 @@ def main():
     t.addFeed(f2)
     t.connect()
     print('testing')
-    # t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # t.play()
     # t.pause()
     # t.stop()

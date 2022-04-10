@@ -120,3 +120,5 @@
     + [ ] Check if scene has Ticker Source. If not import from a JSON file.
     + [ ] If found, set the source settings (font,text etc.)
     + [ ] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
+    + [ ] Remove padding text. Add padding in terms of sleep.
++ [ ] Since image is already stored as a feed attribute why store it as a file as well? Instead write to container from feedLogo data.
