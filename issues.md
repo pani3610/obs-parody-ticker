@@ -82,8 +82,11 @@
     + ~~Achieved externally through Shortcuts app on Mac.~~
 + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
     + [ ] It lets you provide inputs via GUI component. It can be used to provide options. Some feasible options maybe:
-        + [ ] Tickbox list of sources
-        + [ ] Name and url prompt to add your own sources.
+        + [ ] Tickbox list of feed sources
+        + [ ] Name and url prompt to add your own feed sources.
+        + [ ] Slider to control scroll speed
+        + [ ] Font selection
+        + [ ] Checkbox of all scenes where to add the ticker
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
@@ -108,3 +111,12 @@
     + [x] Exception handling for Pillow.Image.open() on windows. This is not expected to happen. There is no such error thrown on Mac.
         + Replacing ```except:``` with ```except Exception:``` does the trick.
 + [x] Kill orphan threads when starting and stopping ticker.
++ [ ] Add ticker OBS source dynamically and integrate with OBS source. Set its height width position based on OBS settings of resolution etc. Make all of this part of ticker class.
+    + [ ] Set scroll speed multiple of single character length
+    + Source settings and source properties both can be manipulated from the websocket.
+    + GetTextFreetype2Properties and GetSourceSettings give the same results. Better to use GetSourceSettings for settings and GetSceneItemProperties to get properties.
+    + Source width and height cannot be changed through SetSceneItemProperties. Use SetSceneItemTransform.
+    + [ ] calculate switching time based on pixel count rather than character count.
+    + [ ] Check if scene has Ticker Source. If not import from a JSON file.
+    + [ ] If found, set the source settings (font,text etc.)
+    + [ ] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
