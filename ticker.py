@@ -1,19 +1,14 @@
 from feed import Feed
+from session import OBSSession
 from time import sleep
 from shutil import copyfile
 from threading import Event,Thread,activeCount
-from obswebsocket import obsws,requests,exceptions,events
-import os
-from dotenv import load_dotenv
-from extrafunctions import * 
-import sys
-
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
-        # self.viewport_width = 93 #f(SCREEN_WIDTH,FONT_SIZE)
+        self.viewport_width = None #pixels
         '''Average number of characters to fill up the viewport'''
         
-        # self.text_speed = 6.155 #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
+        self.text_speed = None #pixels-per-second #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
         self.empty_time = 5
@@ -26,9 +21,6 @@ class Ticker:
         
         self.feeds = []
 
-        self.SCREEN_WIDTH = 1205 #pixels
-        self.FONT = {'Type':'Roboto Mono','Size':22}
-        self.OBS_HORIZONTAL_SCROLL = 80
         self.max_size = 16380
         self.logo_size = (32,32) #(width,height)
         self.play_thread = None
@@ -48,11 +40,12 @@ class Ticker:
         # self.obs_text = self.getObsSourceData()
         # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
-        self.calculatePadding()
+        self.viewport_width = self.calculateViewportWidth()
+        print(self.calculatePadding())
         self.checkAllFeedSize()
+        # self.startTickerLoop()
         #calculate padding based on font and viewportwidth
         #startsession
-        pass
     def calculateViewportWidth(self):
         source_data = self.obs.getSourceData()
         video_data = self.obs.getVideoData()
@@ -67,6 +60,7 @@ class Ticker:
             txtfile.write(resolution*" ")
         sleep(1)
         source_data = self.obs.getSourceData()
+        print('Source width',source_data.sourceWidth)
         single_space_width = source_data.sourceWidth/resolution
         print('SSW',single_space_width)
         self.padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
@@ -112,7 +106,8 @@ class Ticker:
         
 
     def switchToNextFeed(self,feed:Feed):
-        sleep_time = (feed.calculateSize()/self.text_speed)
+        source_data = self.obs.getSourceData()
+        sleep_time = (source_data.sourceWidth/self.scroll_speed)
         print(f'Going to sleep for {sleep_time:.2f} seconds')
         self.pause_event.wait(sleep_time)
 
@@ -129,7 +124,9 @@ class Ticker:
     def checkAllFeedSize(self):
         for feed in self.feeds:
             self.updateTextContainer(feed)
+            sleep(2)
             source_data = self.obs.getSourceData()
+            sleep(2)
             print(feed.name,source_data.sourceWidth)
             if(source_data.sourceWidth > self.max_size):
                 print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
@@ -138,10 +135,13 @@ class Ticker:
 
            
     def reduceFeedSizeToFit(self,feed:Feed):
-        while(self.obs.getSourceData().sourceWidth > self.max_size):
+        source_data = self.obs.getSourceData()
+        while(source_data.sourceWidth > self.max_size):
             new_hl_count = feed.headlines_count - 1
             feed.updateHeadlinesCount(new_hl_count)
             self.updateTextContainer(feed)
+            source_data = self.obs.getSourceData()
+            sleep(0.5)
         
         print(f'Final headline count:{feed.headlines_count}')
     
@@ -210,43 +210,6 @@ def switch_source():
     pass
     
 '''
-class OBSSession:
-    """start a new session every time you run OBS"""
-    def __init__(self,host=None,port=None,password=None):
-        self.host = 'localhost' if host == None else host
-        self.port = 4444 if port == None else port
-        load_dotenv()
-        self._password = os.getenv('obswspass')
-        self.ws = None
-        self.connected = False
-        # self.connect()
-        # return(self.ws)
-
-    def connect(self):
-        self.ws = obsws(self.host,self.port,self._password)
-        try:
-            self.ws.connect()
-            print('Connected to OBS')
-            self.connected = True
-        except exceptions.ConnectionFailure:
-            print('Unable to connect to OBS')
-            sys.exit()
-
-    def getVideoData(self):
-        response = self.ws.call(requests.GetVideoInfo())
-        self.video = convertDictToObject(response.datain)
-        return(self.video)
-    
-    def getSourceData(self,sourcename='tickertext',scenename='Coding'):
-        prop=self.ws.call(requests.GetSceneItemProperties(sourcename,scenename))
-        settings = self.ws.call(requests.GetSourceSettings(sourcename))
-        filters = self.ws.call(requests.GetSourceFilters(sourcename))
-        OBSdict = {**prop.datain,**settings.datain,**filters.datain}
-        # print(OBSdict)
-        convertObjectToJson(OBSdict,'obssourcedata.json')
-        self.source = convertDictToObject(OBSdict)
-        return(self.source)
-
    
 def main():
     # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
@@ -263,7 +226,9 @@ def main():
     # t.start()
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
     f1 =Feed("https://www.betootaadvocate.com/feed/")
-    f2 =Feed("https://www.theonion.com/content/feeds/daily")
+    f2 =Feed("https://www.theonion.com/content/feeds/daily")    
+    print(f1.calculateSize())
+    print(f2.calculateSize())
     t.addFeed(f1)
     t.addFeed(f2)
     t.connect()
