@@ -49,12 +49,14 @@ class Ticker:
         # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
         self.calculatePadding()
-        # self.checkAllFeedSize()
+        self.checkAllFeedSize()
         #calculate padding based on font and viewportwidth
         #startsession
         pass
     def calculateViewportWidth(self):
-        self.viewport_width = self.obs.getVideoData().baseWidth - self.obs.getSourceData().position.x
+        source_data = self.obs.getSourceData()
+        video_data = self.obs.getVideoData()
+        self.viewport_width = video_data.baseWidth - source_data.position.x
         return(self.viewport_width)
     
     def calculatePadding(self):
@@ -64,13 +66,15 @@ class Ticker:
         with open(self.textcontainer,"w") as txtfile:
             txtfile.write(resolution*" ")
         sleep(1)
-        single_space_width = self.obs.getSourceData().sourceWidth/resolution
+        source_data = self.obs.getSourceData()
+        single_space_width = source_data.sourceWidth/resolution
         print('SSW',single_space_width)
         self.padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
         return(self.padding)
 
     def getScrollSpeed(self):
-        filters = self.obs.getSourceData().filters
+        source_data = self.obs.getSourceData()
+        filters = source_data.filters 
         self.scroll_speed = 0
         for filter in filters:
             print(filter.__dict__)
@@ -125,8 +129,9 @@ class Ticker:
     def checkAllFeedSize(self):
         for feed in self.feeds:
             self.updateTextContainer(feed)
-            print(feed.name,self.obs.getSourceData().sourceWidth)
-            if(self.obs.getSourceData().sourceWidth > self.max_size):
+            source_data = self.obs.getSourceData()
+            print(feed.name,source_data.sourceWidth)
+            if(source_data.sourceWidth > self.max_size):
                 print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
                 self.reduceFeedSizeToFit(feed)
             sleep(1)

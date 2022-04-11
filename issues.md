@@ -140,3 +140,15 @@
     SSW 247.13
     THIS IS STAR
     ```
+    + Tried resolving by splitting 
+        ```
+        value = self.obs.getVideoData().baseWidth
+        ```
+
+        into
+
+        ```
+        video_data = self.obs.getVideoData()
+        value = video_data.baseWidth
+        ```
+        but error persists. Every run of program gives different values for different variables.
