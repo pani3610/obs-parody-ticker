@@ -42,10 +42,14 @@ class Ticker:
         # self.obs_text = self.getObsSourceData()
         # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
+        with open(self.textcontainer,'w') as txtfile:
+            txtfile.write(' ')
+        sleep(2)
+        self.obs.registerEvents()
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed = self.obs.getScrollSpeed()
         self.padding = self.calculatePadding()
-        # self.checkAllFeedSize()
+        self.checkAllFeedSize()
         # self.startTickerLoop()
         #calculate padding based on font and viewportwidth
         #startsession
@@ -55,9 +59,7 @@ class Ticker:
     
     def calculatePadding(self):
         resolution = 100
-        with open(self.textcontainer,"w") as txtfile:
-            txtfile.write(resolution*" ")
-        sleep(2)
+        self.obs.updateText(resolution*' ')
         source_width = self.obs.getSourceSourceWidth()
         single_space_width = source_width/resolution
         print('SSW',single_space_width)
@@ -66,10 +68,8 @@ class Ticker:
 
 
     def updateTextContainer(self,feed:Feed):
-        with open(self.textcontainer,"w") as tickertext:
-            tickertext.write(self.padding*" ")
-            tickertext.write(feed.text.raw_string)
-        sleep(2)
+        text = self.padding*" " + feed.text.raw_string
+        self.obs.updateText(text)
 
     def updateImageContainer(self,feed:Feed):
         if feed.logo.savefile != None:
@@ -119,7 +119,7 @@ class Ticker:
             if(source_width > self.max_size):
                 print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
                 self.reduceFeedSizeToFit(feed)
-            sleep(1)
+            # sleep(1)
 
            
     def reduceFeedSizeToFit(self,feed:Feed):
@@ -129,9 +129,9 @@ class Ticker:
             feed.updateHeadlinesCount(new_hl_count)
             self.updateTextContainer(feed)
             source_width = self.obs.getSourceSourceWidth()
-            sleep(0.5)
+            # sleep(0.5)
         
-        print(f'Final headline count:{feed.headlines_count}')
+        print(f'Final headline count:{feed.headlines_count}| {source_width} pixels')
     
     def resizeFeedLogo(self,feed):
         feed.logo.resize(self.logo_size)

@@ -19,6 +19,8 @@ class OBSSession:
         self.sourcename ='tickertext'
         self.scenename ='Coding'
         self.sourceparentname = 'TIcker-tape'
+        self.textfile = 'feed_text_dev.txt'
+        self.write = None
         # self.connect()
         # return(self.ws)
     def connect(self):
@@ -37,7 +39,7 @@ class OBSSession:
 
     def inform(self,event):
         # print(event.getItemName(),end=', ')
-        if event.getItemName() == self.sourceparentname:
+        if (self.write and event.getItemName() == self.sourceparentname):
             # print('width changed')
             self.text_changed.set()
 
@@ -81,6 +83,13 @@ class OBSSession:
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
+    
+    def updateText(self,string):
+        self.write = True
+        with open(self.textfile,"w") as txtfile:
+            txtfile.write(string)
+        self.waitForUpdate()
+        self.write = False
 def main():
     s= OBSSession()
     s.connect()
@@ -92,8 +101,9 @@ def main():
     for i in range(10):
         size = randrange(1,1260)
         # print('expected value:',size*13)
-        fill('I'*size)
-        s.waitForUpdate()
+        # fill('I'*size)
+        # s.waitForUpdate()
+        s.updateText('I'*size)
         # sleep(3)
         # print('output value:',s.getSourceSourceWidth())
         # print('')

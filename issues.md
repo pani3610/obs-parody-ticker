@@ -153,9 +153,14 @@
         ```
         but error persists. Every run of program gives different values for different variables.
     + Adding sleep after file-writes is mitigating some errors.
-    + [ ] Try to get feedback from OBS when text updated.
+    + [x] Try to get feedback from OBS when text updated.
         + Transform changes when tickertext sourcewidth is updated. Can be used to wait for file-write to complete.
         + The ```SceneItemTransformChanged``` event is triggered multiple times when tickertext updated once. Items other than tickertext are also _transformed_.
             + when tickertext updated; tickertext, white-bg, News-logo, ticker-tape, tickertext, TIcker-tape all are updated.
+            + __tickertext updated twice__
             + Since parent is updated only once, it can be attached to update event.
+                + [x] But if any other item is changed it will also trigger the parent.
+                    + Added extra flag to check when text has to be updated.
+            
             + Tests give 'Not match' when scene transitioned
+    + [ ] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count
