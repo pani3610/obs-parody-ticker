@@ -43,6 +43,9 @@ class Ticker:
         # self.obs_text = self.getObsSourceData()
         # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
+        if (not self.obs.connected):
+            return()
+        
         with open(self.textcontainer,'w') as txtfile:
             txtfile.write(' ')
         sleep(2)
@@ -51,6 +54,12 @@ class Ticker:
         self.scroll_speed = self.obs.getScrollSpeed()
         self.padding = self.calculatePadding()
         self.checkAllFeedSize()
+        self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
+        self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
+        self.importTickerScenes()
+        print('Ready')
+        self.obs_quit_event.wait()
+        self.obs.ws.disconnect()
         # self.startTickerLoop()
         #calculate padding based on font and viewportwidth
         #startsession
@@ -97,8 +106,8 @@ class Ticker:
         
 
     def switchToNextFeed(self,feed:Feed):
-        source_data = self.obs.getSourceData()
-        sleep_time = (source_data.sourceWidth/self.scroll_speed)
+        source_width = self.obs.getSourceSourceWidth()
+        sleep_time = (source_width/self.scroll_speed)
         print(f'Going to sleep for {sleep_time:.2f} seconds')
         self.pause_event.wait(sleep_time)
 
@@ -146,32 +155,26 @@ class Ticker:
     def pause(self):
         print('Stopping ticker')
         self.pause_event.set()
-        self.play_thread.join()
+        if self.play_thread != None:
+            self.play_thread.join()
 
-    def startOrStopTicker(self,transition_event:events.TransitionBegin):
+    def playOrPauseTicker(self,transition_event:events.TransitionBegin):
         # print(self.ticker_scenes)
         if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
-            print('start ticker')
-            self.ticker.start()
+            print('play ticker')
+            self.play()
         elif(transition_event.getFromScene() in self.ticker_scenes and transition_event.getToScene() not in self.ticker_scenes):
-            print('stop Ticker')
-            self.ticker.stop()
+            print('pause ticker')
+            self.pause()
 
-    def startSession(self):
-        if(self.connected):
-            self.ws.register(self.startOrStopTicker,events.TransitionBegin)
-            self.ws.register(self.stopSession,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
-            print('All events registered.')
-            self.obs_quit_event.wait()
-            self.ws.disconnect()
 
-    def stopSession(self,obs_event):
+    def stop(self,obs_event):
         print('OBS closed.')
         self.obs_quit_event.set()
 
 
     def importTickerScenes(self):
-        scenes = self.ws.call(requests.GetSceneList())
+        scenes = self.obs.ws.call(requests.GetSceneList())
         for scene in scenes.getScenes():
             #convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
             for source in scene['sources']:
@@ -246,6 +249,7 @@ def main():
     t=buildTicker()
     t.connect()
     t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    # t.play()
     # print(t.padding)
     # print(t.viewport_width)
     # print(t.getScrollSpeed())
