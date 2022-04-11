@@ -29,7 +29,7 @@ class Ticker:
         self.SCREEN_WIDTH = 1205 #pixels
         self.FONT = {'Type':'Roboto Mono','Size':22}
         self.OBS_HORIZONTAL_SCROLL = 80
-        self.max_text_size = 1260
+        self.max_size = 16380
         self.logo_size = (32,32) #(width,height)
         self.play_thread = None
         self.pause_event = Event()
@@ -46,9 +46,10 @@ class Ticker:
         #getOBSTickerObject details or create if required
         # self.video_info = self.getObsVideoData()
         # self.obs_text = self.getObsSourceData()
-        print(self.obs.getVideoData().baseWidth)
+        # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
         self.calculatePadding()
+        # self.checkAllFeedSize()
         #calculate padding based on font and viewportwidth
         #startsession
         pass
@@ -62,8 +63,9 @@ class Ticker:
         resolution = 100
         with open(self.textcontainer,"w") as txtfile:
             txtfile.write(resolution*" ")
+        sleep(1)
         single_space_width = self.obs.getSourceData().sourceWidth/resolution
-        # print('SSW',single_space_width)
+        print('SSW',single_space_width)
         self.padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
         return(self.padding)
 
@@ -73,13 +75,12 @@ class Ticker:
         for filter in filters:
             print(filter.__dict__)
             if (filter.type == "scroll_filter" and filter.enabled):
-                print('scroll conditions met')
-                print(filter.settings.__dict__)
                 self.scroll_speed = filter.settings.speed_x
         return(self.scroll_speed)
 
     def updateTextContainer(self,feed:Feed):
         with open(self.textcontainer,"w") as tickertext:
+            tickertext.write(self.padding*" ")
             tickertext.write(feed.text.raw_string)
 
     def updateImageContainer(self,feed:Feed):
@@ -121,19 +122,21 @@ class Ticker:
         pass
 
 
-    def addPaddingToFeed(self,feed:Feed):
-        size = feed.calculateSize()
-        if feed.calculateSize()+self.padding>self.max_text_size:
-            print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
-            self.reduceFeedSizeToFit(feed)
-        
-        feed.text.raw_string = self.padding*" "+feed.text.raw_string
+    def checkAllFeedSize(self):
+        for feed in self.feeds:
+            self.updateTextContainer(feed)
+            print(feed.name,self.obs.getSourceData().sourceWidth)
+            if(self.obs.getSourceData().sourceWidth > self.max_size):
+                print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
+                self.reduceFeedSizeToFit(feed)
+            sleep(1)
 
            
     def reduceFeedSizeToFit(self,feed:Feed):
-        while(feed.calculateSize()+self.padding>self.max_text_size):
+        while(self.obs.getSourceData().sourceWidth > self.max_size):
             new_hl_count = feed.headlines_count - 1
             feed.updateHeadlinesCount(new_hl_count)
+            self.updateTextContainer(feed)
         
         print(f'Final headline count:{feed.headlines_count}')
     
@@ -260,12 +263,12 @@ def main():
     t.addFeed(f2)
     t.connect()
     print('testing')
-    # t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # print(t.padding)
     # print(t.viewport_width)
     # print(t.getScrollSpeed())
-    t.calculatePadding()
-    print(t.padding)
+    # t.calculatePadding()
+    # print(t.padding)
     # t.play()
     # t.pause()
     # t.stop()
