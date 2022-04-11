@@ -57,17 +57,19 @@ class Ticker:
         resolution = 100
         with open(self.textcontainer,"w") as txtfile:
             txtfile.write(resolution*" ")
+        sleep(2)
         source_width = self.obs.getSourceSourceWidth()
         single_space_width = source_width/resolution
         print('SSW',single_space_width)
         padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
         return(padding)
 
-    
+
     def updateTextContainer(self,feed:Feed):
         with open(self.textcontainer,"w") as tickertext:
             tickertext.write(self.padding*" ")
             tickertext.write(feed.text.raw_string)
+        sleep(2)
 
     def updateImageContainer(self,feed:Feed):
         if feed.logo.savefile != None:

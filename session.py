@@ -1,8 +1,10 @@
+from time import sleep
 from obswebsocket import obsws,requests,exceptions,events
 import os
 from dotenv import load_dotenv
 from extrafunctions import * 
 import sys
+from tickertextmod import fill
 class OBSSession:
     """start a new session every time you run OBS"""
     def __init__(self,host=None,port=None,password=None):
@@ -16,7 +18,6 @@ class OBSSession:
         self.scenename ='Coding' 
         # self.connect()
         # return(self.ws)
-
     def connect(self):
         self.ws = obsws(self.host,self.port,self._password)
         try:
@@ -26,7 +27,12 @@ class OBSSession:
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             sys.exit()
+    def registerEvents(self):
+        self.transform_changed = self.ws.register(self.inform,events.SceneItemTransformChanged)
 
+    def inform(self,event):
+        print('width changed')
+        print(event.getItemName())
     def exportVideoData(self,filepath):
         response = self.ws.call(requests.GetVideoInfo())
         convertObjectToJson(response.datain,filepath)
@@ -63,12 +69,16 @@ class OBSSession:
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
-
+    events.SceneItemTransformChanged()
 def main():
     s= OBSSession()
     s.connect()
+    s.registerEvents()
     print(s.getSourcePositionX())
     print(s.getScrollSpeed())
     print(s.getSourceSourceWidth())
+    fill('I'*100)
+    sleep(3)
+    fill('X'*1000)
 if __name__ == '__main__':
     main()

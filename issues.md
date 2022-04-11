@@ -154,3 +154,4 @@
         but error persists. Every run of program gives different values for different variables.
     + Adding sleep after file-writes is mitigating some errors.
     + [ ] Try to get feedback from OBS when text updated.
+        + Transform changes when tickertext sourcewidth is updated. Can be used to wait for file-write to complete.
