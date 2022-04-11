@@ -3,12 +3,14 @@ from session import OBSSession
 from time import sleep
 from shutil import copyfile
 from threading import Event,Thread,activeCount
+from obswebsocket import obsws,requests,exceptions,events
+from extrafunctions import * 
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
         self.viewport_width = None #pixels
         '''Average number of characters to fill up the viewport'''
         
-        self.text_speed = None #pixels-per-second #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
+        self.scroll_speed = None #pixels-per-second #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
         '''Average new characters introduced per second.'''
         
         self.empty_time = 5
@@ -41,41 +43,27 @@ class Ticker:
         # print(self.obs.getVideoData().baseWidth)
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
-        print(self.calculatePadding())
-        self.checkAllFeedSize()
+        self.scroll_speed = self.obs.getScrollSpeed()
+        self.padding = self.calculatePadding()
+        # self.checkAllFeedSize()
         # self.startTickerLoop()
         #calculate padding based on font and viewportwidth
         #startsession
     def calculateViewportWidth(self):
-        source_data = self.obs.getSourceData()
-        video_data = self.obs.getVideoData()
-        self.viewport_width = video_data.baseWidth - source_data.position.x
-        return(self.viewport_width)
+        viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
+        return(viewport_width)
     
     def calculatePadding(self):
-        self.calculateViewportWidth()
-        self.getScrollSpeed()
         resolution = 100
         with open(self.textcontainer,"w") as txtfile:
             txtfile.write(resolution*" ")
-        sleep(1)
-        source_data = self.obs.getSourceData()
-        print('Source width',source_data.sourceWidth)
-        single_space_width = source_data.sourceWidth/resolution
+        source_width = self.obs.getSourceSourceWidth()
+        single_space_width = source_width/resolution
         print('SSW',single_space_width)
-        self.padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
-        return(self.padding)
+        padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
+        return(padding)
 
-    def getScrollSpeed(self):
-        source_data = self.obs.getSourceData()
-        filters = source_data.filters 
-        self.scroll_speed = 0
-        for filter in filters:
-            print(filter.__dict__)
-            if (filter.type == "scroll_filter" and filter.enabled):
-                self.scroll_speed = filter.settings.speed_x
-        return(self.scroll_speed)
-
+    
     def updateTextContainer(self,feed:Feed):
         with open(self.textcontainer,"w") as tickertext:
             tickertext.write(self.padding*" ")
@@ -124,23 +112,21 @@ class Ticker:
     def checkAllFeedSize(self):
         for feed in self.feeds:
             self.updateTextContainer(feed)
-            sleep(2)
-            source_data = self.obs.getSourceData()
-            sleep(2)
-            print(feed.name,source_data.sourceWidth)
-            if(source_data.sourceWidth > self.max_size):
+            source_width = self.obs.getSourceSourceWidth()
+            print(feed.name,source_width)
+            if(source_width > self.max_size):
                 print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
                 self.reduceFeedSizeToFit(feed)
             sleep(1)
 
            
     def reduceFeedSizeToFit(self,feed:Feed):
-        source_data = self.obs.getSourceData()
-        while(source_data.sourceWidth > self.max_size):
+        source_width = self.obs.getSourceSourceWidth()
+        while(source_width > self.max_size):
             new_hl_count = feed.headlines_count - 1
             feed.updateHeadlinesCount(new_hl_count)
             self.updateTextContainer(feed)
-            source_data = self.obs.getSourceData()
+            source_width = self.obs.getSourceSourceWidth()
             sleep(0.5)
         
         print(f'Final headline count:{feed.headlines_count}')

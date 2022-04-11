@@ -41,8 +41,34 @@ class OBSSession:
     
     def getVideoBaseWidth(self):
         response = self.ws.call(requests.GetVideoInfo())
-        return(response.getBaseWidth())
+        baseWidth = response.getBaseWidth()
+        return(baseWidth)
     
     def getSourcePositionX(self):
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        position = response.getPosition()
+        xcor = position['x']
+        return(xcor)
+    
+    def getScrollSpeed(self):
+        response = self.ws.call(requests.GetSourceFilters(self.sourcename))
+        filters = response.getFilters()
+        scroll_speed = 0
+        for filter in filters:
+            if (filter['type'] == "scroll_filter" and filter['enabled']):
+                scroll_speed = filter['settings']['speed_x']
+        return(scroll_speed)
 
+    def getSourceSourceWidth(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        sourceWidth  = response.getSourceWidth()
+        return(sourceWidth)
+
+def main():
+    s= OBSSession()
+    s.connect()
+    print(s.getSourcePositionX())
+    print(s.getScrollSpeed())
+    print(s.getSourceSourceWidth())
+if __name__ == '__main__':
+    main()
