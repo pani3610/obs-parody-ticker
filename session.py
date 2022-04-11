@@ -1,3 +1,4 @@
+from random import randrange
 from time import sleep
 from obswebsocket import obsws,requests,exceptions,events
 import os
@@ -5,6 +6,7 @@ from dotenv import load_dotenv
 from extrafunctions import * 
 import sys
 from tickertextmod import fill
+from threading import Event
 class OBSSession:
     """start a new session every time you run OBS"""
     def __init__(self,host=None,port=None,password=None):
@@ -15,7 +17,8 @@ class OBSSession:
         self.ws = None
         self.connected = False
         self.sourcename ='tickertext'
-        self.scenename ='Coding' 
+        self.scenename ='Coding'
+        self.sourceparentname = 'TIcker-tape'
         # self.connect()
         # return(self.ws)
     def connect(self):
@@ -29,10 +32,19 @@ class OBSSession:
             sys.exit()
     def registerEvents(self):
         self.transform_changed = self.ws.register(self.inform,events.SceneItemTransformChanged)
+        self.text_changed = Event()
+        print('All events registered')
 
     def inform(self,event):
-        print('width changed')
-        print(event.getItemName())
+        # print(event.getItemName(),end=', ')
+        if event.getItemName() == self.sourceparentname:
+            # print('width changed')
+            self.text_changed.set()
+
+    def waitForUpdate(self):
+        self.text_changed.wait()
+        # print('event set')
+        self.text_changed.clear()
     def exportVideoData(self,filepath):
         response = self.ws.call(requests.GetVideoInfo())
         convertObjectToJson(response.datain,filepath)
@@ -69,16 +81,26 @@ class OBSSession:
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
-    events.SceneItemTransformChanged()
 def main():
     s= OBSSession()
     s.connect()
     s.registerEvents()
-    print(s.getSourcePositionX())
-    print(s.getScrollSpeed())
-    print(s.getSourceSourceWidth())
-    fill('I'*100)
-    sleep(3)
-    fill('X'*1000)
+    counter = []
+    # print(s.getSourcePositionX())
+    # print(s.getScrollSpeed())
+    # print(s.getSourceSourceWidth())
+    for i in range(10):
+        size = randrange(1,1260)
+        # print('expected value:',size*13)
+        fill('I'*size)
+        s.waitForUpdate()
+        # sleep(3)
+        # print('output value:',s.getSourceSourceWidth())
+        # print('')
+        if ( size*13 == s.getSourceSourceWidth()):
+            print('Match')
+        else:
+            print('Not match')
+    
 if __name__ == '__main__':
     main()

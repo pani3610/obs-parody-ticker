@@ -155,3 +155,7 @@
     + Adding sleep after file-writes is mitigating some errors.
     + [ ] Try to get feedback from OBS when text updated.
         + Transform changes when tickertext sourcewidth is updated. Can be used to wait for file-write to complete.
+        + The ```SceneItemTransformChanged``` event is triggered multiple times when tickertext updated once. Items other than tickertext are also _transformed_.
+            + when tickertext updated; tickertext, white-bg, News-logo, ticker-tape, tickertext, TIcker-tape all are updated.
+            + Since parent is updated only once, it can be attached to update event.
+            + Tests give 'Not match' when scene transitioned
