@@ -4,7 +4,8 @@ from time import sleep
 from shutil import copyfile
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
-from extrafunctions import * 
+from extrafunctions import *
+from math import log2
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
         self.viewport_width = None #pixels
@@ -124,13 +125,19 @@ class Ticker:
            
     def reduceFeedSizeToFit(self,feed:Feed):
         source_width = self.obs.getSourceSourceWidth()
-        while(source_width > self.max_size):
-            new_hl_count = feed.headlines_count - 1
-            feed.updateHeadlinesCount(new_hl_count)
+        low = 1
+        high = feed.headlines_count
+        for i in range(round(log2(feed.headlines_count))):
+            mid = (low+high)//2
+            feed.updateHeadlinesCount(mid)
             self.updateTextContainer(feed)
             source_width = self.obs.getSourceSourceWidth()
-            # sleep(0.5)
-        
+            print(f'Headline count: {mid}|Pixel Width: {source_width}')
+            if(source_width>self.max_size):
+                high = mid
+            else:
+                low = mid
+                
         print(f'Final headline count:{feed.headlines_count}| {source_width} pixels')
     
     def resizeFeedLogo(self,feed):
@@ -199,6 +206,23 @@ def switch_source():
     
 '''
    
+def buildTicker():
+    t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
+    feeds =['https://babylonbee.com/feed', 'https://www.theonion.com/content/feeds/daily', 'http://newsthump.com/feed/', 'https://www.betootaadvocate.com/feed/']
+    threads =[]
+    for rss_url in feeds:
+        thread = Thread(target=addFeedToTicker,args=(rss_url,t))
+        thread.start()
+        threads.append(thread)
+
+    for thread in threads:
+        thread.join()
+
+    return(t)
+def addFeedToTicker(url:str,ticker:Ticker):
+    f = Feed(url)
+    ticker.addFeed(f)        
+
 def main():
     # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
     # f1 =Feed("https://www.betootaadvocate.com/feed/","australia")
@@ -212,15 +236,15 @@ def main():
     # print('starting again in 5 seconds')
     # sleep(5)
     # t.start()
-    t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    f1 =Feed("https://www.betootaadvocate.com/feed/")
-    f2 =Feed("https://www.theonion.com/content/feeds/daily")    
-    print(f1.calculateSize())
-    print(f2.calculateSize())
-    t.addFeed(f1)
-    t.addFeed(f2)
+    # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    # f1 =Feed("https://www.betootaadvocate.com/feed/")
+    # f2 =Feed("https://www.theonion.com/content/feeds/daily")    
+    # print(f1.calculateSize())
+    # print(f2.calculateSize())
+    # t.addFeed(f1)
+    # t.addFeed(f2)
+    t=buildTicker()
     t.connect()
-    print('testing')
     t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # print(t.padding)
     # print(t.viewport_width)

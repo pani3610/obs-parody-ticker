@@ -163,4 +163,5 @@
                     + Added extra flag to check when text has to be updated.
             
             + Tests give 'Not match' when scene transitioned
-    + [ ] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count
+    + [x] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count.
+        + Get headlines count from binary search
