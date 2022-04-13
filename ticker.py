@@ -58,6 +58,7 @@ class Ticker:
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         self.importTickerScenes()
         print('Ready')
+        self.play()
         self.obs_quit_event.wait()
         self.obs.ws.disconnect()
         # self.startTickerLoop()
@@ -155,8 +156,8 @@ class Ticker:
     def pause(self):
         print('Stopping ticker')
         self.pause_event.set()
-        if self.play_thread != None:
-            self.play_thread.join()
+        # if self.play_thread != None:
+        #     self.play_thread.join()
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
         # print(self.ticker_scenes)
