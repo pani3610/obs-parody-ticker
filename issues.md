@@ -117,10 +117,10 @@
     + Source settings and source properties both can be manipulated from the websocket.
     + GetTextFreetype2Properties and GetSourceSettings give the same results. Better to use GetSourceSettings for settings and GetSceneItemProperties to get properties.
     + Source width and height cannot be changed through SetSceneItemProperties. Use SetSceneItemTransform.
-    + [ ] calculate switching time based on pixel count rather than character count.
+    + [x] calculate switching time based on pixel count rather than character count.
     + [ ] Check if scene has Ticker Source. If not import from a JSON file.
     + [ ] If found, set the source settings (font,text etc.)
-    + [ ] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
+    + [x] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
     + [ ] Remove padding text. Add padding in terms of sleep.
 + [ ] Since image is already stored as a feed attribute why store it as a file as well? Instead write to container from feedLogo data.
 + [x] Erratic values of single space width when ran. Expected value 13. The pixel widths of feeds incorrects as well
@@ -165,3 +165,19 @@
             + Tests give 'Not match' when scene transitioned
     + [x] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count.
         + Get headlines count from binary search
++ [ ] Add progress-bar for ticker switch.
++ [ ] Add GUI Element to set ticker properties before start
+    + [ ] Show Sample ticker while tinkering with GUI elements. Update dynamically
++ [ ] Catch errors when no internet connection
++ [ ] Session must be outside ticker and not other way round. Maybe one OBS session can have multiple tickers with their own set of threads and events.
+    + Maybe another class above Ticker required to connect to OBS. Like Session > Ticker > Websocket. This way one OBS session can have multiple Tickers with different OBS Source names.
++ [ ] As padding is now added in ticker textcontainer instead of feed text and same is planned in context of image resize of Feed logo, updating headlines should not change the original headlines count. This way the same feed can be re-used in another ticker.
++ [ ] Create OBS Ticker source from code. 
+    + [ ] Set white strip length based on viewport width and height based on font size.
+    + [ ] Set white circle size based on image size.
+    + [ ] __A _CSS_ file must be maintained for ticker-graphics__
+    + [ ] Currently source names are hard-coded. Import values from created object.
++ [ ] Name all the threads wherever created.
++ [ ] Accomodate for negative scroll value.
++ [ ] Add multiple feeds from within ticker.
++ [ ] Update feeds within ticker.
