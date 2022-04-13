@@ -9,15 +9,15 @@ from math import log2
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
         self.viewport_width = None #pixels
-        '''Average number of characters to fill up the viewport'''
+        '''Width of ticker text area in pixels'''
         
-        self.scroll_speed = None #pixels-per-second #6.1575 #6.15 #f(FONT_SIZE,OBS_HORIZONTAL_SCROLL)
-        '''Average new characters introduced per second.'''
+        self.scroll_speed = None #pixels-per-second 
+        '''New pixels introduced per second.'''
         
-        self.empty_time = 5
+        self.empty_time = 5 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
-        self.padding = None#round(self.viewport_width + self.text_speed*self.empty_time)
+        self.padding = None
         
         self.textcontainer = savetextfile
         self.imgcontainer = saveimgfile
@@ -28,7 +28,7 @@ class Ticker:
         self.logo_size = (32,32) #(width,height)
         self.play_thread = None
         self.pause_event = Event()
-    
+
         self.ticker_scenes = []
         self.obs_quit_event  = Event()
 
@@ -39,21 +39,23 @@ class Ticker:
     
     def start(self):
         #getOBSTickerObject details or create if required
-        # self.video_info = self.getObsVideoData()
-        # self.obs_text = self.getObsSourceData()
-        # print(self.obs.getVideoData().baseWidth)
-        #calculateviewportwidth
+
         if (not self.obs.connected):
             return()
-        
+        #clear ticker text before all calculations
         with open(self.textcontainer,'w') as txtfile:
             txtfile.write(' ')
         sleep(2)
+         
         self.obs.registerEvents()
+        #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed = self.obs.getScrollSpeed()
+
+        #calculate padding based on font and viewportwidth
         self.padding = self.calculatePadding()
         self.checkAllFeedSize()
+
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         self.importTickerScenes()
@@ -61,9 +63,7 @@ class Ticker:
         self.play()
         self.obs_quit_event.wait()
         self.obs.ws.disconnect()
-        # self.startTickerLoop()
-        #calculate padding based on font and viewportwidth
-        #startsession
+
     def calculateViewportWidth(self):
         viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
         return(viewport_width)
@@ -154,7 +154,7 @@ class Ticker:
         feed.logo.resize(self.logo_size)
     
     def pause(self):
-        print('Stopping ticker')
+        # print('Stopping ticker')
         self.pause_event.set()
         # if self.play_thread != None:
         #     self.play_thread.join()
@@ -183,71 +183,16 @@ class Ticker:
                     self.ticker_scenes.append(scene["name"])
                     break
         return(self.ticker_scenes)
-'''
-screen_width = None
-font_size = None
-
-cpv = 95 #average number of characters to fill up the viewport
-cps = 5 #average new characters intrpduced per second. Horizontal scroll speed in OBS set to 40.
-obs_horizontal_scroll = None
-
-ticker_text_path = 'feed_text_dev.txt'
-
-feed_urls = {"The Babylon Bee" : "https://babylonbee.com/feed"}
-# feed_urls = {"The Onion": "https://www.theonion.com/content/feeds/daily"}
-
-def update_ticker(url,news_source,target_file,cpv):
-    headlines_list = extract_headlines(url,10)
-    courtesy_text = f"This newsreel is brought to you by '{news_source}'"
-    display_text = [courtesy_text]
-    display_text.extend(headlines_list)
-    display_text.append(courtesy_text)
-    print(display_text)
-    export_text(display_text,target_file,3*cpv)
-
-def switch_source():
-    pass
-    
-'''
    
-def buildTicker():
-    t =Ticker(abs_path('feed_text_dev.txt'),abs_path('feed_img_dev.png'))
-    feeds =['https://babylonbee.com/feed', 'https://www.theonion.com/content/feeds/daily', 'http://newsthump.com/feed/', 'https://www.betootaadvocate.com/feed/']
-    threads =[]
-    for rss_url in feeds:
-        thread = Thread(target=addFeedToTicker,args=(rss_url,t))
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
-
-    return(t)
-def addFeedToTicker(url:str,ticker:Ticker):
-    f = Feed(url)
-    ticker.addFeed(f)        
 
 def main():
-    # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    # f1 =Feed("https://www.betootaadvocate.com/feed/","australia")
-    # f2 =Feed("https://www.theonion.com/content/feeds/daily","US")
-    # t.addFeed(f1)
-    # t.addFeed(f2)
-    # t.start()
-    # print('Stopping in 10 seconds')
-    # sleep(10)
-    # t.stop()
-    # print('starting again in 5 seconds')
-    # sleep(5)
-    # t.start()
-    # t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    # f1 =Feed("https://www.betootaadvocate.com/feed/")
-    # f2 =Feed("https://www.theonion.com/content/feeds/daily")    
-    # print(f1.calculateSize())
-    # print(f2.calculateSize())
-    # t.addFeed(f1)
-    # t.addFeed(f2)
-    t=buildTicker()
+    t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    f1 =Feed("https://www.betootaadvocate.com/feed/")
+    f2 =Feed("https://www.theonion.com/content/feeds/daily")    
+    print(f1.calculateSize())
+    print(f2.calculateSize())
+    t.addFeed(f1)
+    t.addFeed(f2)
     t.connect()
     t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # t.play()

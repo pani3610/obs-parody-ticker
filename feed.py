@@ -43,16 +43,9 @@ class Feed():
     def exportFeedDataJson(self,savefile_location):
         convertObjectToJson(self.data,savefile_location)
 
-      
-
-
     def calculateSize(self):
         self.size  = len(self.text.raw_string)
         return(self.size)
-    
-    def calculateTimeToCycle(self,size):#,Ticker.viewport_width,Ticker.text_speed):
-        pass
-
     
     def updateHeadlinesCount(self,new_count:int):
         self.headlines_count = min(new_count,len(self.data.entries))
@@ -139,10 +132,10 @@ class FeedText():
 
         
 def main1():
-    f = Feed('https://www.thepoke.co.uk/category/news/feed/')
+    f = Feed("https://www.betootaadvocate.com/feed/")
     # f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
     f.text.updateCourtesyText('hello')
-    f.text.updateSeparator('#')
+    # f.text.updateSeparator('#')
     print(f.text)
     print(f.headlines_count)
     f.updateHeadlinesCount(f.headlines_count//2)

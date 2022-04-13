@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 from extrafunctions import * 
 import sys
-from tickertextmod import fill
 from threading import Event
 class OBSSession:
     """start a new session every time you run OBS"""
@@ -91,26 +90,38 @@ class OBSSession:
         self.waitForUpdate()
         self.write = False
 def main():
+    # test0()
+    # test1()
+    test2()
+    
+def test0():
+    s= OBSSession()
+    s.connect()
+    print(s.getSourcePositionX())
+    print(s.getScrollSpeed())
+    print(s.getSourceSourceWidth())
+    
+def test1():
     s= OBSSession()
     s.connect()
     s.registerEvents()
-    counter = []
-    # print(s.getSourcePositionX())
-    # print(s.getScrollSpeed())
-    # print(s.getSourceSourceWidth())
     for i in range(10):
         size = randrange(1,1260)
-        # print('expected value:',size*13)
-        # fill('I'*size)
-        # s.waitForUpdate()
+        print('expected value:',size*13)
         s.updateText('I'*size)
-        # sleep(3)
-        # print('output value:',s.getSourceSourceWidth())
-        # print('')
+        print('output value:',s.getSourceSourceWidth())
         if ( size*13 == s.getSourceSourceWidth()):
             print('Match')
         else:
             print('Not match')
-    
+def test2():
+    e1 = Event()
+    s1= OBSSession()
+    s1.connect()
+    s1.registerEvents()
+    s2= OBSSession()
+    s2.connect()
+    s2.registerEvents()
+    e1.wait()
 if __name__ == '__main__':
     main()
