@@ -14,7 +14,7 @@ class Ticker:
         self.scroll_speed = None #pixels-per-second 
         '''New pixels introduced per second.'''
         
-        self.empty_time = 5 #seconds
+        self.empty_time = 0 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
         self.padding = None
@@ -103,8 +103,6 @@ class Ticker:
                 
         
     def play(self):
-        # self.clearTextContainer()
-        self.obs.refreshSource()
         self.pause_event.clear() #clearing stop event just in case you are restarting after stopping
         self.play_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
         self.play_thread.start()
@@ -176,6 +174,7 @@ class Ticker:
 
     def stop(self,obs_event):
         print('OBS closed.')
+        self.pause()
         self.obs_quit_event.set()
 
 

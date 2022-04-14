@@ -191,3 +191,6 @@
 + [ ] There is significant creep at high scroll speeds. Calculate time difference between text container update and switch next feed loop.
 + [x] Instead of having the ticker with loop setting on and switching feed by program, we can uncheck the loop condition and re-render the tickertext at the end of a feed. This will ensure there is no creep visible.
     + TransformChange doesn't detect visibility change but it has its own event.
++ [x] OBS quit event isn't working as desired. How does python set priorities in case of several events?
+    + Set other events before setting the quit event. Works as desired.
+    + When program waiting for one event, maybe it doesn't affect it if other events are set.
