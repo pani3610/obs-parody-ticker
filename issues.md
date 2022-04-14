@@ -82,8 +82,13 @@
     + ~~Achieved externally through Shortcuts app on Mac.~~
 + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
     + [ ] It lets you provide inputs via GUI component. It can be used to provide options. Some feasible options maybe:
-        + [ ] Tickbox list of sources
-        + [ ] Name and url prompt to add your own sources.
+        + [ ] Tickbox list of feed sources
+        + [ ] Name and url prompt to add your own feed sources.
+        + [ ] Slider to control scroll speed
+        + [ ] Font selection
+        + [ ] Checkbox of all scenes where to add the ticker
+        + [ ] Time between 2 feeds
+        + [ ] Start and Stop button
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
@@ -108,3 +113,87 @@
     + [x] Exception handling for Pillow.Image.open() on windows. This is not expected to happen. There is no such error thrown on Mac.
         + Replacing ```except:``` with ```except Exception:``` does the trick.
 + [x] Kill orphan threads when starting and stopping ticker.
++ [ ] Add ticker OBS source dynamically and integrate with OBS source. Set its height width position based on OBS settings of resolution etc. Make all of this part of ticker class.
+    + [ ] Set scroll speed multiple of single character length
+    + Source settings and source properties both can be manipulated from the websocket.
+    + GetTextFreetype2Properties and GetSourceSettings give the same results. Better to use GetSourceSettings for settings and GetSceneItemProperties to get properties.
+    + Source width and height cannot be changed through SetSceneItemProperties. Use SetSceneItemTransform.
+    + [x] calculate switching time based on pixel count rather than character count.
+    + [ ] Check if scene has Ticker Source. If not import from a JSON file.
+    + [ ] If found, set the source settings (font,text etc.)
+    + [x] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
+    + [ ] Remove padding text. Add padding in terms of sleep.
++ [ ] Since image is already stored as a feed attribute why store it as a file as well? Instead write to container from feedLogo data.
++ [x] Erratic values of single space width when ran. Expected value 13. The pixel widths of feeds incorrects as well
+    ```
+    (.venv) f&p@💻 parody-ticker %/Users/pani3610/code/parody-ticker/.venv/bin/python /Users/pani3610/code/parody-ticker/ticker.py
+    Connected to OBS
+    testing
+    {'enabled': True, 'name': 'Scroll', 'settings': <extrafunctions.convertDictToObject.<locals>.Data object at 0x10284c9a0>, 'type': 'scroll_filter'}
+    SSW 136.11
+    THIS IS START
+    The Betoota Advocate 13611
+    The Onion 15470
+    (.venv) f&p@💻 parody-ticker %/Users/pani3610/code/parody-ticker/.venv/bin/python /Users/pani3610/code/parody-ticker/ticker.py
+    Connected to OBS
+    testing
+    {'enabled': True, 'name': 'Scroll', 'settings': <extrafunctions.convertDictToObject.<locals>.Data object at 0x102efbc70>, 'type': 'scroll_filter'}
+    SSW 247.13
+    THIS IS STAR
+    ```
+    + Tried resolving by splitting 
+        ```
+        value = self.obs.getVideoData().baseWidth
+        ```
+
+        into
+
+        ```
+        video_data = self.obs.getVideoData()
+        value = video_data.baseWidth
+        ```
+        but error persists. Every run of program gives different values for different variables.
+    + Adding sleep after file-writes is mitigating some errors.
+    + [x] Try to get feedback from OBS when text updated.
+        + Transform changes when tickertext sourcewidth is updated. Can be used to wait for file-write to complete.
+        + The ```SceneItemTransformChanged``` event is triggered multiple times when tickertext updated once. Items other than tickertext are also _transformed_.
+            + when tickertext updated; tickertext, white-bg, News-logo, ticker-tape, tickertext, TIcker-tape all are updated.
+            + __tickertext updated twice__
+            + Since parent is updated only once, it can be attached to update event.
+                + [x] But if any other item is changed it will also trigger the parent.
+                    + Added extra flag to check when text has to be updated.
+            + [ ] If text is updated and its the same text does it still trigger the event?
+                + No the event is NOT triggered and the program is stalled.
+                + In fact, even if you change the text but the rendered source size remains the same, the event isn't triggered.
+                + If timeout is provided it leads to delay and puts feed-switch out of sync.
+                + When updating the file with text of same size which is being rendered in Monospace font, sometimes timeout is reached and sometimes event is triggered before timeout
+                    + For character pairs like O and I, the textchange event is triggered, even though there is no change in sourceWidth.
+                    + For character pairs like F and D, timeout is reached everytime.
+            
+            + Tests give 'Not match' when scene transitioned
+    + [x] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count.
+        + Get headlines count from binary search
++ [ ] Add progress-bar for ticker switch.
++ [ ] Add GUI Element to set ticker properties before start
+    + [ ] Show Sample ticker while tinkering with GUI elements. Update dynamically
++ [ ] Catch errors when no internet connection
++ [ ] Session must be outside ticker and not other way round. Maybe one OBS session can have multiple tickers with their own set of threads and events.
+    + Maybe another class above Ticker required to connect to OBS. Like Session > Ticker > Websocket. This way one OBS session can have multiple Tickers with different OBS Source names.
++ [ ] As padding is now added in ticker textcontainer instead of feed text and same is planned in context of image resize of Feed logo, updating headlines should not change the original headlines count. This way the same feed can be re-used in another ticker.
++ [ ] Create OBS Ticker source from code. 
+    + [ ] Set white strip length based on viewport width and height based on font size.
+    + [ ] Set white circle size based on image size.
+    + [ ] __A _CSS_ file must be maintained for ticker-graphics__
+    + [ ] Currently source names are hard-coded. Import values from created object.
++ [ ] Name all the threads wherever created.
++ [ ] Accomodate for negative scroll value.
++ [ ] Add multiple feeds from within ticker.
++ [ ] Update feeds within ticker.
++ [ ] There is significant creep at high scroll speeds. Calculate time difference between text container update and switch next feed loop.
++ [x] Instead of having the ticker with loop setting on and switching feed by program, we can uncheck the loop condition and re-render the tickertext at the end of a feed. This will ensure there is no creep visible.
+    + TransformChange doesn't detect visibility change but it has its own event.
++ [x] OBS quit event isn't working as desired. How does python set priorities in case of several events?
+    + Set other events before setting the quit event. Works as desired.
+    + When program waiting for one event, maybe it doesn't affect it if other events are set.
++ [ ] Set scroll speed to 0 when configuring and doing calculations in ticker.start()
++ [ ] In case ticker stopped or disconnected,set loop of tickertext to true so that it can loop through the final feed sent before disconnect again and again.
