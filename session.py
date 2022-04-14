@@ -1,5 +1,5 @@
 from random import randrange
-from time import sleep
+from time import sleep, time
 from obswebsocket import obsws,requests,exceptions,events
 import os
 from dotenv import load_dotenv
@@ -37,13 +37,15 @@ class OBSSession:
         print('All events registered')
 
     def inform(self,event):
-        # print(event.getItemName(),end=', ')
+        print(event.getItemName(),end=', ')
         if (self.write and event.getItemName() == self.sourceparentname):
             # print('width changed')
             self.text_changed.set()
 
-    def waitForUpdate(self):
-        self.text_changed.wait()
+    def waitForUpdate(self,timeout=None):
+        set_before_timeout = self.text_changed.wait(timeout)
+        if not set_before_timeout:
+            print('Timed out')
         # print('event set')
         self.text_changed.clear()
     def exportVideoData(self,filepath):
@@ -85,9 +87,15 @@ class OBSSession:
     
     def updateText(self,string):
         self.write = True
-        with open(self.textfile,"w") as txtfile:
+        with open(self.textfile,"r+") as txtfile:
+            if txtfile.read() == string:
+                print('Same text')
+                self.write = False
+                return()
+            txtfile.seek(0)
+            txtfile.truncate()
             txtfile.write(string)
-        self.waitForUpdate()
+        self.waitForUpdate(5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
         self.write = False
 def main():
     # test0()
@@ -105,16 +113,19 @@ def test1():
     s= OBSSession()
     s.connect()
     s.registerEvents()
+    charlist = ['F','D']#['O','I']
     for i in range(10):
         size = 100#randrange(1,1260)
-        char = chr(randrange(65,81))
-        print('expected value:',char,size*13)
+        char = charlist[i%len(charlist)]#chr(randrange(65,81))
+        print(f'Round {i}',end = ' ')
+        print('expected value:',char,size*13,end=' ')
         s.updateText(char*size)
-        print('output value:',s.getSourceSourceWidth())
+        # print('output value:',s.getSourceSourceWidth())
         if ( size*13 == s.getSourceSourceWidth()):
             print('Match')
         else:
             print('Not match')
+    
 def test2():
     e1 = Event()
     s1= OBSSession()

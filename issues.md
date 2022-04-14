@@ -164,6 +164,10 @@
             + [ ] If text is updated and its the same text does it still trigger the event?
                 + No the event is NOT triggered and the program is stalled.
                 + In fact, even if you change the text but the rendered source size remains the same, the event isn't triggered.
+                + If timeout is provided it leads to delay and puts feed-switch out of sync.
+                + When updating the file with text of same size which is being rendered in Monospace font, sometimes timeout is reached and sometimes event is triggered before timeout
+                    + For character pairs like O and I, the textchange event is triggered, even though there is no change in sourceWidth.
+                    + For character pairs like F and D, timeout is reached everytime.
             
             + Tests give 'Not match' when scene transitioned
     + [x] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count.
@@ -184,3 +188,4 @@
 + [ ] Accomodate for negative scroll value.
 + [ ] Add multiple feeds from within ticker.
 + [ ] Update feeds within ticker.
++ [ ] There is significant creep at high scroll speeds. Calculate time difference between text container update and switch next feed loop.
