@@ -159,8 +159,8 @@ class Ticker:
     def pause(self):
         # print('Stopping ticker')
         self.pause_event.set()
-        # if self.play_thread != None:
-        #     self.play_thread.join()
+        if self.play_thread != None:
+            self.play_thread.join()
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
         # print(self.ticker_scenes)
