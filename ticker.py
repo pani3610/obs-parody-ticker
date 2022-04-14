@@ -43,9 +43,7 @@ class Ticker:
         if (not self.obs.connected):
             return()
         #clear ticker text before all calculations
-        with open(self.textcontainer,'w') as txtfile:
-            txtfile.write(' ')
-        sleep(2)
+        self.clearTextContainer() 
          
         self.obs.registerEvents()
         #calculateviewportwidth
@@ -62,7 +60,7 @@ class Ticker:
         print('Ready')
         self.play()
         self.obs_quit_event.wait()
-        self.obs.ws.disconnect()
+        self.obs.disconnect()
 
     def calculateViewportWidth(self):
         viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
@@ -77,6 +75,10 @@ class Ticker:
         padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
         return(padding)
 
+    def clearTextContainer(self):
+        with open(self.textcontainer,'w') as txtfile:
+            txtfile.write('')
+        sleep(2)
 
     def updateTextContainer(self,feed:Feed):
         text = self.padding*" " + feed.text.raw_string
@@ -101,6 +103,8 @@ class Ticker:
                 
         
     def play(self):
+        # self.clearTextContainer()
+        self.obs.refreshSource()
         self.pause_event.clear() #clearing stop event just in case you are restarting after stopping
         self.play_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
         self.play_thread.start()
@@ -109,6 +113,7 @@ class Ticker:
     def switchToNextFeed(self,feed:Feed):
         source_width = self.obs.getSourceSourceWidth()
         sleep_time = (source_width/self.scroll_speed)
+        self.obs.refreshSource()
         print(f'Going to sleep for {sleep_time:.2f} seconds')
         self.pause_event.wait(sleep_time)
 
@@ -177,13 +182,14 @@ class Ticker:
     def importTickerScenes(self):
         scenes = self.obs.ws.call(requests.GetSceneList())
         for scene in scenes.getScenes():
-            #convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
+            convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
             for source in scene['sources']:
                 if source.get("name")=="TIcker-tape" and source.get("render"):
                     self.ticker_scenes.append(scene["name"])
                     break
         return(self.ticker_scenes)
-   
+    def disconnect(self):
+        self.obs.disconnect()   
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
@@ -194,6 +200,8 @@ def main():
     t.addFeed(f1)
     t.addFeed(f2)
     t.connect()
+    # t.importTickerScenes()
+    # t.disconnect()
     t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # t.play()
     # print(t.padding)

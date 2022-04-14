@@ -189,3 +189,5 @@
 + [ ] Add multiple feeds from within ticker.
 + [ ] Update feeds within ticker.
 + [ ] There is significant creep at high scroll speeds. Calculate time difference between text container update and switch next feed loop.
++ [x] Instead of having the ticker with loop setting on and switching feed by program, we can uncheck the loop condition and re-render the tickertext at the end of a feed. This will ensure there is no creep visible.
+    + TransformChange doesn't detect visibility change but it has its own event.

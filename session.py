@@ -31,16 +31,24 @@ class OBSSession:
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             sys.exit()
+    def disconnect(self):
+        self.ws.disconnect()
     def registerEvents(self):
-        self.transform_changed = self.ws.register(self.inform,events.SceneItemTransformChanged)
+        self.transform_changed = self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
         self.text_changed = Event()
+        self.visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
+        self.tickertext_visibility_changed = Event()
         print('All events registered')
 
-    def inform(self,event):
-        print(event.getItemName(),end=', ')
+    def transformChanged(self,event):
+        # print(event.getItemName(),end=', ')
         if (self.write and event.getItemName() == self.sourceparentname):
             # print('width changed')
             self.text_changed.set()
+    def visibilityChanged(self,event):
+        if event.getItemName() == self.sourcename:
+            self.tickertext_visibility_changed.set()
+        
 
     def waitForUpdate(self,timeout=None):
         set_before_timeout = self.text_changed.wait(timeout)
@@ -48,6 +56,11 @@ class OBSSession:
             print('Timed out')
         # print('event set')
         self.text_changed.clear()
+
+    def waitForVisibilityChange(self):
+        self.tickertext_visibility_changed.wait()
+        self.tickertext_visibility_changed.clear()
+
     def exportVideoData(self,filepath):
         response = self.ws.call(requests.GetVideoInfo())
         convertObjectToJson(response.datain,filepath)
@@ -97,10 +110,18 @@ class OBSSession:
             txtfile.write(string)
         self.waitForUpdate(5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
         self.write = False
+    
+    def refreshSource(self):
+        self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
+        self.waitForVisibilityChange()
+        self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
+        self.waitForVisibilityChange()
+
 def main():
     # test0()
-    test1()
+    # test1()
     # test2()
+    test3()
     
 def test0():
     s= OBSSession()
@@ -135,5 +156,14 @@ def test2():
     s2.connect()
     s2.registerEvents()
     e1.wait()
+
+def test3():
+    s1= OBSSession()
+    s1.connect()
+    s1.registerEvents()
+    # s1.exportSourceData('source-data.json')
+    s1.refreshSource()
+    s1.disconnect()
+
 if __name__ == '__main__':
     main()
