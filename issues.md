@@ -88,6 +88,7 @@
         + [ ] Font selection
         + [ ] Checkbox of all scenes where to add the ticker
         + [ ] Time between 2 feeds
+        + [ ] Start and Stop button
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
@@ -194,3 +195,5 @@
 + [x] OBS quit event isn't working as desired. How does python set priorities in case of several events?
     + Set other events before setting the quit event. Works as desired.
     + When program waiting for one event, maybe it doesn't affect it if other events are set.
++ [ ] Set scroll speed to 0 when configuring and doing calculations in ticker.start()
++ [ ] In case ticker stopped or disconnected,set loop of tickertext to true so that it can loop through the final feed sent before disconnect again and again.
