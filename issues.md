@@ -161,6 +161,9 @@
             + Since parent is updated only once, it can be attached to update event.
                 + [x] But if any other item is changed it will also trigger the parent.
                     + Added extra flag to check when text has to be updated.
+            + [ ] If text is updated and its the same text does it still trigger the event?
+                + No the event is NOT triggered and the program is stalled.
+                + In fact, even if you change the text but the rendered source size remains the same, the event isn't triggered.
             
             + Tests give 'Not match' when scene transitioned
     + [x] SSW value now consistent and accurate but headlines count is still behaving erratic. Optimise reducing headline count.

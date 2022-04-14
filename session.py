@@ -91,8 +91,8 @@ class OBSSession:
         self.write = False
 def main():
     # test0()
-    # test1()
-    test2()
+    test1()
+    # test2()
     
 def test0():
     s= OBSSession()
@@ -106,9 +106,10 @@ def test1():
     s.connect()
     s.registerEvents()
     for i in range(10):
-        size = randrange(1,1260)
-        print('expected value:',size*13)
-        s.updateText('I'*size)
+        size = 100#randrange(1,1260)
+        char = chr(randrange(65,81))
+        print('expected value:',char,size*13)
+        s.updateText(char*size)
         print('output value:',s.getSourceSourceWidth())
         if ( size*13 == s.getSourceSourceWidth()):
             print('Match')
