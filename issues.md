@@ -196,4 +196,5 @@
     + Set other events before setting the quit event. Works as desired.
     + When program waiting for one event, maybe it doesn't affect it if other events are set.
 + [ ] Set scroll speed to 0 when configuring and doing calculations in ticker.start()
+    + Currently hiding scroll filter when configuring feeds in ticker.start()
 + [ ] In case ticker stopped or disconnected,set loop of tickertext to true so that it can loop through the final feed sent before disconnect again and again.

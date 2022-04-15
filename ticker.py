@@ -52,7 +52,10 @@ class Ticker:
 
         #calculate padding based on font and viewportwidth
         self.padding = self.calculatePadding()
+        
+        self.obs.stopScroll()
         self.checkAllFeedSize()
+        self.obs.startScroll()
 
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()

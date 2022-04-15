@@ -18,6 +18,7 @@ class OBSSession:
         self.sourcename ='tickertext'
         self.scenename ='Coding'
         self.sourceparentname = 'TIcker-tape'
+        self.filtername = 'tickerscroll'
         self.textfile = 'feed_text_dev.txt'
         self.write = None
         # self.connect()
@@ -38,6 +39,8 @@ class OBSSession:
         self.text_changed = Event()
         self.visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
         self.tickertext_visibility_changed = Event()
+        self.filter_visibility_changed = self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
+        self.scroll_changed = Event()
         print('All events registered')
 
     def transformChanged(self,event):
@@ -48,6 +51,14 @@ class OBSSession:
     def visibilityChanged(self,event):
         if event.getItemName() == self.sourcename:
             self.tickertext_visibility_changed.set()
+    
+    def scrollChanged(self,event):
+        if event.getSourceName() == self.sourcename:
+            self.scroll_changed.set()
+    
+    def waitForScrollChange(self):
+        self.scroll_changed.wait()
+        self.scroll_changed.clear()
         
 
     def waitForUpdate(self,timeout=None):
@@ -116,6 +127,16 @@ class OBSSession:
         self.waitForVisibilityChange()
         self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
         self.waitForVisibilityChange()
+    
+    def startScroll(self):
+        self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,True))
+        self.waitForScrollChange()
+        print('scroll unhidden')
+
+    def stopScroll(self):
+        self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,False))
+        self.waitForScrollChange()
+        print('scroll hidden')
 
 def main():
     # test0()
