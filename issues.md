@@ -198,3 +198,16 @@
 + [ ] Set scroll speed to 0 when configuring and doing calculations in ticker.start()
     + Currently hiding scroll filter when configuring feeds in ticker.start()
 + [ ] In case ticker stopped or disconnected,set loop of tickertext to true so that it can loop through the final feed sent before disconnect again and again.
++ [x] Rectify ReduceHeadlinesCount to never cross maxlimit.
+    ```
+    The Onion 23283
+    for The Onion: Feed text too large. Reducing number of headlines. Original Headline Count : 25
+    Headline count: 13|Pixel Width: 12792
+    Headline count: 19|Pixel Width: 17875
+    Headline count: 16|Pixel Width: 15574
+    Headline count: 17|Pixel Width: 16107
+    Headline count: 18|Pixel Width: 17121
+    Final headline count:18| 17121 pixels
+    ```
+    + The headline reduce function was running one loop less than safely required. Happened because of difference of 1 between traditional index of list and headline count.
+    + Function modified from binary search to proportional search

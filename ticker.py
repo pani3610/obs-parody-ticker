@@ -139,20 +139,28 @@ class Ticker:
             # sleep(1)
 
            
-    def reduceFeedSizeToFit(self,feed:Feed):
+    def reduceFeedSizeToFit(self,feed:Feed): #modified binary search to find headlines count but ensure solution doesn't exceed target.
         source_width = self.obs.getSourceSourceWidth()
-        low = 1
+        low = 0
+        lowvalue = 0
         high = feed.headlines_count
-        for i in range(round(log2(feed.headlines_count))):
-            mid = (low+high)//2
+        highvalue = source_width
+        oldmid = None
+        while(highvalue>lowvalue):
+            mid = low + int((self.max_size-lowvalue)*(high-low)/(highvalue-lowvalue))
+            if (mid == oldmid):
+                break
             feed.updateHeadlinesCount(mid)
             self.updateTextContainer(feed)
             source_width = self.obs.getSourceSourceWidth()
             print(f'Headline count: {mid}|Pixel Width: {source_width}')
             if(source_width>self.max_size):
                 high = mid
+                highvalue = source_width
             else:
                 low = mid
+                lowvalue = source_width
+            oldmid = mid
                 
         print(f'Final headline count:{feed.headlines_count}| {source_width} pixels')
     
