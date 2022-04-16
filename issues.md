@@ -214,3 +214,6 @@
     + The headline reduce function was running one loop less than safely required. Happened because of difference of 1 between traditional index of list and headline count.
     + Function modified from binary search to proportional search
 + [ ] Update text container and image container in parallel.
+    + Currently image container updated takes less than 1 millisecond so no point making it a priority.
++ [x] Store feed objects locally to test and not fetch again and again while testing.
+    + Why don't I learn yield and generators and iterators seriously??!

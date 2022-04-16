@@ -5,6 +5,7 @@ import shutil
 import json
 from PIL import Image
 from extrafunctions import abs_path,convertObjectToJson
+import pickle
 class Feed():
     def __init__(self,feed_url,feed_name=None,feed_img_path=None,hl_count=None):
         self.url = feed_url
@@ -61,6 +62,12 @@ class Feed():
             hl.append(punctuated_headline)
         return(hl)
 
+    def saveToPickleFile(self,picklefile):
+        with open(picklefile,'ab') as pf:
+            pickle.dump(self,pf,protocol=4)
+
+    
+
 class FeedLogo():
     def __init__(self,source_loc:str,width=None,height=None,savefile_loc='src/',format='png'):
         # self.feed = feed
@@ -99,8 +106,6 @@ class FeedLogo():
             return()
         self.image = self.image.resize(new_size)
         self.image.save(self.savefile)
-    
-        
 class FeedText():
     def __init__(self,feed:Feed):
         self.feed = feed
@@ -132,16 +137,17 @@ class FeedText():
 
         
 def main1():
-    f = Feed("https://www.betootaadvocate.com/feed/")
+    # f = Feed("https://www.betootaadvocate.com/feed/")
     # f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
-    f.text.updateCourtesyText('hello')
+    # f.text.updateCourtesyText('hello')
     # f.text.updateSeparator('#')
-    print(f.text)
-    print(f.headlines_count)
-    f.updateHeadlinesCount(f.headlines_count//2)
-    print(f.text)
+    # print(f.text)
+    # print(f.headlines_count)
+    # f.updateHeadlinesCount(f.headlines_count//2)
+    # print(f.text)
 
-    # f = Feed("https://www.theonion.com/content/feeds/daily")
+    f = Feed("https://www.theonion.com/content/feeds/daily")
+    f.saveToPickleFile('feed_examples.pkl')
     # print(f.text.raw_string)
     # f.text.extractHeadlines()
     # f.text.updateSeparator(' # ')

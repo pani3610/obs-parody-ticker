@@ -1,4 +1,4 @@
-from feed import Feed
+from feed import *
 from session import OBSSession
 from time import sleep,time
 from shutil import copyfile
@@ -6,6 +6,7 @@ from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
 from extrafunctions import *
 from math import log2
+import pickle
 
 # time_start,time_stop = None,None
 class Ticker:
@@ -209,10 +210,20 @@ class Ticker:
     def disconnect(self):
         self.obs.disconnect()   
 
+def loadFromPickle(picklefile):
+    with open(picklefile,'rb') as pf:
+        while True:
+            try:
+                yield pickle.load(pf)
+            except EOFError:
+                break
+
+
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    f1 =Feed("https://www.betootaadvocate.com/feed/")
-    f2 =Feed("https://www.theonion.com/content/feeds/daily")    
+    pickled_feeds = loadFromPickle('feed_examples.pkl')
+    f1 = next(pickled_feeds)
+    f2 = next(pickled_feeds)
     print(f1.calculateSize())
     print(f2.calculateSize())
     t.addFeed(f1)
