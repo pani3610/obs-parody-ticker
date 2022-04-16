@@ -14,13 +14,13 @@ class Ticker:
         self.viewport_width = None #pixels
         '''Width of ticker text area in pixels'''
         
-        self.scroll_speed = None #pixels-per-second 
+        self.scroll_speed,self.scroll_direction = None,None #pixels-per-second 
         '''New pixels introduced per second.'''
         
         self.empty_time = 1 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
-        self.padding = None
+        self.ssw = None
         
         self.textcontainer = savetextfile
         self.imgcontainer = saveimgfile
@@ -51,10 +51,10 @@ class Ticker:
         self.obs.registerEvents()
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
-        self.scroll_speed = self.obs.getScrollSpeed()
-
+        self.scroll_speed,self.scroll_direction = self.getScrollVelocity()
+        print(self.scroll_speed,self.scroll_direction)
         #calculate padding based on font and viewportwidth
-        self.padding = self.calculatePadding()
+        self.ssw = self.calculateSSW()
         
         self.obs.stopScroll()
         self.checkAllFeedSize()
@@ -71,15 +71,20 @@ class Ticker:
     def calculateViewportWidth(self):
         viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
         return(viewport_width)
-    
-    def calculatePadding(self):
+
+    def getScrollVelocity(self):
+        scroll_value = self.obs.getScrollSpeed()
+        scroll_speed = abs(scroll_value)
+        scroll_direction = 1 if scroll_value >= 0 else -1
+        return(scroll_speed,scroll_direction)
+
+    def calculateSSW(self):
         resolution = 100
         self.obs.updateText(resolution*' ')
         source_width = self.obs.getSourceSourceWidth()
         single_space_width = source_width/resolution
         print('SSW',single_space_width)
-        padding = round((self.viewport_width + self.empty_time*self.scroll_speed)/single_space_width)
-        return(padding)
+        return(single_space_width)
 
     def clearTextContainer(self):
         with open(self.textcontainer,'w') as txtfile:
@@ -87,8 +92,16 @@ class Ticker:
         sleep(2)
 
     def updateTextContainer(self,feed:Feed):
-        text = self.padding*" " + feed.text.raw_string
+        text = self.addPadding(feed.text.raw_string)
         self.obs.updateText(text)
+
+    def addPadding(self,string):
+        if (self.scroll_direction>=0):
+            padded_string = round(self.viewport_width/self.ssw)*' ' + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
+        else:
+            padded_string = round(self.viewport_width/self.ssw)*' ' + string + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' 
+        return(padded_string)
+
 
     def updateImageContainer(self,feed:Feed):
         if feed.logo.savefile != None:

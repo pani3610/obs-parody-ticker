@@ -186,7 +186,7 @@
     + [ ] __A _CSS_ file must be maintained for ticker-graphics__
     + [ ] Currently source names are hard-coded. Import values from created object.
 + [ ] Name all the threads wherever created.
-+ [ ] Accomodate for negative scroll value.
++ [x] Accomodate for negative scroll value.
 + [ ] Add multiple feeds from within ticker.
 + [ ] Update feeds within ticker.
 + [x] There is significant creep at high scroll speeds. Calculate time difference between text container update and switch next feed loop.
