@@ -1,11 +1,13 @@
 from feed import Feed
 from session import OBSSession
-from time import sleep
+from time import sleep,time
 from shutil import copyfile
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
 from extrafunctions import *
 from math import log2
+
+# time_start,time_stop = None,None
 class Ticker:
     def __init__(self,savetextfile,saveimgfile):
         self.viewport_width = None #pixels
@@ -14,7 +16,7 @@ class Ticker:
         self.scroll_speed = None #pixels-per-second 
         '''New pixels introduced per second.'''
         
-        self.empty_time = 0 #seconds
+        self.empty_time = 1 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
         self.padding = None
@@ -95,14 +97,16 @@ class Ticker:
 
 
     def startTickerLoop(self):
+        # global time_start,time_stop
         while(True):
             for feed in self.feeds:
                 if(self.pause_event.isSet()):
                     return()
+                time_start = time()
                 print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
-                self.switchToNextFeed(feed)
+                self.switchToNextFeed(feed,time_start)
                 
         
     def play(self):
@@ -111,12 +115,16 @@ class Ticker:
         self.play_thread.start()
         
 
-    def switchToNextFeed(self,feed:Feed):
+    def switchToNextFeed(self,feed:Feed,update_start_time=None):
         source_width = self.obs.getSourceSourceWidth()
         sleep_time = (source_width/self.scroll_speed)
         self.obs.refreshSource()
-        print(f'Going to sleep for {sleep_time:.2f} seconds')
-        self.pause_event.wait(sleep_time)
+        print(f'Going to sleep for {sleep_time:.2f} seconds (minus execution time)')
+        execution_time = 0
+        if (update_start_time != None):
+            stop_time = time()
+            execution_time =stop_time-update_start_time
+        self.pause_event.wait(sleep_time-execution_time)
 
     def addFeed(self,feed:Feed):
         #self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
