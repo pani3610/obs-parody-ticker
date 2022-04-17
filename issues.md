@@ -217,3 +217,4 @@
     + Currently image container updated takes less than 1 millisecond so no point making it a priority.
 + [x] Store feed objects locally to test and not fetch again and again while testing.
     + Why don't I learn yield and generators and iterators seriously??!
++ [ ] Why add spaces to the file for padding? Either add 1.25 of viewport width and add time delay. this way no need do monkey-balancing with negative scroll.

@@ -56,7 +56,8 @@ class Feed():
         return(f'{self.name} | {self.headlines_count} headlines | Feed data latest by {self.data_update_time} | {self.size} characters long')
     
     def extractHeadlines(self):
-        hl = []
+        hl = [entry.title.upper() for entry in self.data.entries[:self.headlines_count]] 
+        return(hl)
         for entry in self.data.entries[:self.headlines_count]:
             punctuated_headline = entry.title.upper()
             hl.append(punctuated_headline)
@@ -147,9 +148,9 @@ def main1():
     # print(f.text)
 
     f = Feed("https://www.theonion.com/content/feeds/daily")
-    f.saveToPickleFile('feed_examples.pkl')
+    # f.saveToPickleFile('feed_examples.pkl')
     # print(f.text.raw_string)
-    # f.text.extractHeadlines()
+    print(f.extractHeadlines())
     # f.text.updateSeparator(' # ')
     
     # f.text.updateRawString(f)
