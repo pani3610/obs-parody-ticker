@@ -56,14 +56,15 @@ class Ticker:
         #calculate padding based on font and viewportwidth
         self.ssw = self.calculateSSW()
         
-        self.obs.stopScroll()
+        self.obs.hideSource()#self.obs.stopScroll()
         self.checkAllFeedSize()
-        self.obs.startScroll()
+        # self.obs.startScroll()
 
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         self.importTickerScenes()
         print('Ready')
+        self.obs.showSource()
         self.play()
         self.obs_quit_event.wait()
         self.obs.disconnect()
@@ -117,6 +118,7 @@ class Ticker:
                 if(self.pause_event.isSet()):
                     return()
                 time_start = time()
+                # self.obs.refreshSource()
                 print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
@@ -132,7 +134,7 @@ class Ticker:
     def switchToNextFeed(self,feed:Feed,update_start_time=None):
         source_width = self.obs.getSourceSourceWidth()
         sleep_time = (source_width/self.scroll_speed)
-        self.obs.refreshSource()
+        # self.obs.refreshSource()
         print(f'Going to sleep for {sleep_time:.2f} seconds (minus execution time)')
         execution_time = 0
         if (update_start_time != None):

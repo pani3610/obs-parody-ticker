@@ -35,11 +35,11 @@ class OBSSession:
     def disconnect(self):
         self.ws.disconnect()
     def registerEvents(self):
-        self.transform_changed = self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
+        self.some_transform_changed = self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
         self.text_changed = Event()
-        self.visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
+        self.some_source_visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
         self.tickertext_visibility_changed = Event()
-        self.filter_visibility_changed = self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
+        self.some_source_filter_visibility_changed = self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
         self.scroll_changed = Event()
         print('All events registered')
 
@@ -123,11 +123,23 @@ class OBSSession:
         self.write = False
     
     def refreshSource(self):
-        self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
-        self.waitForVisibilityChange()
-        self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
-        self.waitForVisibilityChange()
+        self.hideSource()
+        self.showSource()
     
+    def hideSource(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        source_visible = response.getVisible()
+        if source_visible:
+            self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
+            self.waitForVisibilityChange()
+
+    def showSource(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        source_visible = response.getVisible()
+        if not source_visible:
+            self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
+            self.waitForVisibilityChange()
+
     def startScroll(self):
         self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,True))
         self.waitForScrollChange()
