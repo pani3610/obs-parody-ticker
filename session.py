@@ -35,13 +35,19 @@ class OBSSession:
     def disconnect(self):
         self.ws.disconnect()
     def registerEvents(self):
-        self.some_transform_changed = self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
+        self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
         self.text_changed = Event()
-        self.some_source_visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
+        self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
         self.tickertext_visibility_changed = Event()
-        self.some_source_filter_visibility_changed = self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
+        self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
         self.scroll_changed = Event()
+        self.ws.register(self.sourceCreated,events.SourceCreated)
+        self.source_created = Event()
         print('All events registered')
+
+    def sourceCreated(self,event):
+        if event.getSourceName() == 'TICKER':
+            self.source_created.set()
 
     def transformChanged(self,event):
         # print(event.getItemName(),end=', ')
@@ -56,6 +62,9 @@ class OBSSession:
         if event.getSourceName() == self.sourcename:
             self.scroll_changed.set()
     
+    def waitForCreateSource(self):
+        self.source_created.wait()
+        self.source_created.clear()
     def waitForScrollChange(self):
         self.scroll_changed.wait()
         self.scroll_changed.clear()
@@ -89,6 +98,10 @@ class OBSSession:
         response = self.ws.call(requests.GetVideoInfo())
         baseWidth = response.getBaseWidth()
         return(baseWidth)
+    def getVideoBaseHeight(self):
+        response = self.ws.call(requests.GetVideoInfo())
+        baseHeight = response.getBaseHeight()
+        return(baseHeight)
     
     def getSourcePositionX(self):
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
@@ -152,13 +165,20 @@ class OBSSession:
         print('scroll hidden')
 
     def createTextSource(self):
-        scenes = self.ws.call(requests.GetSceneList())
-        scene_list = scenes.getScenes()
-        # print(scene_list[0])
-        scenename = scene_list[0]['name']
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        print(scenename)
         source_data = convertJSONToDict('source-data.json')
         self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,source_data.get('settings')))
-
+        self.waitForCreateSource()
+        prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
+        text_height = prop.getSourceHeight()
+        print(text_height)
+        self.ws.call(requests.SetSceneItemPosition('TICKER',0.05*self.getVideoBaseWidth(),self.getVideoBaseHeight()-2*text_height))
+        filter = source_data.get('filters').pop()
+        print(filter)
+        
+        self.ws.call(requests.AddFilterToSource('TICKER',filter.get('name'),filter.get('type'),filter.get('settings')))
 def main():
     # test0()
     # test1()

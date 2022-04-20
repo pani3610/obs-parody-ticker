@@ -184,7 +184,7 @@
     + If sourcename already exists, properties aren't changed. One has to delete the source a create a new source.
     + [ ] Lock the sources by default.
     + [ ] Create a source-group.
-    + [ ] Tickertext
+    + [x] Tickertext
         + Properties : only position needs to be calculated and changed after creation. The rest value are all defaults.
         + Settings : provided during creating source.
         + Filters
@@ -230,3 +230,4 @@
 + [x] No need to disable scroll for doing all the calculation and checks. Checks are valid even if the source is hidden.
     + No need to refreshSource if loop condition in scroll filter is true.
     + [ ] Create a separate clone source and do all the calculation before and delete it.
++ [ ] Create a generic waitforupdate function
