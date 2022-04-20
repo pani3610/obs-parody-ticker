@@ -27,6 +27,10 @@ def convertObjectToJson(obj,filepath,filemode="w"): #This can also convert Dict 
     with open(abs_path(filepath),filemode) as jsonfile:
         json.dump(obj,jsonfile,indent=4)
         jsonfile.write('\n')
+def convertJSONToDict(filepath):
+    with open(abs_path(filepath),"r") as jsonfile:
+        dic = json.load(jsonfile)
+    return(dic)
 def main():
     print(abs_path('src\\abc\\def.txt'))
     rssfeed = convertJsonToObject('onion.json')

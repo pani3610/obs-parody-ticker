@@ -182,10 +182,11 @@
 + [ ] As padding is now added in ticker textcontainer instead of feed text and same is planned in context of image resize of Feed logo, updating headlines should not change the original headlines count. This way the same feed can be re-used in another ticker.
 + [ ] Create OBS Ticker source from code. Store preloaded settings in Json file to be retrieved and create source.
     + If sourcename already exists, properties aren't changed. One has to delete the source a create a new source.
+    + [ ] Lock the sources by default.
     + [ ] Create a source-group.
     + [ ] Tickertext
-        + Properties
-        + Settings
+        + Properties : only position needs to be calculated and changed after creation. The rest value are all defaults.
+        + Settings : provided during creating source.
         + Filters
     + [ ] News logo
     + [ ] Ticker-graphics

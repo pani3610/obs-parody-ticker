@@ -1,55 +1,55 @@
 {
-    "bounds": {
-        "alignment": 0,
-        "type": "OBS_BOUNDS_NONE",
-        "x": 0.0,
-        "y": 0.0
+    "properties": {
+        "bounds": {
+            "alignment": 0,
+            "type": "OBS_BOUNDS_NONE",
+            "x": 1.0,
+            "y": 1.0
+        },
+        "crop": {
+            "bottom": 0,
+            "left": 0,
+            "right": 0,
+            "top": 0
+        },
+        "height": 28.0,
+        "itemId": 36,
+        "locked": true,
+        "position": {
+            "alignment": 5,
+            "x": 71.0,
+            "y": 351.0
+        },
+        "rotation": 0.0,
+        "scale": {
+            "filter": "OBS_SCALE_DISABLE",
+            "x": 1.0,
+            "y": 1.0
+        },
+        "sourceHeight": 28,
+        "sourceWidth": 6927,
+        "visible": true,
+        "width": 6927.0
     },
-    "crop": {
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "top": 0
-    },
-    "height": 23.0,
-    "itemId": 36,
-    "locked": false,
-    "name": "tickertext",
-    "parentGroupName": "TIcker-tape",
-    "position": {
-        "alignment": 5,
-        "x": 71.0,
-        "y": 351.0
-    },
-    "rotation": 0.0,
-    "scale": {
-        "filter": "OBS_SCALE_DISABLE",
-        "x": 1.0,
-        "y": 1.0
-    },
-    "sourceHeight": 23,
-    "sourceWidth": 1300,
-    "visible": true,
-    "width": 1300.0,
-    "sourceName": "tickertext",
-    "sourceSettings": {
+    "settings": {
         "font": {
-            "face": "Roboto Mono",
+            "face": "Arial",
             "flags": 1,
-            "size": 22,
+            "size": 20,
             "style": "Bold"
         },
         "from_file": true,
         "text_file": "/Users/pani3610/code/parody-ticker/feed_text_dev.txt"
     },
-    "sourceType": "text_ft2_source_v2",
     "filters": [
         {
             "enabled": true,
-            "name": "Scroll",
+            "name": "tickerscroll",
             "settings": {
-                "loop": false,
-                "speed_x": 200.0
+                "cx": 1207,
+                "limit_cx": false,
+                "loop": true,
+                "speed_x": 310.0
             },
             "type": "scroll_filter"
         }

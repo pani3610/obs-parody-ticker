@@ -80,7 +80,8 @@ class OBSSession:
         prop=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
         settings = self.ws.call(requests.GetSourceSettings(self.sourcename))
         filters = self.ws.call(requests.GetSourceFilters(self.sourcename))
-        OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        # OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        OBSdict = {'properties':prop.datain,'settings':settings.getSourceSettings(),'filters':filters.getFilters()}
         # print(OBSdict)
         convertObjectToJson(OBSdict,filepath)
     
@@ -150,6 +151,14 @@ class OBSSession:
         self.waitForScrollChange()
         print('scroll hidden')
 
+    def createTextSource(self):
+        scenes = self.ws.call(requests.GetSceneList())
+        scene_list = scenes.getScenes()
+        # print(scene_list[0])
+        scenename = scene_list[0]['name']
+        source_data = convertJSONToDict('source-data.json')
+        self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,source_data.get('settings')))
+
 def main():
     # test0()
     # test1()
@@ -195,7 +204,8 @@ def test3():
     s1.connect()
     s1.registerEvents()
     # s1.exportSourceData('source-data.json')
-    s1.refreshSource()
+    s1.createTextSource()
+    # s1.refreshSource()
     s1.disconnect()
 
 if __name__ == '__main__':
