@@ -180,10 +180,18 @@
 + [ ] Session must be outside ticker and not other way round. Maybe one OBS session can have multiple tickers with their own set of threads and events.
     + Maybe another class above Ticker required to connect to OBS. Like Session > Ticker > Websocket. This way one OBS session can have multiple Tickers with different OBS Source names.
 + [ ] As padding is now added in ticker textcontainer instead of feed text and same is planned in context of image resize of Feed logo, updating headlines should not change the original headlines count. This way the same feed can be re-used in another ticker.
-+ [ ] Create OBS Ticker source from code. 
-    + [ ] Set white strip length based on viewport width and height based on font size.
-    + [ ] Set white circle size based on image size.
-    + [ ] __A _CSS_ file must be maintained for ticker-graphics__
++ [ ] Create OBS Ticker source from code. Store preloaded settings in Json file to be retrieved and create source.
+    + If sourcename already exists, properties aren't changed. One has to delete the source a create a new source.
+    + [ ] Create a source-group.
+    + [ ] Tickertext
+        + Properties
+        + Settings
+        + Filters
+    + [ ] News logo
+    + [ ] Ticker-graphics
+        + [ ] Set white strip length based on viewport width and height based on font size.
+        + [ ] Set white circle size based on image size.
+        + [ ] __A _CSS_ file must be maintained for ticker-graphics__
     + [ ] Currently source names are hard-coded. Import values from created object.
 + [ ] Name all the threads wherever created.
 + [x] Accomodate for negative scroll value.
