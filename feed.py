@@ -63,8 +63,8 @@ class Feed():
             hl.append(punctuated_headline)
         return(hl)
 
-    def saveToPickleFile(self,picklefile):
-        with open(picklefile,'ab') as pf:
+    def saveToPickleFile(self,picklefile,filemode='a'):
+        with open(picklefile,f'{filemode}b') as pf:
             pickle.dump(self,pf,protocol=4)
 
     
@@ -138,7 +138,7 @@ class FeedText():
 
         
 def main1():
-    # f = Feed("https://www.betootaadvocate.com/feed/")
+    f = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
     # f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
     # f.text.updateCourtesyText('hello')
     # f.text.updateSeparator('#')
@@ -147,8 +147,8 @@ def main1():
     # f.updateHeadlinesCount(f.headlines_count//2)
     # print(f.text)
 
-    f = Feed("https://www.theonion.com/content/feeds/daily")
-    # f.saveToPickleFile('feed_examples.pkl')
+    # f = Feed("https://www.theonion.com/content/feeds/daily",hl_count=4)
+    f.saveToPickleFile('feed_examples.pkl')
     # print(f.text.raw_string)
     print(f.extractHeadlines())
     # f.text.updateSeparator(' # ')
