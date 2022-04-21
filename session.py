@@ -179,6 +179,19 @@ class OBSSession:
         print(filter)
         
         self.ws.call(requests.AddFilterToSource('TICKER',filter.get('name'),filter.get('type'),filter.get('settings')))
+
+    def createImageSource(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        print(scenename)
+        source_data = convertJSONToDict('source-image-data.json')
+        self.ws.call(requests.CreateSource('LOGO','image_source',scenename,source_data.get('settings')))
+        self.waitForUpdate(self.source_created,timeout=5)
+        img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
+        tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
+        self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
+        self.ws.call(requests.SetSceneItemPosition('LOGO',tickertext_prop.getPosition().get('x')-tickertext_prop.getHeight(),tickertext_prop.getPosition().get('y')))
+
 def main():
     # test0()
     # test1()
@@ -224,8 +237,10 @@ def test3():
     s1= OBSSession()
     s1.connect()
     s1.registerEvents()
-    # s1.exportSourceData('source-data.json')
-    s1.createTextSource()
+    # s1.sourcename = 'News-logo'
+    # s1.exportSourceData('source-image-data.json')
+    # s1.createTextSource()
+    s1.createImageSource()
     # s1.refreshSource()
     s1.disconnect()
 
