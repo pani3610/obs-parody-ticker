@@ -3,7 +3,8 @@ import favicon
 import requests
 import shutil
 import json
-from PIL import Image
+from PIL import Image,ImageDraw,ImageChops
+from io import BytesIO
 from extrafunctions import abs_path,convertObjectToJson
 import pickle
 class Feed():
@@ -83,6 +84,8 @@ class FeedLogo():
             self.main_url = '/'.join(source_loc.split('/')[:3])
             self.image = self.fetchLogoFromURL()
         # print('try works')
+        self.circular_crop()
+        # self.save()
         if None not in (width,height):
             self.resize((width,height))
 
@@ -92,21 +95,40 @@ class FeedLogo():
             if icon.format == self.format:
                 response = requests.get(icon.url,stream=True)
                 if(response.status_code==200):
-                    with open(self.savefile,'wb') as img_file:
-                        response.raw.decode_content = True
-                        shutil.copyfileobj(response.raw,img_file)
-                    img = Image.open(self.savefile)
+                    img = Image.open(BytesIO(response.content))
+                    img = img.convert('RGBA')
+                    
+                    # with open(self.savefile,'wb') as img_file:
+                    #     response.raw.decode_content = True
+                    #     shutil.copyfileobj(response.raw,img_file)
+                    # img = Image.open(self.savefile)
                     return(img)
         else:
             print(f'No logo retrieved for {self.name}')
             return(None)
     
+    def save(self,file_loc=None):
+        self.image.save(self.savefile)
+
     def resize(self,new_size:tuple):
         if(self.image == None):
             print(f"Image is not defined for logo for {self.name}")
             return()
         self.image = self.image.resize(new_size)
-        self.image.save(self.savefile)
+        self.save()
+    
+    def circular_crop(self):
+        if(self.image == None):
+            print(f"Image is not defined for logo for {self.name}")
+            return()
+        mask = Image.new('L', self.image.size , 0)
+        
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0,0)+self.image.size,fill=255)
+
+        mask = ImageChops.darker(mask,self.image.split()[-1])
+        self.image.putalpha(mask)
+        self.save()
 class FeedText():
     def __init__(self,feed:Feed):
         self.feed = feed
@@ -139,7 +161,7 @@ class FeedText():
         
 def main1():
     f = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
-    # f = Feed("https://babylonbee.com/feed",feed_img_path='src/https:--babylonbee_com-feed.png')
+    # f = Feed("https://babylonbee.com/feed")#,feed_img_path='src/https:--babylonbee_com-feed.png')
     # f.text.updateCourtesyText('hello')
     # f.text.updateSeparator('#')
     # print(f.text)
@@ -148,7 +170,7 @@ def main1():
     # print(f.text)
 
     # f = Feed("https://www.theonion.com/content/feeds/daily",hl_count=4)
-    f.saveToPickleFile('feed_examples.pkl')
+    # f.saveToPickleFile('feed_examples.pkl')
     # print(f.text.raw_string)
     print(f.extractHeadlines())
     # f.text.updateSeparator(' # ')
