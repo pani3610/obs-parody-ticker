@@ -230,4 +230,4 @@
 + [x] No need to disable scroll for doing all the calculation and checks. Checks are valid even if the source is hidden.
     + No need to refreshSource if loop condition in scroll filter is true.
     + [ ] Create a separate clone source and do all the calculation before and delete it.
-+ [ ] Create a generic waitforupdate function
++ [x] Create a generic waitforupdate function

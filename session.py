@@ -70,12 +70,12 @@ class OBSSession:
         self.scroll_changed.clear()
         
 
-    def waitForUpdate(self,timeout=None):
-        set_before_timeout = self.text_changed.wait(timeout)
+    def waitForUpdate(self,event,timeout=None):
+        set_before_timeout = event.wait(timeout)
         if not set_before_timeout:
             print('Timed out')
-        # print('event set')
-        self.text_changed.clear()
+        event.clear()
+        return(set_before_timeout)
 
     def waitForVisibilityChange(self):
         self.tickertext_visibility_changed.wait()
@@ -133,7 +133,7 @@ class OBSSession:
             txtfile.seek(0)
             txtfile.truncate()
             txtfile.write(string)
-        self.waitForUpdate(5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
+        self.waitForUpdate(self.text_changed,5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
         self.write = False
     
     def refreshSource(self):
@@ -145,23 +145,23 @@ class OBSSession:
         source_visible = response.getVisible()
         if source_visible:
             self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
-            self.waitForVisibilityChange()
+            self.waitForUpdate(self.tickertext_visibility_changed)
 
     def showSource(self):
         response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
         source_visible = response.getVisible()
         if not source_visible:
             self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
-            self.waitForVisibilityChange()
+            self.waitForUpdate(self.tickertext_visibility_changed)
 
     def startScroll(self):
         self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,True))
-        self.waitForScrollChange()
+        self.waitForUpdate(self.scroll_changed)
         print('scroll unhidden')
 
     def stopScroll(self):
         self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,False))
-        self.waitForScrollChange()
+        self.waitForUpdate(self.scroll_changed)
         print('scroll hidden')
 
     def createTextSource(self):
@@ -170,7 +170,7 @@ class OBSSession:
         print(scenename)
         source_data = convertJSONToDict('source-data.json')
         self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,source_data.get('settings')))
-        self.waitForCreateSource()
+        self.waitForUpdate(self.source_created,timeout=5)
         prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
         text_height = prop.getSourceHeight()
         print(text_height)
@@ -184,6 +184,7 @@ def main():
     # test1()
     # test2()
     test3()
+    # test4()
     
 def test0():
     s= OBSSession()
@@ -228,5 +229,18 @@ def test3():
     # s1.refreshSource()
     s1.disconnect()
 
+def test4():
+    s1= OBSSession()
+    s1.connect()
+    s1.registerEvents()
+    s1.updateText('nanachi tang')
+    sleep(3)
+    s1.hideSource()
+    sleep(3)
+    s1.showSource()
+    sleep(3)
+    s1.stopScroll()
+    sleep(3)
+    s1.startScroll()
 if __name__ == '__main__':
     main()
