@@ -1,5 +1,6 @@
 from feed import *
 from session import OBSSession
+from graphics import Strip,Circle
 from time import sleep,time
 from shutil import copyfile
 from threading import Event,Thread,activeCount
@@ -38,6 +39,7 @@ class Ticker:
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
+        self.obs.registerEvents()
     
     
     def start(self):
@@ -50,7 +52,6 @@ class Ticker:
 
         self.createOBSResource()
          
-        self.obs.registerEvents()
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed,self.scroll_direction = self.getScrollVelocity()
@@ -73,6 +74,15 @@ class Ticker:
 
     def createOBSResource(self):
         pass
+    def createStrip(self):
+        width = self.obs.getVideoBaseWidth()
+        height = self.obs.getSourceHeight()
+        print(width,height)
+        strip = Strip(width//2,height//2)
+    
+    def createCircle(self):
+        pass
+
     def calculateViewportWidth(self):
         viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
         return(viewport_width)
@@ -250,7 +260,8 @@ def main():
     t.connect()
     # t.importTickerScenes()
     # t.disconnect()
-    t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
+    t.createStrip()
+    # t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # t.play()
     # print(t.padding)
     # print(t.viewport_width)

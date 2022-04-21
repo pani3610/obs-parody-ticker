@@ -235,3 +235,5 @@
     + No need to refreshSource if loop condition in scroll filter is true.
     + [ ] Create a separate clone source and do all the calculation before and delete it.
 + [x] Create a generic waitforupdate function
++ [ ] Create common settings JSON file for all sources
++ [ ] graphics are being created of double size.

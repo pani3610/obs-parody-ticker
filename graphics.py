@@ -84,7 +84,7 @@ class Circle:
         
         return(default_css)
 def main():
-    c =Circle(50,50)
+    c =Circle(32,32)
     s = Strip(1208,30)
 
 if __name__ == '__main__':

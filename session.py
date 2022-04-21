@@ -15,7 +15,7 @@ class OBSSession:
         self._password = os.getenv('obswspass')
         self.ws = None
         self.connected = False
-        self.sourcename ='tickertext'
+        self.sourcename ='TICKER'
         self.scenename ='Coding'
         self.sourceparentname = 'TIcker-tape'
         self.filtername = 'tickerscroll'
@@ -92,7 +92,7 @@ class OBSSession:
         return(baseHeight)
     
     def getSourcePositionX(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         position = response.getPosition()
         xcor = position['x']
         return(xcor)
@@ -107,12 +107,12 @@ class OBSSession:
         return(scroll_speed)
 
     def getSourceSourceWidth(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
     
     def getSourceHeight(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         height  = response.getHeight()
         return(height)
     def updateText(self,string):
@@ -133,14 +133,14 @@ class OBSSession:
         self.showSource()
     
     def hideSource(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         source_visible = response.getVisible()
         if source_visible:
             self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
             self.waitForUpdate(self.tickertext_visibility_changed)
 
     def showSource(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         source_visible = response.getVisible()
         if not source_visible:
             self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
@@ -185,9 +185,43 @@ class OBSSession:
         position = {'x':tickertext_prop.getPosition().get('x')-img_prop.getHeight()/2,'y':tickertext_prop.getPosition().get('y'),'alignment':0}
         # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
         self.ws.call(requests.SetSceneItemProperties('LOGO',position=position))
-    def createStripSource(self):
-        pass
 
+    def createStripSource(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        print(scenename)
+        settings = {"file": "/Users/pani3610/code/parody-ticker/strip.png"}
+        self.ws.call(requests.CreateSource('STRIP','image_source',scenename,settings))
+        self.waitForUpdate(self.source_created,timeout=3)
+        tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
+        position = {'x':0,'y':tickertext_prop.getPosition().get('y'),'alignment':1}
+        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
+        self.ws.call(requests.SetSceneItemProperties('STRIP',position=position))
+
+    def createCircleSource(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        print(scenename)
+        settings = {"file": "/Users/pani3610/code/parody-ticker/circle.png"}
+        self.ws.call(requests.CreateSource('CIRCLE','image_source',scenename,settings))
+        self.waitForUpdate(self.source_created,timeout=3)
+        img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
+        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
+        self.ws.call(requests.SetSceneItemProperties('CIRCLE',position=img_prop.getPosition()))
+    
+    def reorderSources(self):
+        required_order = ('STRIP', 'TICKER','CIRCLE','LOGO')
+        response = self.ws.call(requests.GetSceneItemList())
+        current_order = response.getSceneItems()
+        new_order = []
+        for source in required_order:
+            for item in current_order:
+                if item.get('sourceName')==source:
+                    new_order.append(item.get('itemId'))
+                    break
+
+        print(new_order)
+        print(self.ws.call(requests.ReorderSceneItems(new_order)))
 def main():
     # test0()
     # test1()
@@ -235,8 +269,11 @@ def test3():
     s1.registerEvents()
     # s1.sourcename = 'News-logo'
     # s1.exportSourceData('source-image-data.json')
-    s1.createTextSource()
-    s1.createImageSource()
+    # s1.createTextSource()
+    # s1.createImageSource()
+    # s1.createStripSource()
+    # s1.createCircleSource()
+    s1.reorderSources()
     # s1.refreshSource()
     s1.disconnect()
 
