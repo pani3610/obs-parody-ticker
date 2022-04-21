@@ -31,6 +31,11 @@ def convertJSONToDict(filepath):
     with open(abs_path(filepath),"r") as jsonfile:
         dic = json.load(jsonfile)
     return(dic)
+
+def fileToString(filepath):
+    with open(abs_path(filepath),'r') as f:
+        string = f.read()
+    return(string)
 def main():
     print(abs_path('src\\abc\\def.txt'))
     rssfeed = convertJsonToObject('onion.json')

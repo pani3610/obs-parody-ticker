@@ -17,7 +17,7 @@ class Ticker:
         self.scroll_speed,self.scroll_direction = None,None #pixels-per-second 
         '''New pixels introduced per second.'''
         
-        self.empty_time = 1 #seconds
+        self.empty_time = 3 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
         self.ssw = None
@@ -47,6 +47,8 @@ class Ticker:
             return()
         #clear ticker text before all calculations
         self.clearTextContainer() 
+
+        self.createOBSResource()
          
         self.obs.registerEvents()
         #calculateviewportwidth
@@ -69,6 +71,8 @@ class Ticker:
         self.obs_quit_event.wait()
         self.obs.disconnect()
 
+    def createOBSResource(self):
+        pass
     def calculateViewportWidth(self):
         viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
         return(viewport_width)
@@ -89,7 +93,7 @@ class Ticker:
 
     def clearTextContainer(self):
         with open(self.textcontainer,'w') as txtfile:
-            txtfile.write('')
+            txtfile.write('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum eligendi, exercitationem fuga veniam adipisci natus nesciunt voluptatum? Maxime, deserunt ullam.')
         sleep(2)
 
     def updateTextContainer(self,feed:Feed):
