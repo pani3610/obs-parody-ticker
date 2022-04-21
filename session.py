@@ -46,7 +46,7 @@ class OBSSession:
         print('All events registered')
 
     def sourceCreated(self,event):
-        if event.getSourceName() == 'TICKER':
+        if event.getSourceName() in ['TICKER','LOGO','STRIP','CIRCLE']:
             self.source_created.set()
 
     def transformChanged(self,event):
@@ -62,24 +62,12 @@ class OBSSession:
         if event.getSourceName() == self.sourcename:
             self.scroll_changed.set()
     
-    def waitForCreateSource(self):
-        self.source_created.wait()
-        self.source_created.clear()
-    def waitForScrollChange(self):
-        self.scroll_changed.wait()
-        self.scroll_changed.clear()
-        
-
     def waitForUpdate(self,event,timeout=None):
         set_before_timeout = event.wait(timeout)
         if not set_before_timeout:
             print('Timed out')
         event.clear()
         return(set_before_timeout)
-
-    def waitForVisibilityChange(self):
-        self.tickertext_visibility_changed.wait()
-        self.tickertext_visibility_changed.clear()
 
     def exportVideoData(self,filepath):
         response = self.ws.call(requests.GetVideoInfo())
@@ -123,6 +111,10 @@ class OBSSession:
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
     
+    def getSourceHeight(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        height  = response.getHeight()
+        return(height)
     def updateText(self,string):
         self.write = True
         with open(self.textfile,"r+") as txtfile:
@@ -174,7 +166,8 @@ class OBSSession:
         prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
         text_height = prop.getSourceHeight()
         print(text_height)
-        self.ws.call(requests.SetSceneItemPosition('TICKER',0.05*self.getVideoBaseWidth(),self.getVideoBaseHeight()-2*text_height))
+        position = {'x':0.05*self.getVideoBaseWidth(),'y':self.getVideoBaseHeight()-2*text_height,'alignment':1}
+        self.ws.call(requests.SetSceneItemProperties('TICKER',position=position))
         filter = source_data.get('filters').pop()
         print(filter)
         
@@ -186,11 +179,14 @@ class OBSSession:
         print(scenename)
         source_data = convertJSONToDict('source-image-data.json')
         self.ws.call(requests.CreateSource('LOGO','image_source',scenename,source_data.get('settings')))
-        self.waitForUpdate(self.source_created,timeout=5)
+        self.waitForUpdate(self.source_created,timeout=3)
         img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
         tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
-        self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
-        self.ws.call(requests.SetSceneItemPosition('LOGO',tickertext_prop.getPosition().get('x')-tickertext_prop.getHeight(),tickertext_prop.getPosition().get('y')))
+        position = {'x':tickertext_prop.getPosition().get('x')-img_prop.getHeight()/2,'y':tickertext_prop.getPosition().get('y'),'alignment':0}
+        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
+        self.ws.call(requests.SetSceneItemProperties('LOGO',position=position))
+    def createStripSource(self):
+        pass
 
 def main():
     # test0()
@@ -239,7 +235,7 @@ def test3():
     s1.registerEvents()
     # s1.sourcename = 'News-logo'
     # s1.exportSourceData('source-image-data.json')
-    # s1.createTextSource()
+    s1.createTextSource()
     s1.createImageSource()
     # s1.refreshSource()
     s1.disconnect()
