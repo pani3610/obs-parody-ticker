@@ -123,7 +123,7 @@
     + [ ] If found, set the source settings (font,text etc.)
     + [x] When switching ticker,update textfile and get the size of the rendered OBS source and calculate the switchToNextFeed time based on it.
     + [ ] Remove padding text. Add padding in terms of sleep.
-+ [ ] Since image is already stored as a feed attribute why store it as a file as well? Instead write to container from feedLogo data.
++ [x] Since image is already stored as a feed attribute why store it as a file as well? Instead write to container from feedLogo data.
 + [x] Erratic values of single space width when ran. Expected value 13. The pixel widths of feeds incorrects as well
     ```
     (.venv) f&p@💻 parody-ticker %/Users/pani3610/code/parody-ticker/.venv/bin/python /Users/pani3610/code/parody-ticker/ticker.py

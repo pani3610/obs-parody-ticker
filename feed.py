@@ -71,14 +71,13 @@ class Feed():
     
 
 class FeedLogo():
-    def __init__(self,source_loc:str,width=None,height=None,savefile_loc='src/',format='png'):
+    def __init__(self,source_loc:str,width=None,height=None,format='png'):
         # self.feed = feed
         self.name = source_loc.replace('.','_').replace('/','-')#feed.name.replace(' ','')
         self.format = format
-        self.savefile= abs_path(f'{savefile_loc}{self.name}.{self.format}')
+        # self.savefile= abs_path(f'{savefile_loc}{self.name}.{self.format}')
         try:
             self.image = Image.open(source_loc)
-            self.image.save(self.savefile)
             print('local file used')
         except Exception:
             self.main_url = '/'.join(source_loc.split('/')[:3])
@@ -108,14 +107,14 @@ class FeedLogo():
             return(None)
     
     def save(self,file_loc=None):
-        self.image.save(self.savefile)
+        self.image.save(abs_path(file_loc))
 
     def resize(self,new_size:tuple):
         if(self.image == None):
             print(f"Image is not defined for logo for {self.name}")
             return()
         self.image = self.image.resize(new_size)
-        self.save()
+        # self.save()
     
     def circular_crop(self):
         if(self.image == None):
@@ -128,7 +127,7 @@ class FeedLogo():
 
         mask = ImageChops.darker(mask,self.image.split()[-1])
         self.image.putalpha(mask)
-        self.save()
+        # self.save()
 class FeedText():
     def __init__(self,feed:Feed):
         self.feed = feed
@@ -161,6 +160,7 @@ class FeedText():
         
 def main1():
     f = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
+    f.logo.save('betoota.png')
     # f = Feed("https://babylonbee.com/feed")#,feed_img_path='src/https:--babylonbee_com-feed.png')
     # f.text.updateCourtesyText('hello')
     # f.text.updateSeparator('#')

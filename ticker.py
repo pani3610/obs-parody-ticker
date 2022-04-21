@@ -1,7 +1,6 @@
 from feed import *
 from session import OBSSession
 from time import sleep,time
-from shutil import copyfile
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
 from extrafunctions import *
@@ -105,8 +104,9 @@ class Ticker:
 
 
     def updateImageContainer(self,feed:Feed):
-        if feed.logo.savefile != None:
-            copyfile(feed.logo.savefile,self.imgcontainer)
+        if feed.logo.image != None:
+            feed.logo.save(self.imgcontainer)
+            # print(self.imgcontainer)
         else:
             print(f'{feed.name} has no image source')
 
@@ -236,9 +236,11 @@ def loadFromPickle(picklefile):
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    pickled_feeds = loadFromPickle('feed_examples.pkl')
-    f1 = next(pickled_feeds)
-    f2 = next(pickled_feeds)
+    # pickled_feeds = loadFromPickle('feed_examples.pkl')
+    # f1 = next(pickled_feeds)
+    # f2 = next(pickled_feeds)
+    f1 = Feed("https://babylonbee.com/feed",hl_count=4)
+    f2 = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
     print(f1.calculateSize())
     print(f2.calculateSize())
     t.addFeed(f1)
