@@ -183,6 +183,9 @@
 + [ ] Create OBS Ticker source from code. Store preloaded settings in Json file to be retrieved and create source.
     + If sourcename already exists, properties aren't changed. One has to delete the source a create a new source.
     + Order : Strip >> Text >> Logo >> White-Circle
+    + Alignment of sources must be as requirement:
+        + Text,Strip : Center-left (1)
+        + Logo,WhiteCircle : Center (0)
     + [ ] Lock the sources by default.
     + [ ] Create a source-group.
     + [x] Tickertext
