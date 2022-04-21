@@ -210,18 +210,19 @@ class OBSSession:
         self.ws.call(requests.SetSceneItemProperties('CIRCLE',position=img_prop.getPosition()))
     
     def reorderSources(self):
-        required_order = ('STRIP', 'TICKER','CIRCLE','LOGO')
-        response = self.ws.call(requests.GetSceneItemList())
-        current_order = response.getSceneItems()
+        required_order = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
+        response = self.ws.call(requests.GetCurrentScene())
+        current_order = response.getSources()
+        print(current_order)
         new_order = []
         for source in required_order:
             for item in current_order:
-                if item.get('sourceName')==source:
-                    new_order.append(item.get('itemId'))
+                if item.get('name')==source:
+                    new_order.append(item)#.get('itemId'))
                     break
 
         print(new_order)
-        print(self.ws.call(requests.ReorderSceneItems(new_order)))
+        print(self.ws.call(requests.ReorderSceneItems(tuple(new_order))))
 def main():
     # test0()
     # test1()
