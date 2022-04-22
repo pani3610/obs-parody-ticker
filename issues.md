@@ -193,11 +193,11 @@
         + Settings : provided during creating source.
         + Filters
     + [x] News logo
-    + [ ] Ticker-graphics
+    + [x] Ticker-graphics
         + [ ] Set white strip length based on viewport width and height based on font size.
         + [ ] Set white circle size based on image size.
         + [ ] __A _CSS_ file must be maintained for ticker-graphics__
-    + [ ] Currently source names are hard-coded. Import values from created object.
+    + [x] Currently source names are hard-coded. Import values from created object.
 + [ ] Name all the threads wherever created.
 + [x] Accomodate for negative scroll value.
 + [ ] Add multiple feeds from within ticker.

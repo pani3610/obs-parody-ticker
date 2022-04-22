@@ -16,12 +16,9 @@ class OBSSession:
         self._password = os.getenv('obswspass')
         self.ws = None
         self.connected = False
-        self.sources = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
-        self.name ='TICKER'
+        # self.sources = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
+        # self.name ='TICKER'
         # self.scenename ='Coding'
-        self.sourceparentname = 'TIcker-tape'
-        self.filtername = 'tickerscroll'
-        self.textfile = 'feed_text_dev.txt'
         # self.connect()
         # return(self.ws)
     def connect(self):
@@ -35,9 +32,6 @@ class OBSSession:
             sys.exit()
     def disconnect(self):
         self.ws.disconnect()
-
-    def repositionSources():
-        pass
     
     def addSource(self,name,type,settings=None,filters=None):
         source = OBSSource(self.ws,name,type,settings,filters)
@@ -128,11 +122,20 @@ class OBSSource():
         return(set_before_timeout)
 
     def getPositionX(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.name))
-        position = response.getPosition()
+        position = self.getPosition()
         xcor = position['x']
         return(xcor)
     
+    def getPositionY(self):
+        position = self.getPosition()
+        ycor = position['y']
+        return(ycor)
+
+    def getPosition(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
+        position = response.getPosition()
+        return(position)
+
     def getScrollSpeed(self):
         response = self.ws.call(requests.GetSourceFilters(self.name))
         filters = response.getFilters()
@@ -205,67 +208,8 @@ class OBSSource():
         self.waitForUpdate(self.source_created,timeout=3)
         for filter in self.filters: 
             self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
-
-'''
-    def createTextSource(self):
-            scene = self.ws.call(requests.GetCurrentScene())
-            scenename = scene.getName()
-            settings = convertJSONToDict('source-settings.json').get('TICKER')
-            self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,settings))
-            self.waitForUpdate(self.source_created,timeout=3)
-            prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
-            text_height = prop.getSourceHeight()
-            position = {'x':0.05*self.getVideoBaseWidth(),'y':self.getVideoBaseHeight()-2*text_height,'alignment':1}
-            self.ws.call(requests.SetSceneItemProperties('TICKER',position=position))
-            filters = convertJSONToDict('source-filters.json').get('TICKER')
-            for filter in filters: 
-        for filter in filters: 
-            for filter in filters: 
-                self.ws.call(requests.AddFilterToSource('TICKER',filter.get('name'),filter.get('type'),filter.get('settings')))
-    
-    def createImageSource(self):
-        scene = self.ws.call(requests.GetCurrentScene())
-        scenename = scene.getName()
-        settings = convertJSONToDict('source-settings.json').get('LOGO')
-        self.ws.call(requests.CreateSource('LOGO','image_source',scenename,settings))
-        self.waitForUpdate(self.source_created,timeout=3)
-        img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
-        tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
-        position = {'x':tickertext_prop.getPosition().get('x')-img_prop.getHeight()/2,'y':tickertext_prop.getPosition().get('y'),'alignment':0}
-        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
-        self.ws.call(requests.SetSceneItemProperties('LOGO',position=position))
-
-    def createStripSource(self):
-        scene = self.ws.call(requests.GetCurrentScene())
-        scenename = scene.getName()
-        settings = convertJSONToDict('source-settings.json').get('STRIP')
-        self.ws.call(requests.CreateSource('STRIP','image_source',scenename,settings))
-        self.waitForUpdate(self.source_created,timeout=3)
-        tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
-        position = {'x':0,'y':tickertext_prop.getPosition().get('y'),'alignment':1}
-        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
-        self.ws.call(requests.SetSceneItemProperties('STRIP',position=position))
-
-    def createCircleSource(self):
-        scene = self.ws.call(requests.GetCurrentScene())
-        scenename = scene.getName()
-        settings = convertJSONToDict('source-settings.json').get('CIRCLE')
-        self.ws.call(requests.CreateSource('CIRCLE','image_source',scenename,settings))
-        self.waitForUpdate(self.source_created,timeout=3)
-        img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
-        # self.ws.call(requests.SetSceneItemTransform('LOGO',tickertext_prop.getHeight()/img_prop.getHeight(),tickertext_prop.getHeight()/img_prop.getHeight(),0))
-        self.ws.call(requests.SetSceneItemProperties('CIRCLE',position=img_prop.getPosition()))
-    
-    def reorderSources(self):
-        required_order = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
-        response = self.ws.call(requests.GetCurrentScene())
-        current_order = response.getSources()
-        new_order = []
-        for source in required_order:
-            new_order.extend(list(filter(lambda item:item.get('name')==source,current_order)))
-        # print(new_order)
-        print(self.ws.call(requests.ReorderSceneItems(tuple(new_order))))
-'''
+    def repositionSource(self,position):
+        self.ws.call(requests.SetSceneItemProperties(self.name,position=position))
 def main():
     # test0()
     # test1()
