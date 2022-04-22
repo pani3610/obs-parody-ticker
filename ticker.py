@@ -78,7 +78,7 @@ class Ticker:
         width = self.obs.getVideoBaseWidth()
         height = self.obs.getSourceHeight()
         print(width,height)
-        strip = Strip(width//2,height//2)
+        strip = Strip(width,height)
     
     def createCircle(self):
         pass

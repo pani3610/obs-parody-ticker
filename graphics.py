@@ -3,8 +3,8 @@ from html2image import Html2Image
 from extrafunctions import *
 class Strip:
     def __init__(self,width,height,savefile='strip.png',html_file=None,css_file=None) -> None:
-        self.width = width
-        self.height = height
+        self.width = width//2
+        self.height = height//2
         self.savefile = savefile
         self.html = self.getDefaultHTML() if html_file == None else fileToString(html_file)
         self.css = self.getDefaultCSS() if css_file == None else fileToString(css_file)
@@ -33,7 +33,7 @@ class Strip:
             width: WIDTHpx;
             height: HEIGHTpx;
             background: radial-gradient(50% 50% at 50% 50%, #5E0080 28.65%, #000000 100%);
-            opacity: 0.8;
+            opacity: 0.95;
             box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         }
         """
@@ -43,8 +43,8 @@ class Strip:
         return(default_css)
 class Circle:
     def __init__(self,width,height,savefile='circle.png',html_file=None,css_file=None) -> None:
-        self.width = width
-        self.height = height
+        self.width = width//2
+        self.height = height//2
         self.savefile = savefile
         self.html = self.getDefaultHTML() if html_file == None else fileToString(html_file)
         self.css = self.getDefaultCSS() if css_file == None else fileToString(css_file)
@@ -75,7 +75,7 @@ class Circle:
             border-radius: 100%;
 
             background: #FFFFFF;
-            box-shadow: inset -4px 4px 4px 1px rgba(0, 0, 0, 0.8);
+            box-shadow: inset -2px 1px 4px 1px rgba(0, 0, 0, 0.8);
 
         }
         """
@@ -84,8 +84,8 @@ class Circle:
         
         return(default_css)
 def main():
-    c =Circle(32,32)
-    s = Strip(1208,30)
+    c =Circle(50,50)
+    # s = Strip(1280,30)
 
 if __name__ == '__main__':
     main()
