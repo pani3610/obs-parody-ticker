@@ -1,5 +1,6 @@
 from feed import *
 from session import OBSSession
+from graphics import Strip,Circle
 from time import sleep,time
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
@@ -16,7 +17,7 @@ class Ticker:
         self.scroll_speed,self.scroll_direction = None,None #pixels-per-second 
         '''New pixels introduced per second.'''
         
-        self.empty_time = 1 #seconds
+        self.empty_time = 3 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
         self.ssw = None
@@ -34,6 +35,11 @@ class Ticker:
         self.ticker_scenes = []
         self.obs_quit_event  = Event()
 
+        self.tickertext = None
+        self.tickerlogo = None
+        self.strip = None
+        self.circle = None
+
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
@@ -46,8 +52,9 @@ class Ticker:
             return()
         #clear ticker text before all calculations
         self.clearTextContainer() 
+
+        self.createOBSResource()
          
-        self.obs.registerEvents()
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed,self.scroll_direction = self.getScrollVelocity()
@@ -55,7 +62,7 @@ class Ticker:
         #calculate padding based on font and viewportwidth
         self.ssw = self.calculateSSW()
         
-        self.obs.hideSource()#self.obs.stopScroll()
+        self.tickertext.hideSource()#self.obs.stopScroll()
         self.checkAllFeedSize()
         # self.obs.startScroll()
 
@@ -63,37 +70,81 @@ class Ticker:
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         self.importTickerScenes()
         print('Ready')
-        self.obs.showSource()
+        self.tickertext.showSource()
         self.play()
         self.obs_quit_event.wait()
         self.obs.disconnect()
 
+    def addOBSSources(self):
+        self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
+        self.tickerlogo = self.obs.addSource('LOGO','image_source',convertJSONToDict('source-settings.json').get('LOGO'))
+        self.strip = self.obs.addSource('STRIP','image_source',convertJSONToDict('source-settings.json').get('STRIP'))
+        self.circle = self.obs.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
+
+    def repositionOBSSources(self):
+        position = {'x':0.05*self.obs.getVideoBaseWidth(),'y':self.obs.getVideoBaseHeight()-2*self.tickertext.getHeight(),'alignment':1}
+        self.tickertext.repositionSource(position)
+
+        position = {'x':self.tickertext.getPositionX()-self.tickerlogo.getHeight()/2,'y':self.tickertext.getPositionY(),'alignment':0}
+        self.tickerlogo.repositionSource(position)
+
+        position = {'x':0,'y':self.tickertext.getPositionY(),'alignment':1}
+        self.strip.repositionSource(position)
+        
+        position = self.tickerlogo.getPosition()
+        self.circle.repositionSource(position)
+
+
+
+    def reorderOBSSources(self):
+        required_order = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
+        response = self.obs.ws.call(requests.GetCurrentScene())
+        current_order = response.getSources()
+        new_order = []
+        for source in required_order:
+            new_order.extend(list(filter(lambda item:item.get('name')==source,current_order)))
+        
+        print(self.obs.ws.call(requests.ReorderSceneItems(tuple(new_order))))
+    def createOBSResource(self):
+        self.addOBSSources()
+        self.repositionOBSSources()
+        self.reorderOBSSources()
+    def createStrip(self):
+        width = self.obs.getVideoBaseWidth()
+        height = self.tickertext.getHeight()
+        Strip(width,height)
+    
+    def createCircle(self):
+        width = self.tickerlogo.getHeight()
+        height = self.tickerlogo.getSourceWidth()
+        Circle(width*1.5,height*1.5)
+
     def calculateViewportWidth(self):
-        viewport_width = self.obs.getVideoBaseWidth() - self.obs.getSourcePositionX()
+        viewport_width = self.obs.getVideoBaseWidth() - self.tickertext.getPositionX()
         return(viewport_width)
 
     def getScrollVelocity(self):
-        scroll_value = self.obs.getScrollSpeed()
+        scroll_value = self.tickertext.getScrollSpeed()
         scroll_speed = abs(scroll_value)
         scroll_direction = 1 if scroll_value >= 0 else -1
         return(scroll_speed,scroll_direction)
 
     def calculateSSW(self):
         resolution = 100
-        self.obs.updateText(resolution*' ')
-        source_width = self.obs.getSourceSourceWidth()
+        self.tickertext.updateContent(resolution*' ')
+        source_width = self.tickertext.getSourceWidth()
         single_space_width = source_width/resolution
         print('SSW',single_space_width)
         return(single_space_width)
 
     def clearTextContainer(self):
         with open(self.textcontainer,'w') as txtfile:
-            txtfile.write('')
+            txtfile.write('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rerum eligendi, exercitationem fuga veniam adipisci natus nesciunt voluptatum? Maxime, deserunt ullam.')
         sleep(2)
 
     def updateTextContainer(self,feed:Feed):
         text = self.addPadding(feed.text.raw_string)
-        self.obs.updateText(text)
+        self.tickertext.updateContent(text)
 
     def addPadding(self,string):
         if (self.scroll_direction>=0):
@@ -132,7 +183,7 @@ class Ticker:
         
 
     def switchToNextFeed(self,feed:Feed,update_start_time=None):
-        source_width = self.obs.getSourceSourceWidth()
+        source_width = self.tickertext.getSourceWidth()
         sleep_time = (source_width/self.scroll_speed)
         # self.obs.refreshSource()
         print(f'Going to sleep for {sleep_time:.2f} seconds (minus execution time)')
@@ -155,7 +206,7 @@ class Ticker:
     def checkAllFeedSize(self):
         for feed in self.feeds:
             self.updateTextContainer(feed)
-            source_width = self.obs.getSourceSourceWidth()
+            source_width = self.tickertext.getSourceWidth()
             print(feed.name,source_width)
             if(source_width > self.max_size):
                 print(f'for {feed.name}: Feed text too large. Reducing number of headlines. Original Headline Count : {feed.headlines_count}')
@@ -164,7 +215,7 @@ class Ticker:
 
            
     def reduceFeedSizeToFit(self,feed:Feed): #modified binary search to find headlines count but ensure solution doesn't exceed target.
-        source_width = self.obs.getSourceSourceWidth()
+        source_width = self.tickertext.getSourceWidth()
         low = 0
         lowvalue = 0
         high = feed.headlines_count
@@ -176,7 +227,7 @@ class Ticker:
                 break
             feed.updateHeadlinesCount(mid)
             self.updateTextContainer(feed)
-            source_width = self.obs.getSourceSourceWidth()
+            source_width = self.tickertext.getSourceWidth()
             print(f'Headline count: {mid}|Pixel Width: {source_width}')
             if(source_width>self.max_size):
                 high = mid
@@ -188,7 +239,7 @@ class Ticker:
                 
         print(f'Final headline count:{feed.headlines_count}| {source_width} pixels')
     
-    def resizeFeedLogo(self,feed):
+    def resizeFeedLogo(self,feed:Feed):
         feed.logo.resize(self.logo_size)
     
     def pause(self):
@@ -216,9 +267,9 @@ class Ticker:
     def importTickerScenes(self):
         scenes = self.obs.ws.call(requests.GetSceneList())
         for scene in scenes.getScenes():
-            convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
+            # convertObjectToJson(scene,f'scene-{scene.get("name")}.json')
             for source in scene['sources']:
-                if source.get("name")=="TIcker-tape" and source.get("render"):
+                if source.get("name")==self.tickertext.name and source.get("render"):
                     self.ticker_scenes.append(scene["name"])
                     break
         return(self.ticker_scenes)
@@ -248,6 +299,7 @@ def main():
     t.connect()
     # t.importTickerScenes()
     # t.disconnect()
+    # t.createStrip()
     t.start() #within start loop through all the feeds once,render them,get their size and reduce headlines accordingly
     # t.play()
     # print(t.padding)

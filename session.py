@@ -1,4 +1,5 @@
 from random import randrange
+from re import S
 from time import sleep, time
 from obswebsocket import obsws,requests,exceptions,events
 import os
@@ -15,12 +16,9 @@ class OBSSession:
         self._password = os.getenv('obswspass')
         self.ws = None
         self.connected = False
-        self.sourcename ='tickertext'
-        self.scenename ='Coding'
-        self.sourceparentname = 'TIcker-tape'
-        self.filtername = 'tickerscroll'
-        self.textfile = 'feed_text_dev.txt'
-        self.write = None
+        # self.sources = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
+        # self.name ='TICKER'
+        # self.scenename ='Coding'
         # self.connect()
         # return(self.ws)
     def connect(self):
@@ -34,69 +32,112 @@ class OBSSession:
             sys.exit()
     def disconnect(self):
         self.ws.disconnect()
-    def registerEvents(self):
-        self.some_transform_changed = self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
-        self.text_changed = Event()
-        self.some_source_visibility_changed = self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
-        self.tickertext_visibility_changed = Event()
-        self.some_source_filter_visibility_changed = self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
-        self.scroll_changed = Event()
-        print('All events registered')
-
-    def transformChanged(self,event):
-        # print(event.getItemName(),end=', ')
-        if (self.write and event.getItemName() == self.sourceparentname):
-            # print('width changed')
-            self.text_changed.set()
-    def visibilityChanged(self,event):
-        if event.getItemName() == self.sourcename:
-            self.tickertext_visibility_changed.set()
     
-    def scrollChanged(self,event):
-        if event.getSourceName() == self.sourcename:
-            self.scroll_changed.set()
+    def addSource(self,name,type,settings=None,filters=None):
+        source = OBSSource(self.ws,name,type,settings,filters)
+        return(source) 
     
-    def waitForScrollChange(self):
-        self.scroll_changed.wait()
-        self.scroll_changed.clear()
-        
-
-    def waitForUpdate(self,timeout=None):
-        set_before_timeout = self.text_changed.wait(timeout)
-        if not set_before_timeout:
-            print('Timed out')
-        # print('event set')
-        self.text_changed.clear()
-
-    def waitForVisibilityChange(self):
-        self.tickertext_visibility_changed.wait()
-        self.tickertext_visibility_changed.clear()
 
     def exportVideoData(self,filepath):
         response = self.ws.call(requests.GetVideoInfo())
         convertObjectToJson(response.datain,filepath)
+
     
     def exportSourceData(self,filepath):
-        prop=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
-        settings = self.ws.call(requests.GetSourceSettings(self.sourcename))
-        filters = self.ws.call(requests.GetSourceFilters(self.sourcename))
-        OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        prop=self.ws.call(requests.GetSceneItemProperties(self.name))
+        settings = self.ws.call(requests.GetSourceSettings(self.name))
+        filters = self.ws.call(requests.GetSourceFilters(self.name))
+        # OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        OBSdict = {'properties':prop.datain,'settings':settings.getSourceSettings(),'filters':filters.getFilters()}
         # print(OBSdict)
         convertObjectToJson(OBSdict,filepath)
     
+    
+    def exportSourceSettings(self,filepath='source-settings.json'):
+        OBSsettings = dict()
+        for source in self.sources:
+            response = self.ws.call(requests.GetSourceSettings(source))
+            OBSsettings.update({source:response.getSourceSettings()})
+        convertObjectToJson(OBSsettings,filepath)
+
+    def exportSourceFilters(self,filepath='source-filters.json'):
+        OBSsettings = dict()
+        for source in self.sources:
+            response = self.ws.call(requests.GetSourceFilters(source))
+            OBSsettings.update({source:response.getFilters()})
+        convertObjectToJson(OBSsettings,filepath)
+        
     def getVideoBaseWidth(self):
         response = self.ws.call(requests.GetVideoInfo())
         baseWidth = response.getBaseWidth()
         return(baseWidth)
+    def getVideoBaseHeight(self):
+        response = self.ws.call(requests.GetVideoInfo())
+        baseHeight = response.getBaseHeight()
+        return(baseHeight)
     
-    def getSourcePositionX(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
-        position = response.getPosition()
+class OBSSource():
+    def __init__(self,ws:obsws,name,type,settings=None,filters=None):
+        self.ws = ws
+        self.name = name
+        self.type = type
+        self.settings = dict() if settings == None else settings
+        self.filters = [] if filters == None else filters
+        self.write = None
+        self.registerEvents()
+        self.createSource()
+
+    def registerEvents(self):
+        self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
+        self.content_changed = Event()
+        self.ws.register(self.visibilityChanged,events.SceneItemVisibilityChanged)
+        self.visibility_changed = Event()
+        self.ws.register(self.scrollChanged,events.SourceFilterVisibilityChanged)
+        self.scroll_changed = Event()
+        self.ws.register(self.sourceCreated,events.SourceCreated)
+        self.source_created = Event()
+        print('All events registered')
+    def sourceCreated(self,event):
+        if event.getSourceName() == self.name:
+            self.source_created.set()
+
+    def transformChanged(self,event):
+        # print(event.getItemName(),end=', ')
+        if (self.write and event.getItemName() == self.name):
+            # print('width changed')
+            self.content_changed.set()
+    def visibilityChanged(self,event):
+        if event.getItemName() == self.name:
+            self.visibility_changed.set()
+    
+    def scrollChanged(self,event):
+        if event.getSourceName() == self.name:
+            self.scroll_changed.set()
+    
+    def waitForUpdate(self,event:Event,timeout=None):
+        set_before_timeout = event.wait(timeout)
+        if not set_before_timeout:
+            print('Timed out')
+        event.clear()
+        return(set_before_timeout)
+
+    def getPositionX(self):
+        position = self.getPosition()
         xcor = position['x']
         return(xcor)
     
+    def getPositionY(self):
+        position = self.getPosition()
+        ycor = position['y']
+        return(ycor)
+
+    def getPosition(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
+        position = response.getPosition()
+        return(position)
+
     def getScrollSpeed(self):
-        response = self.ws.call(requests.GetSourceFilters(self.sourcename))
+        response = self.ws.call(requests.GetSourceFilters(self.name))
         filters = response.getFilters()
         scroll_speed = 0
         for filter in filters:
@@ -104,14 +145,18 @@ class OBSSession:
                 scroll_speed = filter['settings']['speed_x']
         return(scroll_speed)
 
-    def getSourceSourceWidth(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+    def getSourceWidth(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
         sourceWidth  = response.getSourceWidth()
         return(sourceWidth)
     
-    def updateText(self,string):
+    def getHeight(self):
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
+        height  = response.getHeight()
+        return(height)
+    def updateContent(self,string):
         self.write = True
-        with open(self.textfile,"r+") as txtfile:
+        with open(str(self.settings.get('text_file')),"r+") as txtfile:
             if txtfile.read() == string:
                 print('Same text')
                 self.write = False
@@ -119,7 +164,7 @@ class OBSSession:
             txtfile.seek(0)
             txtfile.truncate()
             txtfile.write(string)
-        self.waitForUpdate(5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
+        self.waitForUpdate(self.content_changed,5) #if text not updated within x seconds code will continue. This should be enough time if new and old text render to same size.
         self.write = False
     
     def refreshSource(self):
@@ -127,59 +172,77 @@ class OBSSession:
         self.showSource()
     
     def hideSource(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
         source_visible = response.getVisible()
         if source_visible:
-            self.ws.call(requests.SetSceneItemRender(self.sourcename,False))
-            self.waitForVisibilityChange()
+            self.ws.call(requests.SetSceneItemRender(self.name,False))
+            self.waitForUpdate(self.visibility_changed)
 
     def showSource(self):
-        response=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        response=self.ws.call(requests.GetSceneItemProperties(self.name))
         source_visible = response.getVisible()
         if not source_visible:
-            self.ws.call(requests.SetSceneItemRender(self.sourcename,True))
-            self.waitForVisibilityChange()
+            self.ws.call(requests.SetSceneItemRender(self.name,True))
+            self.waitForUpdate(self.visibility_changed)
 
     def startScroll(self):
-        self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,True))
-        self.waitForScrollChange()
-        print('scroll unhidden')
+        scroll_filter = list(filter(lambda item:item.get("type")=="scroll_filter",self.filters)).pop()
+        response = self.ws.call(requests.GetSourceFilterInfo(self.name,scroll_filter.get('name')))
+        if not response.getEnabled():
+            self.ws.call(requests.SetSourceFilterVisibility(self.name,scroll_filter.get('name'),True))
+            self.waitForUpdate(self.scroll_changed)
+            print('scroll unhidden')
 
     def stopScroll(self):
-        self.ws.call(requests.SetSourceFilterVisibility(self.sourcename,self.filtername,False))
-        self.waitForScrollChange()
-        print('scroll hidden')
+        scroll_filter = list(filter(lambda item:item.get("type")=="scroll_filter",self.filters)).pop()
+        response = self.ws.call(requests.GetSourceFilterInfo(self.name,scroll_filter.get('name')))
+        if response.getEnabled():
+            self.ws.call(requests.SetSourceFilterVisibility(self.name,scroll_filter.get('name'),False))
+            self.waitForUpdate(self.scroll_changed)
+            print('scroll hidden')
 
+    def createSource(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        self.ws.call(requests.CreateSource(self.name,self.type,scenename,self.settings))
+        self.waitForUpdate(self.source_created,timeout=3)
+        for filter in self.filters: 
+            self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
+    def repositionSource(self,position):
+        self.ws.call(requests.SetSceneItemProperties(self.name,position=position))
 def main():
     # test0()
     # test1()
     # test2()
-    test3()
+    # test3()
+    test4()
     
 def test0():
     s= OBSSession()
     s.connect()
-    print(s.getSourcePositionX())
-    print(s.getScrollSpeed())
-    print(s.getSourceSourceWidth())
+    source = s.addSource('altu','image_source',{"file": "/Users/pani3610/code/parody-ticker/circle.png"})
+    print(source.getPositionX())
+    print(source.getScrollSpeed())
+    print(source.getSourceWidth())
+    s.disconnect()
     
 def test1():
     s= OBSSession()
     s.connect()
-    s.registerEvents()
+    source = s.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'))
     charlist = ['F','D']#['O','I']
     for i in range(10):
         size = 100#randrange(1,1260)
         char = charlist[i%len(charlist)]#chr(randrange(65,81))
         print(f'Round {i}',end = ' ')
         print('expected value:',char,size*13,end=' ')
-        s.updateText(char*size)
-        # print('output value:',s.getSourceSourceWidth())
-        if ( size*13 == s.getSourceSourceWidth()):
-            print('Match')
-        else:
-            print('Not match')
-    
+        source.updateContent(char*size)
+        print('output value:',source.getSourceWidth())
+        # if ( size*13 == s.getSourceSourceWidth()):
+        #     print('Match')
+        # else:
+        #     print('Not match')
+    s.disconnect()
 def test2():
     e1 = Event()
     s1= OBSSession()
@@ -193,10 +256,27 @@ def test2():
 def test3():
     s1= OBSSession()
     s1.connect()
-    s1.registerEvents()
-    # s1.exportSourceData('source-data.json')
-    s1.refreshSource()
+    tickertext = s1.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'))
+    tickerlogo = s1.addSource('LOGO','image_source',convertJSONToDict('source-settings.json').get('LOGO'))
+    strip = s1.addSource('STRIP','image_source',convertJSONToDict('source-settings.json').get('STRIP'))
+    circle = s1.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
+    # s1.exportSourceSettings('source-settings.json')
+    # s1.exportSourceFilters()
+    # s1.refreshSource()
     s1.disconnect()
 
+def test4():
+    s1= OBSSession()
+    s1.connect()
+    source = s1.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
+    source.updateContent('nanachi tang')
+    sleep(3)
+    source.hideSource()
+    sleep(3)
+    source.showSource()
+    sleep(3)
+    source.stopScroll()
+    sleep(3)
+    source.startScroll()
 if __name__ == '__main__':
     main()
