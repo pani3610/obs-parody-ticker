@@ -83,6 +83,20 @@ class OBSSession:
         # print(OBSdict)
         convertObjectToJson(OBSdict,filepath)
     
+    def exportSourceSettings(self,filepath='source-settings.json'):
+        OBSsettings = dict()
+        for source in self.sources:
+            response = self.ws.call(requests.GetSourceSettings(source))
+            OBSsettings.update({source:response.getSourceSettings()})
+        convertObjectToJson(OBSsettings,filepath)
+
+    def exportSourceFilters(self,filepath='source-filters.json'):
+        OBSsettings = dict()
+        for source in self.sources:
+            response = self.ws.call(requests.GetSourceFilters(source))
+            OBSsettings.update({source:response.getFilters()})
+        convertObjectToJson(OBSsettings,filepath)
+        
     def getVideoBaseWidth(self):
         response = self.ws.call(requests.GetVideoInfo())
         baseWidth = response.getBaseWidth()
@@ -160,26 +174,22 @@ class OBSSession:
     def createTextSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        print(scenename)
-        source_data = convertJSONToDict('source-data.json')
-        self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,source_data.get('settings')))
-        self.waitForUpdate(self.source_created,timeout=5)
+        settings = convertJSONToDict('source-settings.json').get('TICKER')
+        self.ws.call(requests.CreateSource('TICKER','text_ft2_source_v2',scenename,settings))
+        self.waitForUpdate(self.source_created,timeout=3)
         prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
         text_height = prop.getSourceHeight()
-        print(text_height)
         position = {'x':0.05*self.getVideoBaseWidth(),'y':self.getVideoBaseHeight()-2*text_height,'alignment':1}
         self.ws.call(requests.SetSceneItemProperties('TICKER',position=position))
-        filter = source_data.get('filters').pop()
-        print(filter)
-        
-        self.ws.call(requests.AddFilterToSource('TICKER',filter.get('name'),filter.get('type'),filter.get('settings')))
+        filters = convertJSONToDict('source-filters.json').get('TICKER')
+        for filter in filters: 
+            self.ws.call(requests.AddFilterToSource('TICKER',filter.get('name'),filter.get('type'),filter.get('settings')))
 
     def createImageSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        print(scenename)
-        source_data = convertJSONToDict('source-image-data.json')
-        self.ws.call(requests.CreateSource('LOGO','image_source',scenename,source_data.get('settings')))
+        settings = convertJSONToDict('source-settings.json').get('LOGO')
+        self.ws.call(requests.CreateSource('LOGO','image_source',scenename,settings))
         self.waitForUpdate(self.source_created,timeout=3)
         img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
         tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
@@ -190,8 +200,7 @@ class OBSSession:
     def createStripSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        print(scenename)
-        settings = {"file": "/Users/pani3610/code/parody-ticker/strip.png"}
+        settings = convertJSONToDict('source-settings.json').get('STRIP')
         self.ws.call(requests.CreateSource('STRIP','image_source',scenename,settings))
         self.waitForUpdate(self.source_created,timeout=3)
         tickertext_prop = self.ws.call(requests.GetSceneItemProperties('TICKER'))
@@ -202,8 +211,7 @@ class OBSSession:
     def createCircleSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        print(scenename)
-        settings = {"file": "/Users/pani3610/code/parody-ticker/circle.png"}
+        settings = convertJSONToDict('source-settings.json').get('CIRCLE')
         self.ws.call(requests.CreateSource('CIRCLE','image_source',scenename,settings))
         self.waitForUpdate(self.source_created,timeout=3)
         img_prop = self.ws.call(requests.GetSceneItemProperties('LOGO'))
@@ -264,13 +272,13 @@ def test3():
     s1= OBSSession()
     s1.connect()
     s1.registerEvents()
-    # s1.sourcename = 'News-logo'
-    # s1.exportSourceData('source-image-data.json')
-    # s1.createTextSource()
-    # s1.createImageSource()
-    # s1.createStripSource()
-    # s1.createCircleSource()
+    s1.createTextSource()
+    s1.createImageSource()
+    s1.createStripSource()
+    s1.createCircleSource()
     s1.reorderSources()
+    # s1.exportSourceSettings('source-settings.json')
+    # s1.exportSourceFilters()
     # s1.refreshSource()
     s1.disconnect()
 

@@ -1,0 +1,21 @@
+{
+    "LOGO": {
+        "file": "/Users/pani3610/code/parody-ticker/feed_img_dev.png"
+    },
+    "CIRCLE": {
+        "file": "/Users/pani3610/code/parody-ticker/circle.png"
+    },
+    "TICKER": {
+        "font": {
+            "face": "Arial",
+            "flags": 1,
+            "size": 20,
+            "style": "Bold"
+        },
+        "from_file": true,
+        "text_file": "/Users/pani3610/code/parody-ticker/feed_text_dev.txt"
+    },
+    "STRIP": {
+        "file": "/Users/pani3610/code/parody-ticker/strip.png"
+    }
+}
