@@ -15,8 +15,9 @@ class OBSSession:
         self._password = os.getenv('obswspass')
         self.ws = None
         self.connected = False
+        self.sources = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
         self.sourcename ='TICKER'
-        self.scenename ='Coding'
+        # self.scenename ='Coding'
         self.sourceparentname = 'TIcker-tape'
         self.filtername = 'tickerscroll'
         self.textfile = 'feed_text_dev.txt'
@@ -74,7 +75,7 @@ class OBSSession:
         convertObjectToJson(response.datain,filepath)
     
     def exportSourceData(self,filepath):
-        prop=self.ws.call(requests.GetSceneItemProperties(self.sourcename,self.scenename))
+        prop=self.ws.call(requests.GetSceneItemProperties(self.sourcename))
         settings = self.ws.call(requests.GetSourceSettings(self.sourcename))
         filters = self.ws.call(requests.GetSourceFilters(self.sourcename))
         # OBSdict = {**prop.datain,**settings.datain,**filters.datain}
@@ -213,15 +214,10 @@ class OBSSession:
         required_order = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
         response = self.ws.call(requests.GetCurrentScene())
         current_order = response.getSources()
-        print(current_order)
         new_order = []
         for source in required_order:
-            for item in current_order:
-                if item.get('name')==source:
-                    new_order.append(item)#.get('itemId'))
-                    break
-
-        print(new_order)
+            new_order.extend(list(filter(lambda item:item.get('name')==source,current_order)))
+        # print(new_order)
         print(self.ws.call(requests.ReorderSceneItems(tuple(new_order))))
 def main():
     # test0()
