@@ -6,8 +6,6 @@
             "enabled": true,
             "name": "tickerscroll",
             "settings": {
-                "cx": 1207,
-                "limit_cx": true,
                 "loop": true,
                 "speed_x": 310.0
             },

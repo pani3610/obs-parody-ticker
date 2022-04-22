@@ -36,6 +36,11 @@ class Ticker:
         self.ticker_scenes = []
         self.obs_quit_event  = Event()
 
+        self.tickertext = None
+        self.tickerlogo = None
+        self.strip = None
+        self.circle = None
+
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
@@ -72,6 +77,17 @@ class Ticker:
         self.obs_quit_event.wait()
         self.obs.disconnect()
 
+    def addOBSSources(self):
+        self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
+        self.tickerlogo = self.obs.addSource('LOGO','image_source',convertJSONToDict('source-settings.json').get('LOGO'))
+        self.strip = self.obs.addSource('STRIP','image_source',convertJSONToDict('source-settings.json').get('STRIP'))
+        self.circle = self.obs.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
+    
+    def repositionOBSSources(self):
+        pass
+
+    def reorderOBSSources(self):
+        pass
     def createOBSResource(self):
         pass
     def createStrip(self):

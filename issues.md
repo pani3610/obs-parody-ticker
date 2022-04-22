@@ -237,4 +237,4 @@
 + [x] Create a generic waitforupdate function
 + [x] Create common settings JSON file for all sources
 + [ ] graphics are being created of double size.
-+ [ ] Create a OBSSource class.
++ [x] Create a OBSSource class.
