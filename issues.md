@@ -238,3 +238,5 @@
 + [x] Create common settings JSON file for all sources
 + [ ] graphics are being created of double size.
 + [x] Create a OBSSource class.
++ [x] Hide OBSSource while creating and setting up.
++ [ ] Handle setup when sources already created and needs update.

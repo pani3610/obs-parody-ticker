@@ -62,15 +62,15 @@ class Ticker:
         #calculate padding based on font and viewportwidth
         self.ssw = self.calculateSSW()
         
-        self.tickertext.hideSource()#self.obs.stopScroll()
+        # self.tickertext.hideSource()#self.obs.stopScroll()
         self.checkAllFeedSize()
         # self.obs.startScroll()
 
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
-        self.importTickerScenes()
         print('Ready')
-        self.tickertext.showSource()
+        self.showOBSSources()
+        self.importTickerScenes()
         self.play()
         self.obs_quit_event.wait()
         self.obs.disconnect()
@@ -94,7 +94,11 @@ class Ticker:
         position = self.tickerlogo.getPosition()
         self.circle.repositionSource(position)
 
-
+    def showOBSSources(self):
+        self.tickertext.showSource()
+        self.tickerlogo.showSource()
+        self.strip.showSource()
+        self.circle.showSource()
 
     def reorderOBSSources(self):
         required_order = ['LOGO', 'CIRCLE', 'TICKER', 'STRIP']
