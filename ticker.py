@@ -17,7 +17,7 @@ class Ticker:
         self.scroll_speed= None#pixels-per-second 
         '''New pixels introduced per second.'''
         
-        self.empty_time = 3 #seconds
+        self.empty_time = 0 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
         self.text_direction = 1 # +1 for right-to-left and -1 for left-to-right

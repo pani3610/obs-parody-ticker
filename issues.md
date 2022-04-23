@@ -187,7 +187,7 @@
     + Alignment of sources must be as requirement:
         + Text,Strip : Center-left (1)
         + Logo,WhiteCircle : Center (0)
-    + [ ] Lock the sources by default.
+    + [x] Lock the sources by default.
     + [ ] Create a source-group.
     + [x] Tickertext
         + Properties : only position needs to be calculated and changed after creation. The rest value are all defaults.

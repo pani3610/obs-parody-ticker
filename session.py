@@ -206,6 +206,7 @@ class OBSSource():
         scenename = scene.getName()
         self.ws.call(requests.CreateSource(self.name,self.type,scenename,self.settings,False))
         self.waitForUpdate(self.source_created,timeout=3)
+        self.ws.call(requests.SetSceneItemProperties(self.name,locked=True))
         for filter in self.filters: 
             self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
     def repositionSource(self,position):
