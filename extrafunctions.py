@@ -1,7 +1,9 @@
 import json
 import os
 def abs_path(filepath:str):
-    components = filepath.split('/') if ('/' in filepath) else filepath.split('\\') # / in Mac/Linux; \ in Windows
+    if os.path.isabs(filepath):
+        return(filepath)
+    components = filepath.split(os.path.sep) # / in Mac/Linux; \ in Windows
     dir_path = os.path.dirname(os.path.realpath(__file__))
     components.insert(0,dir_path)
     final_path = os.path.join(*components)
@@ -37,8 +39,11 @@ def fileToString(filepath):
         string = f.read()
     return(string)
 def main():
-    print(abs_path('src\\abc\\def.txt'))
-    rssfeed = convertJsonToObject('onion.json')
-    print(rssfeed.feed.title)
+    # print(abs_path('src\\abc\\def.txt'))
+    # rssfeed = convertJsonToObject('onion.json')
+    # print(rssfeed.feed.title)
+    path = abs_path('main.py')
+    print(path)
+    print(abs_path(path))
 if __name__ == '__main__':
     main()

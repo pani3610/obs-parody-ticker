@@ -84,7 +84,7 @@ class FeedLogo():
             self.image = self.fetchLogoFromURL()
         # print('try works')
         self.circular_crop()
-        # self.save()
+        # self.save(f'{self.name}.{self.format}')
         if None not in (width,height):
             self.resize((width,height))
 

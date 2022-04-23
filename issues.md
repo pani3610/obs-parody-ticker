@@ -88,6 +88,7 @@
         + [ ] Font selection
         + [ ] Checkbox of all scenes where to add the ticker
         + [ ] Time between 2 feeds
+        + [ ] Text direction
         + [ ] Start and Stop button
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
@@ -240,3 +241,15 @@
 + [x] Create a OBSSource class.
 + [x] Hide OBSSource while creating and setting up.
 + [ ] Handle setup when sources already created and needs update.
++ [ ] Jitters are visible where there is a difference between size of feeds is significantly different.
+    + [ ] Remove Loop from scroll filter.
+    + [ ] if text direction is mirrored. change the
+        + [ ] alignment of TICKER
+        + [ ] position of TICKER,LOGO,CIRCLE
+    + [ ] When ticker stopped or disconnected enable loop from scroll filter.
++ [x] Logo not updating when running from main.py
+    + When saving file when fetching, the images are correctly fetched.
+    + __In main.py, imagecontainer is provided as parameter wrapped with abs_path. In ticker.updateImageContainer(), imagecontainer is wrapped again in abs_path.__
+    + [x] Rectify abs_path to handle all situations.
+        + If folder doesn't exist, create folders recursively.
+        + Identify if provided string is absolute path or relative path.
