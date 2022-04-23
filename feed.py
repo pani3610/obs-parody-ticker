@@ -157,6 +157,11 @@ class FeedText():
     def __str__(self):
         return(self.raw_string)
 
+def saveFeedstoPickle():
+    urls=['https://babylonbee.com/feed', 'https://www.theonion.com/content/feeds/daily', 'http://newsthump.com/feed/', 'https://www.betootaadvocate.com/feed/']
+    for url in urls:
+        f = Feed(url,hl_count=4)
+        f.saveToPickleFile('feed_examples.pkl')
         
 def main1():
     f = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
@@ -192,4 +197,5 @@ def main1():
     # print(f.returnFeedSummary())
     # f.exportFeedDataJson('onion.json')
 if __name__=='__main__':
-    main1()
+    # main1()
+    saveFeedstoPickle()

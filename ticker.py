@@ -308,11 +308,11 @@ def loadFromPickle(picklefile):
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
-    # pickled_feeds = loadFromPickle('feed_examples.pkl')
-    # f1 = next(pickled_feeds)
-    # f2 = next(pickled_feeds)
-    f1 = Feed("https://babylonbee.com/feed",hl_count=4)
-    f2 = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
+    pickled_feeds = loadFromPickle('feed_examples.pkl')
+    f1 = next(pickled_feeds)
+    f2 = next(pickled_feeds)
+    # f1 = Feed("https://babylonbee.com/feed",hl_count=4)
+    # f2 = Feed("https://www.betootaadvocate.com/feed/",hl_count=4)
     print(f1.calculateSize())
     print(f2.calculateSize())
     t.addFeed(f1)
