@@ -7,3 +7,6 @@ leadin.py
 *.prof
 threadresult.txt
 src/
+results/
+untracked/
+tickergraphics/
