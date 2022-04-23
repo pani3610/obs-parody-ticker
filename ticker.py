@@ -20,7 +20,7 @@ class Ticker:
         self.empty_time = 3 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
-        self.text_direction = -1 # +1 for right-to-left and -1 for left-to-right
+        self.text_direction = 1 # +1 for right-to-left and -1 for left-to-right
         
         self.ssw = None
         
@@ -160,10 +160,10 @@ class Ticker:
     def addPadding(self,string):
         if (self.text_direction==1):
             # padded_string = round(self.viewport_width/self.ssw)*' ' + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
-            padded_string = round((self.viewport_width + self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
+            padded_string = round(self.viewport_width/self.ssw)*' ' + string
         else:
             # padded_string = round(self.viewport_width/self.ssw)*' ' + string + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' 
-            padded_string = string + round((self.viewport_width + self.empty_time*self.scroll_speed)/self.ssw)*' ' 
+            padded_string = string + round(self.viewport_width/self.ssw)*' ' 
         return(padded_string)
 
 
@@ -182,10 +182,10 @@ class Ticker:
                 if(self.pause_event.isSet()):
                     return()
                 time_start = time()
-                self.tickertext.refreshSource()
                 print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
+                self.tickertext.refreshSource()
                 self.tickerlogo.showSource()
                 self.switchToNextFeed(feed,time_start)
                 
@@ -205,7 +205,7 @@ class Ticker:
         if (update_start_time != None):
             stop_time = time()
             execution_time =stop_time-update_start_time
-        self.pause_event.wait(sleep_time-execution_time+1)
+        self.pause_event.wait(sleep_time-execution_time+self.empty_time+1)
 
     def addFeed(self,feed:Feed):
         #self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
