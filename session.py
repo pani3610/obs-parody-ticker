@@ -4,6 +4,7 @@ from time import sleep, time
 from obswebsocket import obsws,requests,exceptions,events
 import os
 from dotenv import load_dotenv
+from requests import session
 from extrafunctions import * 
 import sys
 from threading import Event
@@ -42,10 +43,10 @@ class OBSSession:
         convertObjectToJson(response.datain,filepath)
 
     
-    def exportSourceData(self,filepath):
-        prop=self.ws.call(requests.GetSceneItemProperties(self.name))
-        settings = self.ws.call(requests.GetSourceSettings(self.name))
-        filters = self.ws.call(requests.GetSourceFilters(self.name))
+    def exportSourceData(self,sourcename,filepath):
+        prop=self.ws.call(requests.GetSceneItemProperties(sourcename))
+        settings = self.ws.call(requests.GetSourceSettings(sourcename))
+        filters = self.ws.call(requests.GetSourceFilters(sourcename))
         # OBSdict = {**prop.datain,**settings.datain,**filters.datain}
         OBSdict = {'properties':prop.datain,'settings':settings.getSourceSettings(),'filters':filters.getFilters()}
         # print(OBSdict)
@@ -209,12 +210,23 @@ class OBSSource():
             self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
     def repositionSource(self,position):
         self.ws.call(requests.SetSceneItemProperties(self.name,position=position))
+
+    def exportSourceData(self,filepath):
+        prop=self.ws.call(requests.GetSceneItemProperties(self.name))
+        settings = self.ws.call(requests.GetSourceSettings(self.name))
+        filters = self.ws.call(requests.GetSourceFilters(self.name))
+        # OBSdict = {**prop.datain,**settings.datain,**filters.datain}
+        OBSdict = {'properties':prop.datain,'settings':settings.getSourceSettings(),'filters':filters.getFilters()}
+        # print(OBSdict)
+        convertObjectToJson(OBSdict,filepath)
+    
 def main():
     # test0()
     # test1()
     # test2()
     # test3()
-    test4()
+    # test4()
+    test5()
     
 def test0():
     s= OBSSession()
@@ -277,5 +289,11 @@ def test4():
     source.stopScroll()
     sleep(3)
     source.startScroll()
+
+def test5():
+    s =OBSSession()
+    s.connect()
+    s.exportSourceData('TICKER','ticker.json')
+
 if __name__ == '__main__':
     main()

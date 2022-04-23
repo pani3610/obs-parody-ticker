@@ -243,9 +243,9 @@
 + [ ] Handle setup when sources already created and needs update.
 + [x] Jitters are visible where there is a difference between size of feeds is significantly different.
     + [x] Remove Loop from scroll filter.
-    + [ ] if text direction is mirrored. change the
-        + [ ] alignment of TICKER to 2
-        + [ ] position of TICKER,LOGO,CIRCLE
+    + [x] if text direction is mirrored. change the
+        + [x] alignment of TICKER to 2
+        + [x] position of TICKER,LOGO,CIRCLE
     + [x] When ticker stopped or disconnected enable loop from scroll filter.
 + [x] Logo not updating when running from main.py
     + When saving file when fetching, the images are correctly fetched.

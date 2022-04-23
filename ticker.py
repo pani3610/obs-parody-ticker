@@ -14,12 +14,14 @@ class Ticker:
         self.viewport_width = None #pixels
         '''Width of ticker text area in pixels'''
         
-        self.scroll_speed,self.scroll_direction = None,None #pixels-per-second 
+        self.scroll_speed= None#pixels-per-second 
         '''New pixels introduced per second.'''
         
         self.empty_time = 3 #seconds
         '''Amount of time in seconds we want to ticker to go blank in order to switch feeds.'''
 
+        self.text_direction = -1 # +1 for right-to-left and -1 for left-to-right
+        
         self.ssw = None
         
         self.textcontainer = savetextfile
@@ -57,11 +59,10 @@ class Ticker:
          
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
-        self.scroll_speed,self.scroll_direction = self.getScrollVelocity()
-        print(self.scroll_speed,self.scroll_direction)
+        self.scroll_speed = abs(self.tickertext.getScrollSpeed())
+        print(self.scroll_speed,self.text_direction)
         #calculate padding based on font and viewportwidth
-        self.ssw = self.calculateSSW()
-        
+        self.ssw = self.calculateSSW()  
         # self.tickertext.hideSource()#self.obs.stopScroll()
         self.checkAllFeedSize()
         # self.obs.startScroll()
@@ -83,10 +84,14 @@ class Ticker:
         self.circle = self.obs.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
 
     def repositionOBSSources(self):
-        position = {'x':0.05*self.obs.getVideoBaseWidth(),'y':self.obs.getVideoBaseHeight()-2*self.tickertext.getHeight(),'alignment':1}
+        if self.text_direction == 1:
+            position = {'x':0.05*self.obs.getVideoBaseWidth(),'y':self.obs.getVideoBaseHeight()-2*self.tickertext.getHeight(),'alignment':1}
+
+        elif self.text_direction == -1:
+            position = {'x':0.95*self.obs.getVideoBaseWidth(),'y':self.obs.getVideoBaseHeight()-2*self.tickertext.getHeight(),'alignment':2}
         self.tickertext.repositionSource(position)
 
-        position = {'x':self.tickertext.getPositionX()-self.tickerlogo.getHeight()/2,'y':self.tickertext.getPositionY(),'alignment':0}
+        position = {'x':self.tickertext.getPositionX()-self.text_direction*self.tickerlogo.getHeight()/2,'y':self.tickertext.getPositionY(),'alignment':0}
         self.tickerlogo.repositionSource(position)
 
         position = {'x':0,'y':self.tickertext.getPositionY(),'alignment':1}
@@ -129,14 +134,11 @@ class Ticker:
         Circle(width*1.5,height*1.5)
 
     def calculateViewportWidth(self):
-        viewport_width = self.obs.getVideoBaseWidth() - self.tickertext.getPositionX()
+        if self.text_direction == 1:
+            viewport_width = self.obs.getVideoBaseWidth() - self.tickertext.getPositionX()
+        elif self.text_direction == -1:
+            viewport_width = self.tickertext.getPositionX()
         return(viewport_width)
-
-    def getScrollVelocity(self):
-        scroll_value = self.tickertext.getScrollSpeed()
-        scroll_speed = abs(scroll_value)
-        scroll_direction = 1 if scroll_value >= 0 else -1
-        return(scroll_speed,scroll_direction)
 
     def calculateSSW(self):
         resolution = 100
@@ -156,10 +158,12 @@ class Ticker:
         self.tickertext.updateContent(text)
 
     def addPadding(self,string):
-        if (self.scroll_direction>=0):
-            padded_string = round(self.viewport_width/self.ssw)*' ' + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
+        if (self.text_direction==1):
+            # padded_string = round(self.viewport_width/self.ssw)*' ' + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
+            padded_string = round((self.viewport_width + self.empty_time*self.scroll_speed)/self.ssw)*' ' + string
         else:
-            padded_string = round(self.viewport_width/self.ssw)*' ' + string + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' 
+            # padded_string = round(self.viewport_width/self.ssw)*' ' + string + round((self.empty_time*self.scroll_speed)/self.ssw)*' ' 
+            padded_string = string + round((self.viewport_width + self.empty_time*self.scroll_speed)/self.ssw)*' ' 
         return(padded_string)
 
 
