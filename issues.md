@@ -240,7 +240,7 @@
 + [ ] graphics are being created of double size.
 + [x] Create a OBSSource class.
 + [x] Hide OBSSource while creating and setting up.
-+ [ ] Handle setup when sources already created and needs update.
++ [x] Handle setup when sources already created and needs update.
 + [x] Jitters are visible where there is a difference between size of feeds is significantly different.
     + [x] Remove Loop from scroll filter.
     + [x] if text direction is mirrored. change the

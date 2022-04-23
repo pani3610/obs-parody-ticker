@@ -85,8 +85,15 @@ class OBSSource():
         self.filters = [] if filters == None else filters
         self.write = None
         self.registerEvents()
-        self.createSource()
+        if self.name not in self.getSourceList():
+            self.createSource()
 
+
+    def getSourceList(self): 
+        response = self.ws.call(requests.GetSceneItemList())
+        source_list = [source.get('sourceName') for source in response.getSceneItems()]
+        return(source_list)
+    
     def registerEvents(self):
         self.ws.register(self.transformChanged,events.SceneItemTransformChanged)
         self.content_changed = Event()
@@ -294,7 +301,8 @@ def test4():
 def test5():
     s =OBSSession()
     s.connect()
-    s.exportSourceData('TICKER','ticker.json')
-
+    response = s.ws.call(requests.GetSceneItemList())
+    source_list = [source.get('sourceName') for source in response.getSceneItems()]
+    print(source_list)
 if __name__ == '__main__':
     main()
