@@ -69,7 +69,8 @@ class Ticker:
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         print('Ready')
-        self.showOBSSources()
+        # self.showOBSSources()
+        self.showGraphics()
         self.importTickerScenes()
         self.play()
         self.obs_quit_event.wait()
@@ -97,6 +98,10 @@ class Ticker:
     def showOBSSources(self):
         self.tickertext.showSource()
         self.tickerlogo.showSource()
+        self.strip.showSource()
+        self.circle.showSource()
+
+    def showGraphics(self):
         self.strip.showSource()
         self.circle.showSource()
 
@@ -173,10 +178,11 @@ class Ticker:
                 if(self.pause_event.isSet()):
                     return()
                 time_start = time()
-                # self.obs.refreshSource()
+                self.tickertext.refreshSource()
                 print(feed.returnFeedSummary())
                 self.updateTextContainer(feed)
                 self.updateImageContainer(feed)
+                self.tickerlogo.showSource()
                 self.switchToNextFeed(feed,time_start)
                 
         
@@ -189,13 +195,13 @@ class Ticker:
     def switchToNextFeed(self,feed:Feed,update_start_time=None):
         source_width = self.tickertext.getSourceWidth()
         sleep_time = (source_width/self.scroll_speed)
-        # self.obs.refreshSource()
+        # self.tickertext.refreshSource()
         print(f'Going to sleep for {sleep_time:.2f} seconds (minus execution time)')
         execution_time = 0
         if (update_start_time != None):
             stop_time = time()
             execution_time =stop_time-update_start_time
-        self.pause_event.wait(sleep_time-execution_time)
+        self.pause_event.wait(sleep_time-execution_time+1)
 
     def addFeed(self,feed:Feed):
         #self.addPaddingToFeed(feed) #Padding to be added to the containerfile and NOT to modify feedtext
@@ -265,7 +271,14 @@ class Ticker:
     def stop(self,obs_event):
         print('OBS closed.')
         self.pause()
+        # self.activateTickerLoop()
         self.obs_quit_event.set()
+
+    def activateTickerLoop(self):
+        filters = convertJSONToDict('source-filters.json').get('TICKER')
+        scroll_filter = list(filter(lambda item:item.get("type")=="scroll_filter",filters)).pop()
+        scroll_filter['settings']['loop']=True
+        self.tickertext.ws.call(requests.SetSourceFilterSettings(self.tickertext.name,scroll_filter.get('name'),scroll_filter.get('settings')))
 
 
     def importTickerScenes(self):

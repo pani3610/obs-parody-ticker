@@ -241,12 +241,12 @@
 + [x] Create a OBSSource class.
 + [x] Hide OBSSource while creating and setting up.
 + [ ] Handle setup when sources already created and needs update.
-+ [ ] Jitters are visible where there is a difference between size of feeds is significantly different.
-    + [ ] Remove Loop from scroll filter.
++ [x] Jitters are visible where there is a difference between size of feeds is significantly different.
+    + [x] Remove Loop from scroll filter.
     + [ ] if text direction is mirrored. change the
-        + [ ] alignment of TICKER
+        + [ ] alignment of TICKER to 2
         + [ ] position of TICKER,LOGO,CIRCLE
-    + [ ] When ticker stopped or disconnected enable loop from scroll filter.
+    + [x] When ticker stopped or disconnected enable loop from scroll filter.
 + [x] Logo not updating when running from main.py
     + When saving file when fetching, the images are correctly fetched.
     + __In main.py, imagecontainer is provided as parameter wrapped with abs_path. In ticker.updateImageContainer(), imagecontainer is wrapped again in abs_path.__
