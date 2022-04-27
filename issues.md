@@ -90,6 +90,7 @@
         + [ ] Time between 2 feeds
         + [ ] Text direction
         + [ ] Start and Stop button
+        + [ ] Reset button
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
@@ -176,6 +177,10 @@
         + Get headlines count from binary search
 + [ ] Add progress-bar for ticker switch.
 + [ ] Add GUI Element to set ticker properties before start
+    + Using QT to make dialog box as it has font selector built-in.
+        + Installing qt on m1 mac version is proving to be a hassle. Error being thrown while ```$ pip install pyqt5```. Trying tk.
+    + [ ] Load default values from default JSON.
+    + [ ] Save the changed properties and load it the next time the GUI bar is opened.
     + [ ] Show Sample ticker while tinkering with GUI elements. Update dynamically
 + [ ] Catch errors when no internet connection
 + [ ] Session must be outside ticker and not other way round. Maybe one OBS session can have multiple tickers with their own set of threads and events.
