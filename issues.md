@@ -95,6 +95,7 @@
     + Listbox : No Editable listbox built-in like in QT. Creating own with buttons.
         + Selectmode by default is single which allows user to highlight one item at a time. extended selectmode behaves as multiple selection in any order (normal)
         + removing multiple selected involves either removing the bottom-most or the selected items.
+        + Has inherent scrolling.
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
