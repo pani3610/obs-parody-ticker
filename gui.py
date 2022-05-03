@@ -6,7 +6,7 @@ class GUIApp:
 class EditableListBox():
     def __init__(self,parent):
         self.label = Label(parent,text='Feed List')
-        self.listbox = Listbox(parent)
+        self.listbox = Listbox(parent,selectmode='extended')
         self.add_button = Button(parent,text='+',command=self.addFeedURL)
         self.remove_button = Button(parent,text='-',command=self.removeItem)
         self.clear_button = Button(parent,text='x',command=self.clearItem)
@@ -21,7 +21,12 @@ class EditableListBox():
     def addItem(self,item):
         self.listbox.insert(END,item)
     def removeItem(self):
-        self.listbox.delete(END)
+        selected = self.listbox.curselection()
+        if selected == ():
+            self.listbox.delete(END)
+        else:
+            for index in selected[::-1]:
+                self.listbox.delete(index)
     def clearItem(self):
         self.listbox.delete(0,END)
 class FontSelector:
@@ -34,6 +39,8 @@ def main():
     root.geometry("300x250")
     feed_list = EditableListBox(root)
     feed_list.addItem('abcd')
+    feed_list.addItem('sfsdf')
+    feed_list.addItem('ffhslf')
     root.mainloop()
 if __name__ == '__main__':
     main()
