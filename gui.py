@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import simpledialog,font
+from tkinter import tix
 from feed import Feed
 class GUIApp:
     pass
@@ -168,7 +169,17 @@ class FloatEntry(LabelFrame):
     def getData(self):
         return(self.value.get())
 
+class RadioList(LabelFrame):
+    def __init__(self,parent,name,option_list):
+        super().__init__(parent,text=name,padx=10,pady=10)
+        self.value = StringVar(value=option_list[0])
+        for item in option_list:
+            checkbox = Radiobutton(self,variable=self.value,text=item,value=item,command=self.getData)
+            checkbox.pack()
+        self.pack(fill=X,padx=10,pady=10)
 
+    def getData(self):
+        print(self.value.get())
 def main():
     root = Tk()
     # root.geometry("300x250")
@@ -184,6 +195,7 @@ def main():
     ticker_font = Font(root,'Ticker Font')
     ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
     empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
+    text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
 
     root.mainloop()
 if __name__ == '__main__':
