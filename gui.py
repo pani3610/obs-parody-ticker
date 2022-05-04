@@ -1,19 +1,17 @@
-from tkinter import *
+import tkinter as tk
 from tkinter import simpledialog,font
-from tkinter import tix
-from feed import Feed
 class GUIApp:
     pass
-class EditableListBox(LabelFrame):
+class EditableListBox(tk.LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
-        self.value= StringVar()
-        self.listbox = Listbox(self,selectmode='extended',height=5,listvariable=self.value)
+        self.value= tk.StringVar()
+        self.listbox = tk.Listbox(self,selectmode='extended',height=5,listvariable=self.value)
 
-        self.button_frame = Frame(self)
-        self.add_button = Button(self.button_frame,text='+',command=self.addThroughDialog)
-        self.remove_button = Button(self.button_frame,text='-',command=self.removeItem)
-        self.clear_button = Button(self.button_frame,text='x',command=self.clearItem)
+        self.button_frame = tk.Frame(self)
+        self.add_button = tk.Button(self.button_frame,text='+',command=self.addThroughDialog)
+        self.remove_button = tk.Button(self.button_frame,text='-',command=self.removeItem)
+        self.clear_button = tk.Button(self.button_frame,text='x',command=self.clearItem)
         self.applyLayout()
 
     def addThroughDialog(self):
@@ -21,22 +19,22 @@ class EditableListBox(LabelFrame):
         self.addItem(response)
         
     def addItem(self,item):
-        self.listbox.insert(END,item)
+        self.listbox.insert(tk.END,item)
 
     def removeItem(self):
         selected = self.listbox.curselection()
         if selected == ():
-            self.listbox.delete(END)
+            self.listbox.delete(tk.END)
         else:
             for index in selected[::-1]:
                 self.listbox.delete(index)
 
     def clearItem(self):
-        self.listbox.delete(0,END)
+        self.listbox.delete(0,tk.END)
 
     def applyLayout(self):
-        self.pack(fill=X,padx=10,pady=10)
-        self.listbox.pack(side='left',fill=X,expand=True)
+        self.pack(fill=tk.X,padx=10,pady=10)
+        self.listbox.pack(side='left',fill=tk.X,expand=True)
         self.button_frame.pack(side='right')
         self.add_button.pack(side='top')
         self.remove_button.pack(side='top')
@@ -44,27 +42,27 @@ class EditableListBox(LabelFrame):
 
     def getData(self):
         return(self.value.get())
-class Font(LabelFrame):
+class Font(tk.LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
         self.parent = parent
 
-        self.selected_font = StringVar()
-        self.selected_style = StringVar()
-        self.selected_size = IntVar()
+        self.selected_font = tk.StringVar()
+        self.selected_style = tk.StringVar()
+        self.selected_size = tk.IntVar()
 
         self.selected_font.set('Arial')
         self.selected_style.set('bold')
         self.selected_size.set(24)
 
-        self.sample_label = Label(self,font=self.getData(),text='Sample')
-        # self.select_font_button = Button(self,text='Select Font ...',command=self.selectFont)
-        # self.font_entry = Entry(self)
+        self.sample_label = tk.Label(self,font=self.getData(),text='Sample')
+        # self.select_font_button = tk.Button(self,text='Select Font ...',command=self.selectFont)
+        # self.font_entry = tk.Entry(self)
         # self.font_entry['textvariable']= selected_font
         size_list = (9,10,11,12,13,14,18,24,36,48,64,72,96,144,288)
-        self.font_combo = OptionMenu(self,self.selected_font,*font.families(),command=self.refreshSample)
-        self.style_combo = OptionMenu(self,self.selected_style,*(font.NORMAL,font.BOLD,font.ITALIC),command=self.refreshSample)
-        self.size_combo = OptionMenu(self,self.selected_size,*size_list,command=self.refreshSample)
+        self.font_combo = tk.OptionMenu(self,self.selected_font,*font.families(),command=self.refreshSample)
+        self.style_combo = tk.OptionMenu(self,self.selected_style,*(font.NORMAL,font.BOLD,font.ITALIC),command=self.refreshSample)
+        self.size_combo = tk.OptionMenu(self,self.selected_size,*size_list,command=self.refreshSample)
         
         self.applyLayout()
     def refreshSample(self,variable):
@@ -74,8 +72,8 @@ class Font(LabelFrame):
     #     font_selector = FontSelector(self.parent)
          
     def applyLayout(self):
-        self.pack(fill=X,padx=10,pady=10)
-        self.sample_label.pack(side='left',fill=X,expand=True)
+        self.pack(fill=tk.X,padx=10,pady=10)
+        self.sample_label.pack(side='left',fill=tk.X,expand=True)
         # self.select_font_button.pack(side='right')
         # self.font_entry.pack()
         self.font_combo.pack(side='left')
@@ -87,47 +85,47 @@ class Font(LabelFrame):
 # class FontSelector(Toplevel):
 #     def __init__(self,parent):
 #         super().__init__(parent)
-#         self.font_frame = LabelFrame(self,text='Font')
-#         # self.font_label = Label(self.font_frame,text='Font')
-#         self.font_listbox = Listbox(self.font_frame,listvariable=StringVar(value=font.families()),height=5)
+#         self.font_frame = tk.LabelFrame(self,text='Font')
+#         # self.font_label = tk.Label(self.font_frame,text='Font')
+#         self.font_listbox = tk.Listbox(self.font_frame,listvariable=tk.StringVar(value=font.families()),height=5)
         
-#         self.style_frame = LabelFrame(self,text='Font Style')
-#         self.style_listbox = Listbox(self.style_frame,listvariable=StringVar(value=(font.NORMAL,font.BOLD,font.ITALIC)),height=5)
+#         self.style_frame = tk.LabelFrame(self,text='Font Style')
+#         self.style_listbox = tk.Listbox(self.style_frame,listvariable=tk.StringVar(value=(font.NORMAL,font.BOLD,font.ITALIC)),height=5)
 #         size_list = (9,10,11)
 #         self.font_frame.pack(side='left',padx=10,pady=10)
 #         self.font_listbox.pack()
 
 #         self.style_frame.pack(side='left',padx=10,pady=10)
 #         self.style_listbox.pack()
-class TickBoxList(LabelFrame):
+class TickBoxList(tk.LabelFrame):
     def __init__(self,parent,name,item_list):
         super().__init__(parent,text=name,padx=10,pady=10)
         self.value = []
         for item in item_list:
-            item_var = StringVar(value=item)
+            item_var = tk.StringVar(value=item)
             self.value.append(item_var)
-            checkbox = Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='')
+            checkbox = tk.Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='')
             checkbox.pack(side='left')
-        self.remove_button = Button(self,text='-',command=self.getData)
-        self.pack(fill=X,padx=10,pady=10)
+        self.remove_button = tk.Button(self,text='-',command=self.getData)
+        self.pack(fill=tk.X,padx=10,pady=10)
         self.remove_button.pack()
 
     def getData(self):
         selected_items=list(filter(lambda item:item.get()!='',self.value))
         print([item.get() for item in selected_items])
-class Slider(LabelFrame):
+class Slider(tk.LabelFrame):
     def __init__(self,parent,name,minimum:int,maximum:int):
         super().__init__(parent,text=name,padx=10,pady=10)
-        self.value = IntVar(self,value=(minimum+maximum)//2)
-        self.slider = Scale(self,from_=minimum,to=maximum,
+        self.value = tk.IntVar(self,value=(minimum+maximum)//2)
+        self.slider = tk.Scale(self,from_=minimum,to=maximum,
                             variable=self.value,
-                            orient=HORIZONTAL,
+                            orient=tk.HORIZONTAL,
                             length=200,
                             sliderlength=10,
                             width=5,
                             tickinterval=100,
                             showvalue=False)
-        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureInt),'%P'),textvariable=self.value)
+        self.entry_box = tk.Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureInt),'%P'),textvariable=self.value)
         self.applyLayout()
     def ensureInt(self,inp:str):
         if inp.isdigit():
@@ -141,19 +139,19 @@ class Slider(LabelFrame):
             return(False)
 
     def applyLayout(self):
-        self.pack(fill=X,padx=10,pady=10)
-        self.slider.pack(side='left',fill=X,expand=True)
+        self.pack(fill=tk.X,padx=10,pady=10)
+        self.slider.pack(side='left',fill=tk.X,expand=True)
         self.entry_box.pack(side='left')
     
     def getData(self):
         return(self.value)
 
-class FloatEntry(LabelFrame):
+class FloatEntry(tk.LabelFrame):
     def __init__(self,parent,name,label):
         super().__init__(parent,text=name,padx=10,pady=10)
-        self.value = IntVar()
-        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureFloat),'%P'),textvariable=self.value)
-        self.label = Label(self,text=label)
+        self.value = tk.IntVar()
+        self.entry_box = tk.Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureFloat),'%P'),textvariable=self.value)
+        self.label = tk.Label(self,text=label)
         self.applyLayout()
     def applyLayout(self):
         self.pack(padx=10,pady=10,side='left')
@@ -169,21 +167,21 @@ class FloatEntry(LabelFrame):
     def getData(self):
         return(self.value.get())
 
-class RadioList(LabelFrame):
+class RadioList(tk.LabelFrame):
     def __init__(self,parent,name,option_list):
         super().__init__(parent,text=name,padx=10,pady=10)
-        self.value = StringVar(value=option_list[0])
+        self.value = tk.StringVar(value=option_list[0])
         for item in option_list:
-            checkbox = Radiobutton(self,variable=self.value,text=item,value=item,command=self.getData)
+            checkbox = tk.Radiobutton(self,variable=self.value,text=item,value=item,command=self.getData)
             checkbox.pack()
-        self.pack(fill=X,padx=10,pady=10,side='left')
+        self.pack(fill=tk.X,padx=10,pady=10,side='left')
 
     def getData(self):
         print(self.value.get())
 def main():
-    root = Tk()
+    root = tk.Tk()
     # root.geometry("300x250")
-    # frame = LabelFrame(root,text='Feed List')
+    # frame = tk.LabelFrame(root,text='Feed List')
     # frame.pack()
     scene_list = ['Scene 1','Coding']
     scene_checklist = TickBoxList(root,'Scene List',scene_list)
@@ -196,9 +194,9 @@ def main():
     ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
     empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
     text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
-    start_button = Button(root,text='Start')
-    stop_button = Button(root,text='Stop')
-    reset_button = Button(root,text='Reset')
+    start_button = tk.Button(root,text='Start')
+    stop_button = tk.Button(root,text='Stop')
+    reset_button = tk.Button(root,text='Reset')
     start_button.pack(side='right')
     stop_button.pack(side='right')
     reset_button.pack(side='right')
