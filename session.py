@@ -34,6 +34,10 @@ class OBSSession:
     def disconnect(self):
         self.ws.disconnect()
     
+    def getSceneList(self):
+        response = self.ws.call(requests.GetSceneList())
+        return(response.getScenes())
+    
     def addSource(self,name,type,settings=None,filters=None):
         source = OBSSource(self.ws,name,type,settings,filters)
         return(source) 

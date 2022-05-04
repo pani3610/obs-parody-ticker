@@ -1,7 +1,12 @@
 import tkinter as tk
 from tkinter import simpledialog,font
-class GUIApp:
-    pass
+class GUIApp(tk.Tk):
+    def __init__(self,name):
+        super().__init__()
+        super().title(name)
+    def addWidget(self,widget):
+        pass
+
 class EditableListBox(tk.LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
@@ -179,7 +184,8 @@ class RadioList(tk.LabelFrame):
     def getData(self):
         print(self.value.get())
 def main():
-    root = tk.Tk()
+    root = GUIApp('OBS Ticker')
+    # root.title('OBS Ticker')
     # root.geometry("300x250")
     # frame = tk.LabelFrame(root,text='Feed List')
     # frame.pack()

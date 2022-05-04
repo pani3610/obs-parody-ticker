@@ -1,6 +1,7 @@
 from feed import *
 from session import OBSSession
 from graphics import Strip,Circle
+from gui import *
 from time import sleep,time
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
@@ -42,10 +43,28 @@ class Ticker:
         self.strip = None
         self.circle = None
 
+        self.gui = None
+
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
     
+    def createGUI(self):
+        self.gui = GUIApp('OBS Ticker')
+        self.gui.scene_checklist = TickBoxList(self.gui,'Scene List',self.obs.getSceneList())
+        self.gui.feed_list = EditableListBox(self.gui,'Feed List')
+        self.gui.ticker_font = Font(self.gui,'Ticker Font')
+        self.gui.ticker_scroll_speed = Slider(self.gui,'Text Scroll Speed',0,500)
+        self.gui.empty_time =FloatEntry(self.gui,'Sleep time between feeds','seconds')
+        self.gui.text_direction= RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])
+        self.gui.start_button = tk.Button(self.gui,text='Start')
+        self.gui.stop_button = tk.Button(self.gui,text='Stop')
+        self.gui.reset_button = tk.Button(self.gui,text='Reset')
+        self.gui.start_button.pack(side='right')
+        self.gui.stop_button.pack(side='right')
+        self.gui.reset_button.pack(side='right')
+        self.gui.mainloop()
+
     
     def start(self):
         #getOBSTickerObject details or create if required
