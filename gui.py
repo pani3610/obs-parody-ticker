@@ -98,8 +98,22 @@ class Font(LabelFrame):
 
 #         self.style_frame.pack(side='left',padx=10,pady=10)
 #         self.style_listbox.pack()
-class TickBoxList:
-    pass
+class TickBoxList(LabelFrame):
+    def __init__(self,parent,name,item_list):
+        super().__init__(parent,text=name,padx=10,pady=10)
+        self.value = []
+        for item in item_list:
+            item_var = StringVar(value=item)
+            self.value.append(item_var)
+            checkbox = Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='')
+            checkbox.pack(side='left')
+        self.remove_button = Button(self,text='-',command=self.getData)
+        self.pack(fill=X,padx=10,pady=10)
+        self.remove_button.pack()
+
+    def getData(self):
+        selected_items=list(filter(lambda item:item.get()!='',self.value))
+        print([item.get() for item in selected_items])
 class Slider(LabelFrame):
     def __init__(self,parent,name,minimum:int,maximum:int):
         super().__init__(parent,text=name,padx=10,pady=10)
@@ -112,8 +126,7 @@ class Slider(LabelFrame):
                             width=5,
                             tickinterval=100,
                             showvalue=False)
-        reg = parent.register(self.ensureInt)
-        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(reg,'%P'),textvariable=self.value)
+        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureInt),'%P'),textvariable=self.value)
         self.applyLayout()
     def ensureInt(self,inp:str):
         if inp.isdigit():
@@ -134,12 +147,35 @@ class Slider(LabelFrame):
     def getData(self):
         return(self.value)
 
+class FloatEntry(LabelFrame):
+    def __init__(self,parent,name,label):
+        super().__init__(parent,text=name,padx=10,pady=10)
+        self.value = IntVar()
+        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureFloat),'%P'),textvariable=self.value)
+        self.label = Label(self,text=label)
+        self.applyLayout()
+    def applyLayout(self):
+        self.pack(padx=10,pady=10,side='left')
+        self.entry_box.pack(side='left')
+        self.label.pack(side='left')
+    def ensureFloat(self,inp:str):
+        try:
+            value =float(inp)
+            return(True)
+        except ValueError:
+            print('invalid')
+            return(False)
+    def getData(self):
+        return(self.value.get())
+
 
 def main():
     root = Tk()
     # root.geometry("300x250")
     # frame = LabelFrame(root,text='Feed List')
     # frame.pack()
+    scene_list = ['Scene 1','Coding']
+    scene_checklist = TickBoxList(root,'Scene List',scene_list)
     feed_list = EditableListBox(root,'Feed List')
     for i in range(3):
         feed_list.addItem('abcd')
@@ -147,7 +183,7 @@ def main():
         feed_list.addItem('ffhslf')
     ticker_font = Font(root,'Ticker Font')
     ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
-    
+    empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
 
     root.mainloop()
 if __name__ == '__main__':
