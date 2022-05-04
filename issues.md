@@ -92,7 +92,7 @@
         + [ ] Start and Stop button
         + [ ] Reset button
 + Tkinter GUI Window
-    + Listbox : No Editable listbox built-in like in QT. Creating own with buttons.
+    + Listbox : No Editable listbox built-in like in QT. Creating own with buttons. [Resource](https://www.pythontutorial.net/tkinter/tkinter-listbox/)
         + Selectmode by default is single which allows user to highlight one item at a time. extended selectmode behaves as multiple selection in any order (normal)
         + removing multiple selected involves either removing the bottom-most or the selected items.
         + Has inherent scrolling.
