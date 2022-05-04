@@ -7,8 +7,8 @@ class GUIApp:
 class EditableListBox(LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
-
-        self.listbox = Listbox(self,selectmode='extended',height=5)
+        self.value= StringVar()
+        self.listbox = Listbox(self,selectmode='extended',height=5,listvariable=self.value)
 
         self.button_frame = Frame(self)
         self.add_button = Button(self.button_frame,text='+',command=self.addThroughDialog)
@@ -43,7 +43,7 @@ class EditableListBox(LabelFrame):
         self.clear_button.pack(side='top')
 
     def getData(self):
-        return(self.listbox.get(0,END))
+        return(self.value.get())
 class Font(LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
@@ -176,7 +176,7 @@ class RadioList(LabelFrame):
         for item in option_list:
             checkbox = Radiobutton(self,variable=self.value,text=item,value=item,command=self.getData)
             checkbox.pack()
-        self.pack(fill=X,padx=10,pady=10)
+        self.pack(fill=X,padx=10,pady=10,side='left')
 
     def getData(self):
         print(self.value.get())
@@ -196,7 +196,12 @@ def main():
     ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
     empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
     text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
-
+    start_button = Button(root,text='Start')
+    stop_button = Button(root,text='Stop')
+    reset_button = Button(root,text='Reset')
+    start_button.pack(side='right')
+    stop_button.pack(side='right')
+    reset_button.pack(side='right')
     root.mainloop()
 if __name__ == '__main__':
     main()
