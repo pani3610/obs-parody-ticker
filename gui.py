@@ -7,7 +7,7 @@ class EditableListBox(LabelFrame):
     def __init__(self,parent,name):
         super().__init__(parent,text=name,padx=10,pady=10)
 
-        self.listbox = Listbox(self,selectmode='extended')
+        self.listbox = Listbox(self,selectmode='extended',height=5)
 
         self.button_frame = Frame(self)
         self.add_button = Button(self.button_frame,text='+',command=self.addThroughDialog)
@@ -56,7 +56,7 @@ class Font(LabelFrame):
         self.selected_style.set('bold')
         self.selected_size.set(24)
 
-        self.sample_label = Label(self,font=(self.selected_font.get(),self.selected_size.get(),self.selected_style.get()),text='Sample')
+        self.sample_label = Label(self,font=self.getData(),text='Sample')
         # self.select_font_button = Button(self,text='Select Font ...',command=self.selectFont)
         # self.font_entry = Entry(self)
         # self.font_entry['textvariable']= selected_font
@@ -67,9 +67,10 @@ class Font(LabelFrame):
         
         self.applyLayout()
     def refreshSample(self,variable):
-        self.sample_label.configure(font=(self.selected_font.get(),self.selected_size.get(),self.selected_style.get()))
-    def selectFont(self):
-        font_selector = FontSelector(self.parent)
+        self.sample_label.configure(font=self.getData())
+
+    # def selectFont(self):
+    #     font_selector = FontSelector(self.parent)
          
     def applyLayout(self):
         self.pack(fill=X,padx=10,pady=10)
@@ -79,23 +80,61 @@ class Font(LabelFrame):
         self.font_combo.pack(side='left')
         self.style_combo.pack(side='left')
         self.size_combo.pack(side='left')
-class FontSelector(Toplevel):
-    def __init__(self,parent):
-        super().__init__(parent)
-        self.font_frame = LabelFrame(self,text='Font')
-        # self.font_label = Label(self.font_frame,text='Font')
-        self.font_listbox = Listbox(self.font_frame,listvariable=StringVar(value=font.families()),height=5)
+    
+    def getData(self):
+        return((self.selected_font.get(),self.selected_size.get(),self.selected_style.get()))
+# class FontSelector(Toplevel):
+#     def __init__(self,parent):
+#         super().__init__(parent)
+#         self.font_frame = LabelFrame(self,text='Font')
+#         # self.font_label = Label(self.font_frame,text='Font')
+#         self.font_listbox = Listbox(self.font_frame,listvariable=StringVar(value=font.families()),height=5)
         
-        self.style_frame = LabelFrame(self,text='Font Style')
-        self.style_listbox = Listbox(self.style_frame,listvariable=StringVar(value=(font.NORMAL,font.BOLD,font.ITALIC)),height=5)
-        size_list = (9,10,11)
-        self.font_frame.pack(side='left',padx=10,pady=10)
-        self.font_listbox.pack()
+#         self.style_frame = LabelFrame(self,text='Font Style')
+#         self.style_listbox = Listbox(self.style_frame,listvariable=StringVar(value=(font.NORMAL,font.BOLD,font.ITALIC)),height=5)
+#         size_list = (9,10,11)
+#         self.font_frame.pack(side='left',padx=10,pady=10)
+#         self.font_listbox.pack()
 
-        self.style_frame.pack(side='left',padx=10,pady=10)
-        self.style_listbox.pack()
+#         self.style_frame.pack(side='left',padx=10,pady=10)
+#         self.style_listbox.pack()
 class TickBoxList:
     pass
+class Slider(LabelFrame):
+    def __init__(self,parent,name,minimum:int,maximum:int):
+        super().__init__(parent,text=name,padx=10,pady=10)
+        self.value = IntVar(self,value=(minimum+maximum)//2)
+        self.slider = Scale(self,from_=minimum,to=maximum,
+                            variable=self.value,
+                            orient=HORIZONTAL,
+                            length=200,
+                            sliderlength=10,
+                            width=5,
+                            tickinterval=100,
+                            showvalue=False)
+        reg = parent.register(self.ensureInt)
+        self.entry_box = Entry(self,width=3,validate="key",validatecommand=(reg,'%P'),textvariable=self.value)
+        self.applyLayout()
+    def ensureInt(self,inp:str):
+        if inp.isdigit():
+            # print('digit')
+            return(True)
+        elif inp == '':
+            # print('blank')
+            return(True)
+        else:
+            print('invalid')
+            return(False)
+
+    def applyLayout(self):
+        self.pack(fill=X,padx=10,pady=10)
+        self.slider.pack(side='left',fill=X,expand=True)
+        self.entry_box.pack(side='left')
+    
+    def getData(self):
+        return(self.value)
+
+
 def main():
     root = Tk()
     # root.geometry("300x250")
@@ -107,6 +146,9 @@ def main():
         feed_list.addItem('sfsdf')
         feed_list.addItem('ffhslf')
     ticker_font = Font(root,'Ticker Font')
+    ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
+    
+
     root.mainloop()
 if __name__ == '__main__':
     main()
