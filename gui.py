@@ -7,9 +7,17 @@ class GUIApp(tk.Tk):
     def addWidget(self,widget):
         pass
 
-class EditableListBox(tk.LabelFrame):
-    def __init__(self,parent,name):
-        super().__init__(parent,text=name,padx=10,pady=10)
+class CustomWidget(tk.LabelFrame):
+    def __init__(self,parent,name,**kw):
+        super().__init__(parent,text=name,padx=10,pady=10,name=name.lower().replace(' ','_'),**kw)
+        self.value = dict()
+
+    def getData(self):
+        return(self.value.get())
+
+class EditableListBox(CustomWidget):
+    def __init__(self,parent,name,**kw):
+        super().__init__(parent,name,**kw)
         self.value= tk.StringVar()
         self.listbox = tk.Listbox(self,selectmode='extended',height=5,listvariable=self.value)
 
@@ -45,11 +53,9 @@ class EditableListBox(tk.LabelFrame):
         self.remove_button.pack(side='top')
         self.clear_button.pack(side='top')
 
-    def getData(self):
-        return(self.value.get())
-class Font(tk.LabelFrame):
-    def __init__(self,parent,name):
-        super().__init__(parent,text=name,padx=10,pady=10)
+class Font(CustomWidget):
+    def __init__(self,parent,name,**kw):
+        super().__init__(parent,name,**kw)
         self.parent = parent
 
         self.selected_font = tk.StringVar()
@@ -102,9 +108,9 @@ class Font(tk.LabelFrame):
 
 #         self.style_frame.pack(side='left',padx=10,pady=10)
 #         self.style_listbox.pack()
-class TickBoxList(tk.LabelFrame):
-    def __init__(self,parent,name,item_list):
-        super().__init__(parent,text=name,padx=10,pady=10)
+class TickBoxList(CustomWidget):
+    def __init__(self,parent,name,item_list,**kw):
+        super().__init__(parent,name,**kw)
         self.value = []
         for item in item_list:
             item_var = tk.StringVar(value=item)
@@ -117,10 +123,10 @@ class TickBoxList(tk.LabelFrame):
 
     def getData(self):
         selected_items=list(filter(lambda item:item.get()!='',self.value))
-        print([item.get() for item in selected_items])
-class Slider(tk.LabelFrame):
-    def __init__(self,parent,name,minimum:int,maximum:int):
-        super().__init__(parent,text=name,padx=10,pady=10)
+        return([item.get() for item in selected_items])
+class Slider(CustomWidget):
+    def __init__(self,parent,name,minimum:int,maximum:int,**kw):
+        super().__init__(parent,name,**kw)
         self.value = tk.IntVar(self,value=(minimum+maximum)//2)
         self.slider = tk.Scale(self,from_=minimum,to=maximum,
                             variable=self.value,
@@ -147,13 +153,9 @@ class Slider(tk.LabelFrame):
         self.pack(fill=tk.X,padx=10,pady=10)
         self.slider.pack(side='left',fill=tk.X,expand=True)
         self.entry_box.pack(side='left')
-    
-    def getData(self):
-        return(self.value)
-
-class FloatEntry(tk.LabelFrame):
-    def __init__(self,parent,name,label):
-        super().__init__(parent,text=name,padx=10,pady=10)
+class FloatEntry(CustomWidget):
+    def __init__(self,parent,name,label,**kw):
+        super().__init__(parent,name,**kw)
         self.value = tk.IntVar()
         self.entry_box = tk.Entry(self,width=3,validate="key",validatecommand=(self.register(self.ensureFloat),'%P'),textvariable=self.value)
         self.label = tk.Label(self,text=label)
@@ -169,20 +171,15 @@ class FloatEntry(tk.LabelFrame):
         except ValueError:
             print('invalid')
             return(False)
-    def getData(self):
-        return(self.value.get())
-
-class RadioList(tk.LabelFrame):
-    def __init__(self,parent,name,option_list):
-        super().__init__(parent,text=name,padx=10,pady=10)
+class RadioList(CustomWidget):
+    def __init__(self,parent,name,option_list,**kw):
+        super().__init__(parent,name,**kw)
         self.value = tk.StringVar(value=option_list[0])
         for item in option_list:
             checkbox = tk.Radiobutton(self,variable=self.value,text=item,value=item,command=self.getData)
             checkbox.pack()
         self.pack(fill=tk.X,padx=10,pady=10,side='left')
 
-    def getData(self):
-        print(self.value.get())
 def main():
     root = GUIApp('OBS Ticker')
     # root.title('OBS Ticker')
