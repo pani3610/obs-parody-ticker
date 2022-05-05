@@ -51,21 +51,55 @@ class Ticker:
     
     def createGUI(self):
         self.gui = GUIApp('OBS Ticker')
-        self.gui.scene_checklist = TickBoxList(self.gui,'Scene List',self.obs.getSceneList())
-        self.gui.feed_list = EditableListBox(self.gui,'Feed List')
-        self.gui.ticker_font = Font(self.gui,'Ticker Font')
-        self.gui.ticker_scroll_speed = Slider(self.gui,'Text Scroll Speed',0,500)
-        self.gui.empty_time =FloatEntry(self.gui,'Sleep time between feeds','seconds')
-        self.gui.text_direction= RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])
-        self.gui.start_button = tk.Button(self.gui,text='Start')
+        TickBoxList(self.gui,'Scene Checklist',self.obs.getSceneList())#
+        feed_list = EditableListBox(self.gui,'Feed List')#
+        feed_list.addItem('https://babylonbee.com/feed')
+        feed_list.addItem( 'https://www.theonion.com/content/feeds/daily')
+        Font(self.gui,'Ticker Font')
+        Slider(self.gui,'Text Scroll Speed',0,500)
+        FloatEntry(self.gui,'Sleep time between feeds','seconds')#
+        RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
+        self.gui.start_button = tk.Button(self.gui,text='Start',command=self.start)
         self.gui.stop_button = tk.Button(self.gui,text='Stop')
         self.gui.reset_button = tk.Button(self.gui,text='Reset')
-        self.gui.start_button.pack(side='right')
-        self.gui.stop_button.pack(side='right')
-        self.gui.reset_button.pack(side='right')
+        self.gui.save_button = tk.Button(self.gui,text='Save',command=self.gui.exportData)
+        self.gui.start_button.pack(side='top')
+        self.gui.stop_button.pack(side='top')
+        self.gui.reset_button.pack(side='top')
+        self.gui.save_button.pack(side='top')
         self.gui.mainloop()
 
+    def setBasicSettings(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        self.empty_time = gui_settings.get('sleep_time_between_feeds')
+        text_direction = gui_settings.get('text_direction')
+        self.text_direction = 1 if gui_settings.get('text_direction') == 'Right to Left' else -1
+        self.ticker_scenes = gui_settings.get('scene_checklist')
+        self.addFeedsFromURL(gui_settings.get('feed_list'))
+
+    def setSourceSettingsfromGUI(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        font = {'face':gui_settings.get('ticker_font')[0],
+                        'size':gui_settings.get('ticker_font')[1],
+                        'style':gui_settings.get('ticker_font')[2].title()}
+        source_settings = {'TICKER':{'font':font,'from_file':True,'text_file':abs_path(self.textcontainer)}}
+        convertObjectToJson(source_settings,'source-settings.json')
     
+    def setSourceFiltersfromGUI(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        ticker_speed = gui_settings.get('text_scroll_speed')*{'Right to Left':1,'Left to Right':-1}[gui_settings.get('text_direction')]
+        filter_settings = {"TICKER":[{
+                                    "enabled:":True,
+                                    "name":"tickerscroll",
+                                    "settings":{
+                                        'loop':False,
+                                        'speed_x':ticker_speed
+                                    },
+                                    'type':"scroll_filter"
+                                    }]}
+        convertObjectToJson(filter_settings,'source-filters.json')
+        
+
     def start(self):
         #getOBSTickerObject details or create if required
 
@@ -73,9 +107,10 @@ class Ticker:
             return()
         #clear ticker text before all calculations
         self.clearTextContainer() 
-
+        self.setBasicSettings()
+        self.setSourceSettingsfromGUI()
+        self.setSourceFiltersfromGUI()
         self.createOBSResource()
-         
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed = abs(self.tickertext.getScrollSpeed())
@@ -83,6 +118,7 @@ class Ticker:
         #calculate padding based on font and viewportwidth
         self.ssw = self.calculateSSW()  
         # self.tickertext.hideSource()#self.obs.stopScroll()
+        print(self.feeds)
         self.checkAllFeedSize()
         # self.obs.startScroll()
 
@@ -98,9 +134,9 @@ class Ticker:
 
     def addOBSSources(self):
         self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
-        self.tickerlogo = self.obs.addSource('LOGO','image_source',convertJSONToDict('source-settings.json').get('LOGO'))
-        self.strip = self.obs.addSource('STRIP','image_source',convertJSONToDict('source-settings.json').get('STRIP'))
-        self.circle = self.obs.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
+        self.tickerlogo = self.obs.addSource('LOGO','image_source',{'file':abs_path(self.imgcontainer)})
+        self.strip = self.obs.addSource('STRIP','image_source',{'file':abs_path('strip.png')})
+        self.circle = self.obs.addSource('CIRCLE','image_source',{'file':abs_path('circle.png')})
 
     def repositionOBSSources(self):
         if self.text_direction == 1:
@@ -234,6 +270,20 @@ class Ticker:
     
     def removeFeed(self,Feed):
         pass
+    
+    def addFeedsFromURL(self,url_list):
+        threads =[]
+        for rss_url in url_list:
+            thread = Thread(target=self.addFeedToTicker,args=(rss_url,))
+            thread.start()
+            threads.append(thread)
+
+        for thread in threads:
+            thread.join()
+
+    def addFeedToTicker(self,url:str):
+        f = Feed(url)
+        self.addFeed(f)        
 
 
     def checkAllFeedSize(self):
@@ -327,6 +377,9 @@ def loadFromPickle(picklefile):
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    t.connect()
+    t.createGUI()
+    return()
     pickled_feeds = loadFromPickle('feed_examples.pkl')
     f1 = next(pickled_feeds)
     f2 = next(pickled_feeds)

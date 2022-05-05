@@ -1,11 +1,24 @@
 import tkinter as tk
 from tkinter import simpledialog,font
+from extrafunctions import *
 class GUIApp(tk.Tk):
     def __init__(self,name):
         super().__init__()
         super().title(name)
     def addWidget(self,widget):
         pass
+    def getNamedChildren(self):
+        custom_widgets = {key:value for key,value in self.children.items() if not key.startswith('!')}
+        return(custom_widgets)
+
+    def exportData(self,filename='gui-data.json'):
+        gui_data ={}
+        for widget_name,widget_obj in self.getNamedChildren().items():
+            gui_data[widget_name] = widget_obj.getData()
+
+        convertObjectToJson(gui_data,filename)
+        
+
 
 class CustomWidget(tk.LabelFrame):
     def __init__(self,parent,name,**kw):
@@ -14,6 +27,9 @@ class CustomWidget(tk.LabelFrame):
 
     def getData(self):
         return(self.value.get())
+    
+    def printData(self):
+        print(self.getData())
 
 class EditableListBox(CustomWidget):
     def __init__(self,parent,name,**kw):
@@ -52,7 +68,12 @@ class EditableListBox(CustomWidget):
         self.add_button.pack(side='top')
         self.remove_button.pack(side='top')
         self.clear_button.pack(side='top')
+    def getData(self):
+        string_list = self.value.get()[1:-1]
+        string_list = string_list.replace('\'','')
+        final_list = string_list.split(', ')
 
+        return(final_list)
 class Font(CustomWidget):
     def __init__(self,parent,name,**kw):
         super().__init__(parent,name,**kw)
@@ -117,7 +138,7 @@ class TickBoxList(CustomWidget):
             self.value.append(item_var)
             checkbox = tk.Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='')
             checkbox.pack(side='left')
-        self.remove_button = tk.Button(self,text='-',command=self.getData)
+        self.remove_button = tk.Button(self,text='-',command=self.printData)
         self.pack(fill=tk.X,padx=10,pady=10)
         self.remove_button.pack()
 
@@ -182,12 +203,8 @@ class RadioList(CustomWidget):
 
 def main():
     root = GUIApp('OBS Ticker')
-    # root.title('OBS Ticker')
-    # root.geometry("300x250")
-    # frame = tk.LabelFrame(root,text='Feed List')
-    # frame.pack()
     scene_list = ['Scene 1','Coding']
-    scene_checklist = TickBoxList(root,'Scene List',scene_list)
+    scene_checklist = TickBoxList(root,'Scene Checklist',scene_list)
     feed_list = EditableListBox(root,'Feed List')
     for i in range(3):
         feed_list.addItem('abcd')
@@ -200,9 +217,12 @@ def main():
     start_button = tk.Button(root,text='Start')
     stop_button = tk.Button(root,text='Stop')
     reset_button = tk.Button(root,text='Reset')
-    start_button.pack(side='right')
-    stop_button.pack(side='right')
-    reset_button.pack(side='right')
+    start_button.pack(side='top')
+    stop_button.pack(side='top')
+    reset_button.pack(side='top')
+    # print(root.__dict__)
+    for widget_name,widget_obj in root.getNamedChildren().items():
+        print(f'{widget_name} : {widget_obj.getData()}')
     root.mainloop()
 if __name__ == '__main__':
     main()

@@ -1,0 +1,18 @@
+{
+    "scene_checklist": [
+        "Scene",
+        "Scene 2"
+    ],
+    "feed_list": [
+        "https://babylonbee.com/feed",
+        "https://www.theonion.com/content/feeds/daily"
+    ],
+    "ticker_font": [
+        "Arial",
+        24,
+        "bold"
+    ],
+    "text_scroll_speed": 250,
+    "sleep_time_between_feeds": 0,
+    "text_direction": "Right to Left"
+}

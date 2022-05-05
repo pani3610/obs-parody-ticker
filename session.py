@@ -36,7 +36,8 @@ class OBSSession:
     
     def getSceneList(self):
         response = self.ws.call(requests.GetSceneList())
-        return(response.getScenes())
+        scene_list = [ scene.get('name') for scene in response.getScenes()]
+        return(scene_list)
     
     def addSource(self,name,type,settings=None,filters=None):
         source = OBSSource(self.ws,name,type,settings,filters)
@@ -305,8 +306,9 @@ def test4():
 def test5():
     s =OBSSession()
     s.connect()
-    response = s.ws.call(requests.GetSceneItemList())
-    source_list = [source.get('sourceName') for source in response.getSceneItems()]
-    print(source_list)
+    print(s.getSceneList())
+    # response = s.ws.call(requests.GetSceneItemList())
+    # source_list = [source.get('sourceName') for source in response.getSceneItems()]
+    # print(source_list)
 if __name__ == '__main__':
     main()

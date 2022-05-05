@@ -82,15 +82,15 @@
     + ~~Achieved externally through Shortcuts app on Mac.~~
 + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
     + [ ] It lets you provide inputs via GUI component. It can be used to provide options. Some feasible options maybe:
-        + [ ] Tickbox list of feed sources
-        + [ ] Name and url prompt to add your own feed sources.
-        + [ ] Slider to control scroll speed
-        + [ ] Font selection
-        + [ ] Checkbox of all scenes where to add the ticker
-        + [ ] Time between 2 feeds
-        + [ ] Text direction
-        + [ ] Start and Stop button
-        + [ ] Reset button
+        + [x] Tickbox list of feed sources
+        + [x] Name and url prompt to add your own feed sources.
+        + [x] Slider to control scroll speed
+        + [x] Font selection
+        + [x] Checkbox of all scenes where to add the ticker
+        + [x] Time between 2 feeds
+        + [x] Text direction
+        + [x] Start and Stop button
+        + [x] Reset button
 + Tkinter GUI Window
     + Listbox : No Editable listbox built-in like in QT. Creating own with buttons. [Resource](https://www.pythontutorial.net/tkinter/tkinter-listbox/)
         + Selectmode by default is single which allows user to highlight one item at a time. extended selectmode behaves as multiple selection in any order (normal)
@@ -268,3 +268,5 @@
     + [x] Rectify abs_path to handle all situations.
         + If folder doesn't exist, create folders recursively.
         + Identify if provided string is absolute path or relative path.
++ [ ] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.
++ [ ] Add default settings for the GUI to reset to.

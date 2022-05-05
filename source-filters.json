@@ -1,16 +1,13 @@
 {
-    "LOGO": [],
-    "CIRCLE": [],
     "TICKER": [
         {
-            "enabled": true,
+            "enabled:": true,
             "name": "tickerscroll",
             "settings": {
                 "loop": false,
-                "speed_x": 310.0
+                "speed_x": 250
             },
             "type": "scroll_filter"
         }
-    ],
-    "STRIP": []
+    ]
 }
