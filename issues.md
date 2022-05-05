@@ -270,5 +270,5 @@
         + Identify if provided string is absolute path or relative path.
 + [x] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.[Resource](https://tkdocs.com/tutorial/eventloop.html)
     + Issue solved by creating different buttons for play pause.
-+ [ ] Add default settings for the GUI to reset to.
++ [x] Add default settings for the GUI to reset to.
 + [x] Same button for play/pause

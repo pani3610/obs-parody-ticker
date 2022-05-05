@@ -62,7 +62,7 @@ class Ticker:
         tk.Button(self.gui,text='Start',command=self.start).pack()
         ToggleButton(self.gui,'⏸','▶️',self.pause,self.play).pack()
         tk.Button(self.gui,text='Stop',command=self.stop).pack()
-        tk.Button(self.gui,text='Reset').pack()
+        tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
         tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
         self.gui.mainloop()
 

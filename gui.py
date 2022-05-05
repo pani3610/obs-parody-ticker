@@ -17,6 +17,12 @@ class GUIApp(tk.Tk):
             gui_data[widget_name] = widget_obj.getData()
 
         convertObjectToJson(gui_data,filename)
+    
+    def importData(self,filename):
+        gui_data = convertJSONToDict(filename)
+        for widget_name,widget_obj in self.getNamedChildren().items():
+            widget_obj.setData(gui_data.get(widget_name))
+
         
 
 
@@ -28,6 +34,8 @@ class CustomWidget(tk.LabelFrame):
     def getData(self):
         return(self.value.get())
     
+    def setData(self,value):
+        self.value.set(value)
     def printData(self):
         print(self.getData())
 
@@ -72,8 +80,12 @@ class EditableListBox(CustomWidget):
         string_list = self.value.get()[1:-1]
         string_list = string_list.replace('\'','')
         final_list = string_list.split(', ')
-
         return(final_list)
+
+    def setData(self,input_list):
+        self.value.set(input_list)
+        
+
 class Font(CustomWidget):
     def __init__(self,parent,name,**kw):
         super().__init__(parent,name,**kw)
@@ -97,7 +109,7 @@ class Font(CustomWidget):
         self.size_combo = tk.OptionMenu(self,self.selected_size,*size_list,command=self.refreshSample)
         
         self.applyLayout()
-    def refreshSample(self,variable):
+    def refreshSample(self,unused_variable):
         self.sample_label.configure(font=self.getData())
 
     # def selectFont(self):
@@ -114,6 +126,12 @@ class Font(CustomWidget):
     
     def getData(self):
         return((self.selected_font.get(),self.selected_size.get(),self.selected_style.get()))
+    def setData(self,input_list):
+        self.selected_font.set(input_list[0])
+        self.selected_size.set(input_list[1])
+        self.selected_style.set(input_list[2])
+        self.refreshSample('')
+
 # class FontSelector(Toplevel):
 #     def __init__(self,parent):
 #         super().__init__(parent)
@@ -136,15 +154,22 @@ class TickBoxList(CustomWidget):
         for item in item_list:
             item_var = tk.StringVar(value=item)
             self.value.append(item_var)
-            checkbox = tk.Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='')
+            checkbox = tk.Checkbutton(self,variable=item_var,text=item,onvalue=item,offvalue='!'+item)
             checkbox.pack(side='left')
         self.remove_button = tk.Button(self,text='-',command=self.printData)
         self.pack(fill=tk.X,padx=10,pady=10)
         self.remove_button.pack()
 
     def getData(self):
-        selected_items=list(filter(lambda item:item.get()!='',self.value))
+        selected_items=list(filter(lambda item:not item.get().startswith('!'),self.value))
         return([item.get() for item in selected_items])
+    def setData(self,input_list):
+        for item in self.value:
+            real_value = item.get()[1:] if item.get().startswith('!') else item.get()
+            if (real_value in input_list):
+                item.set(real_value)
+            else:
+                item.set('!'+real_value)
 class Slider(CustomWidget):
     def __init__(self,parent,name,minimum:int,maximum:int,**kw):
         super().__init__(parent,name,**kw)
@@ -220,32 +245,31 @@ class ToggleButton(tk.Button):
 
 def main():
     root = GUIApp('OBS Ticker')
-    def on():
-        print('on')
-    def off():
-        print('off')
-    ToggleButton(root,'ON','OFF',on,off) 
-
-
-    # scene_list = ['Scene 1','Coding']
-    # scene_checklist = TickBoxList(root,'Scene Checklist',scene_list)
-    # feed_list = EditableListBox(root,'Feed List')
-    # for i in range(3):
-    #     feed_list.addItem('abcd')
-    #     feed_list.addItem('sfsdf')
-    #     feed_list.addItem('ffhslf')
-    # ticker_font = Font(root,'Ticker Font')
-    # ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
-    # empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
-    # text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
-    # start_button = tk.Button(root,text='Start▶️')
-    # stop_button = tk.Button(root,text='Stop')
-    # reset_button = tk.Button(root,text='Reset')
-    # start_button.pack(side='top')
-    # stop_button.pack(side='top')
-    # reset_button.pack(side='top')
-    # print(start_button.configure().keys())
-    # # print(root.__dict__)
+    # def on():
+    #     print('on')
+    # def off():
+    #     print('off')
+    # ToggleButton(root,'ON','OFF',on,off) 
+    scene_list = ['Scene 1','Coding']
+    scene_checklist = TickBoxList(root,'Scene Checklist',scene_list)
+    scene_checklist.setData(['Coding'])
+    feed_list = EditableListBox(root,'Feed List')
+    for i in range(3):
+        feed_list.addItem('abcd')
+        feed_list.addItem('sfsdf')
+        feed_list.addItem('ffhslf')
+    ticker_font = Font(root,'Ticker Font')
+    ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
+    empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
+    text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
+    start_button = tk.Button(root,text='Start▶️')
+    stop_button = tk.Button(root,text='Stop')
+    reset_button = tk.Button(root,text='Reset')
+    start_button.pack(side='top')
+    stop_button.pack(side='top')
+    reset_button.pack(side='top')
+    root.importData('gui-data.json')
+    # print(root.__dict__)
     # for widget_name,widget_obj in root.getNamedChildren().items():
     #     print(f'{widget_name} : {widget_obj.getData()}')
     root.mainloop()
