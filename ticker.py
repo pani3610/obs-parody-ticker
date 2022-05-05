@@ -59,18 +59,11 @@ class Ticker:
         Slider(self.gui,'Text Scroll Speed',0,500)
         FloatEntry(self.gui,'Sleep time between feeds','seconds')#
         RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
-        self.gui.start_button = tk.Button(self.gui,text='Start',command=self.start)
-        self.gui.play_button = tk.Button(self.gui,text='Play',command=self.play)
-        self.gui.pause_button = tk.Button(self.gui,text='Pause',command=self.pause)
-        self.gui.stop_button = tk.Button(self.gui,text='Stop',command=self.stop)
-        self.gui.reset_button = tk.Button(self.gui,text='Reset')
-        self.gui.save_button = tk.Button(self.gui,text='Save',command=self.gui.exportData)
-        self.gui.start_button.pack(side='top')
-        self.gui.play_button.pack(side='top')
-        self.gui.pause_button.pack(side='top')
-        self.gui.stop_button.pack(side='top')
-        self.gui.reset_button.pack(side='top')
-        self.gui.save_button.pack(side='top')
+        tk.Button(self.gui,text='Start',command=self.start).pack()
+        ToggleButton(self.gui,'⏸','▶️',self.pause,self.play).pack()
+        tk.Button(self.gui,text='Stop',command=self.stop).pack()
+        tk.Button(self.gui,text='Reset').pack()
+        tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
         self.gui.mainloop()
 
     def setBasicSettings(self):
@@ -92,6 +85,7 @@ class Ticker:
     def setSourceFiltersfromGUI(self):
         gui_settings = convertJSONToDict('gui-data.json')
         ticker_speed = gui_settings.get('text_scroll_speed')*{'Right to Left':1,'Left to Right':-1}[gui_settings.get('text_direction')]
+        print(ticker_speed)
         filter_settings = {"TICKER":[{
                                     "enabled:":True,
                                     "name":"tickerscroll",
@@ -330,10 +324,12 @@ class Ticker:
         feed.logo.resize(self.logo_size)
     
     def pause(self):
-        # print('Stopping ticker')
+        print('ticker paused')
         self.pause_event.set()
         if self.play_thread != None:
             self.play_thread.join()
+        self.tickertext.hideSource()
+        self.tickerlogo.hideSource()
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
         # print(self.ticker_scenes)

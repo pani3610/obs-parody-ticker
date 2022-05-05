@@ -5,7 +5,7 @@
             "name": "tickerscroll",
             "settings": {
                 "loop": false,
-                "speed_x": 250
+                "speed_x": 392
             },
             "type": "scroll_filter"
         }

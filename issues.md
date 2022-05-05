@@ -268,6 +268,7 @@
     + [x] Rectify abs_path to handle all situations.
         + If folder doesn't exist, create folders recursively.
         + Identify if provided string is absolute path or relative path.
-+ [ ] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.
++ [x] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.[Resource](https://tkdocs.com/tutorial/eventloop.html)
     + Issue solved by creating different buttons for play pause.
 + [ ] Add default settings for the GUI to reset to.
++ [x] Same button for play/pause

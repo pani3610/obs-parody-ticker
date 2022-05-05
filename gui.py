@@ -201,28 +201,53 @@ class RadioList(CustomWidget):
             checkbox.pack()
         self.pack(fill=tk.X,padx=10,pady=10,side='left')
 
+
+class ToggleButton(tk.Button):
+    def __init__(self,parent,on_text,off_text,on_command,off_command,**kw):
+        self.off_text = off_text
+        self.on_text = on_text
+        self.on_command = on_command
+        self.off_command = off_command
+        self.value = tk.StringVar(value=self.off_text)
+        super().__init__(parent,textvariable=self.value,command=self.toggle,**kw)
+    def toggle(self):
+        if (self.value.get()==self.off_text):
+            self.value.set(self.on_text)
+            self.off_command()
+        elif (self.value.get()==self.on_text):
+            self.value.set(self.off_text)
+            self.on_command()
+
 def main():
     root = GUIApp('OBS Ticker')
-    scene_list = ['Scene 1','Coding']
-    scene_checklist = TickBoxList(root,'Scene Checklist',scene_list)
-    feed_list = EditableListBox(root,'Feed List')
-    for i in range(3):
-        feed_list.addItem('abcd')
-        feed_list.addItem('sfsdf')
-        feed_list.addItem('ffhslf')
-    ticker_font = Font(root,'Ticker Font')
-    ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
-    empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
-    text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
-    start_button = tk.Button(root,text='Start')
-    stop_button = tk.Button(root,text='Stop')
-    reset_button = tk.Button(root,text='Reset')
-    start_button.pack(side='top')
-    stop_button.pack(side='top')
-    reset_button.pack(side='top')
-    # print(root.__dict__)
-    for widget_name,widget_obj in root.getNamedChildren().items():
-        print(f'{widget_name} : {widget_obj.getData()}')
+    def on():
+        print('on')
+    def off():
+        print('off')
+    ToggleButton(root,'ON','OFF',on,off) 
+
+
+    # scene_list = ['Scene 1','Coding']
+    # scene_checklist = TickBoxList(root,'Scene Checklist',scene_list)
+    # feed_list = EditableListBox(root,'Feed List')
+    # for i in range(3):
+    #     feed_list.addItem('abcd')
+    #     feed_list.addItem('sfsdf')
+    #     feed_list.addItem('ffhslf')
+    # ticker_font = Font(root,'Ticker Font')
+    # ticker_scroll_speed = Slider(root,'Text Scroll Speed',0,400)
+    # empty_time =FloatEntry(root,'Sleep time between feeds','seconds')
+    # text_direction= RadioList(root,'Text Direction',['Right to Left','Left to Right'])
+    # start_button = tk.Button(root,text='Start▶️')
+    # stop_button = tk.Button(root,text='Stop')
+    # reset_button = tk.Button(root,text='Reset')
+    # start_button.pack(side='top')
+    # stop_button.pack(side='top')
+    # reset_button.pack(side='top')
+    # print(start_button.configure().keys())
+    # # print(root.__dict__)
+    # for widget_name,widget_obj in root.getNamedChildren().items():
+    #     print(f'{widget_name} : {widget_obj.getData()}')
     root.mainloop()
 if __name__ == '__main__':
     main()

@@ -1,6 +1,5 @@
 {
     "scene_checklist": [
-        "Scene",
         "Scene 2"
     ],
     "feed_list": [
@@ -12,7 +11,7 @@
         24,
         "bold"
     ],
-    "text_scroll_speed": 250,
+    "text_scroll_speed": 392,
     "sleep_time_between_feeds": 0,
     "text_direction": "Right to Left"
 }
