@@ -269,4 +269,5 @@
         + If folder doesn't exist, create folders recursively.
         + Identify if provided string is absolute path or relative path.
 + [ ] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.
+    + Issue solved by creating different buttons for play pause.
 + [ ] Add default settings for the GUI to reset to.

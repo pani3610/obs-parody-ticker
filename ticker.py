@@ -60,10 +60,14 @@ class Ticker:
         FloatEntry(self.gui,'Sleep time between feeds','seconds')#
         RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
         self.gui.start_button = tk.Button(self.gui,text='Start',command=self.start)
-        self.gui.stop_button = tk.Button(self.gui,text='Stop')
+        self.gui.play_button = tk.Button(self.gui,text='Play',command=self.play)
+        self.gui.pause_button = tk.Button(self.gui,text='Pause',command=self.pause)
+        self.gui.stop_button = tk.Button(self.gui,text='Stop',command=self.stop)
         self.gui.reset_button = tk.Button(self.gui,text='Reset')
         self.gui.save_button = tk.Button(self.gui,text='Save',command=self.gui.exportData)
         self.gui.start_button.pack(side='top')
+        self.gui.play_button.pack(side='top')
+        self.gui.pause_button.pack(side='top')
         self.gui.stop_button.pack(side='top')
         self.gui.reset_button.pack(side='top')
         self.gui.save_button.pack(side='top')
@@ -124,13 +128,13 @@ class Ticker:
 
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
-        print('Ready')
         # self.showOBSSources()
         self.showGraphics()
         self.importTickerScenes()
-        self.play()
-        self.obs_quit_event.wait()
-        self.obs.disconnect()
+        print('Ready to play')
+        # self.play()
+        # self.obs_quit_event.wait()
+        # self.obs.disconnect()
 
     def addOBSSources(self):
         self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
