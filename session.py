@@ -269,6 +269,11 @@ class OBSSource():
             if self.name not in self.getSourceList(scene):
                 self.ws.call(requests.DuplicateSceneItem(self.name,None,scene))
     
+    def removeSourceFromScenes(self,scene_list):
+        for scene in scene_list:
+            if self.name in self.getSourceList(scene):
+                self.ws.call(requests.DeleteSceneItem(self.name,scene))
+    
 def main():
     # test0()
     # test1()

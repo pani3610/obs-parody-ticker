@@ -278,4 +278,5 @@
 + Duplicated sources are not refreshed and the text resumes from the same place where left on the previous scene.
 + [x] Duplicating source doesn't retain the position or lock values.
 + [ ] Complete remove feed.
-+ [ ] Stop should delete all sources.
++ [x] Stop should delete all sources.
++ [ ] Handle case when no scene is selected in GUI.

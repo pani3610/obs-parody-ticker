@@ -49,7 +49,7 @@ class Ticker:
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
-        self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
+        # self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
     
     def createGUI(self):
         self.gui = GUIApp('OBS Ticker')
@@ -74,7 +74,7 @@ class Ticker:
         text_direction = gui_settings.get('text_direction')
         self.text_direction = 1 if gui_settings.get('text_direction') == 'Right to Left' else -1
         self.ticker_scenes = gui_settings.get('scene_checklist')
-        self.addFeedsFromURL(gui_settings.get('feed_list'))
+        self.updateFeedList(gui_settings.get('feed_list'))
 
     def setSourceSettingsfromGUI(self):
         gui_settings = convertJSONToDict('gui-data.json')
@@ -120,7 +120,6 @@ class Ticker:
         #calculate padding based on font and viewportwidth
         self.ssw = self.calculateSSW()  
         # self.tickertext.hideSource()#self.obs.stopScroll()
-        print(self.feeds)
         self.checkAllFeedSize()
         # self.obs.startScroll()
 
@@ -205,6 +204,12 @@ class Ticker:
         self.duplicateOBSSources(self.ticker_scenes[1:])
         self.obs.setCurrentScene(self.ticker_scenes[0])
     
+    def removeOBSSources(self,scene_list):
+        self.strip.removeSourceFromScenes(scene_list)
+        self.tickertext.removeSourceFromScenes(scene_list)
+        self.circle.removeSourceFromScenes(scene_list)
+        self.tickerlogo.removeSourceFromScenes(scene_list)
+
     def createStrip(self):
         width = self.obs.getVideoBaseWidth()
         height = self.tickertext.getHeight()
@@ -298,7 +303,8 @@ class Ticker:
     def removeFeed(self,Feed):
         pass
     
-    def addFeedsFromURL(self,url_list):
+    def updateFeedList(self,url_list):
+        self.feeds = []
         threads =[]
         for rss_url in url_list:
             thread = Thread(target=self.addFeedToTicker,args=(rss_url,))
@@ -370,11 +376,15 @@ class Ticker:
             self.pause()
 
 
-    def stop(self,obs_event):
-        print('OBS closed.')
+    def stop(self):
         self.pause()
+        self.removeOBSSources(self.obs.getSceneList())
+        del self.tickertext
+        del self.tickerlogo
+        del self.strip
+        del self.circle
         # self.activateTickerLoop()
-        self.obs_quit_event.set()
+        # self.obs_quit_event.set()
 
     def activateTickerLoop(self):
         filters = convertJSONToDict('source-filters.json').get('TICKER')

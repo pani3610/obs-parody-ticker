@@ -1,21 +1,15 @@
 {
-    "scene_checklist": [
-        "Scene 2",
-        "Scene 3",
-        "Scene 4",
-        "Scene 5",
-        "Scene 6"
-    ],
+    "scene_checklist": [],
     "feed_list": [
         "https://babylonbee.com/feed",
         "https://www.theonion.com/content/feeds/daily"
     ],
     "ticker_font": [
-        "Arial",
+        "Roboto Mono",
         24,
         "bold"
     ],
-    "text_scroll_speed": 250,
-    "sleep_time_between_feeds": 0,
+    "text_scroll_speed": 150,
+    "sleep_time_between_feeds": 2,
     "text_direction": "Right to Left"
 }
