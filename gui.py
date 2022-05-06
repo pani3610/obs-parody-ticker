@@ -23,7 +23,8 @@ class GUIApp(tk.Tk):
         for widget_name,widget_obj in self.getNamedChildren().items():
             widget_obj.setData(gui_data.get(widget_name))
 
-        
+    def onQuit(self,function):
+        self.protocol('WM_DELETE_WINDOW',function)        
 
 
 class CustomWidget(tk.LabelFrame):

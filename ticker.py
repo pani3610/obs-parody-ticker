@@ -44,19 +44,19 @@ class Ticker:
         self.circle = None
 
         self.gui = None
+        
+        self.status = 'not started'
 
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
         self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
-        # self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
+        self.obs.ws.register(lambda event: self.gui.destroy(),events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
     
     def createGUI(self):
         self.gui = GUIApp('OBS Ticker')
         TickBoxList(self.gui,'Scene Checklist',self.obs.getSceneList())#
-        feed_list = EditableListBox(self.gui,'Feed List')#
-        feed_list.addItem('https://babylonbee.com/feed')
-        feed_list.addItem( 'https://www.theonion.com/content/feeds/daily')
+        EditableListBox(self.gui,'Feed List')#
         Font(self.gui,'Ticker Font')
         Slider(self.gui,'Text Scroll Speed',0,500)
         FloatEntry(self.gui,'Sleep time between feeds','seconds')#
@@ -66,6 +66,7 @@ class Ticker:
         tk.Button(self.gui,text='Stop',command=self.stop).pack()
         tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
         tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
+        self.gui.onQuit(self.quit)
         self.gui.mainloop()
 
     def setBasicSettings(self):
@@ -126,6 +127,7 @@ class Ticker:
         # self.showOBSSources()
         self.showGraphics()
         # self.importTickerScenes()
+        self.status = 'started'
         print('Ready to play')
         # self.play()
         # self.obs_quit_event.wait()
@@ -377,14 +379,24 @@ class Ticker:
 
 
     def stop(self):
-        self.pause()
-        self.removeOBSSources(self.obs.getSceneList())
-        del self.tickertext
-        del self.tickerlogo
-        del self.strip
-        del self.circle
+        if self.status == 'started':
+            self.pause()
+            self.removeOBSSources(self.obs.getSceneList())
+            del self.tickertext
+            del self.tickerlogo
+            del self.strip
+            del self.circle
+            self.ticker_scenes = []
+            self.status = 'not started'
+            print('ticker stopped')
         # self.activateTickerLoop()
         # self.obs_quit_event.set()
+        
+    def quit(self):
+        self.stop()
+        self.obs.disconnect()
+        self.gui.destroy()
+        print('ticker quit')
 
     def activateTickerLoop(self):
         filters = convertJSONToDict('source-filters.json').get('TICKER')

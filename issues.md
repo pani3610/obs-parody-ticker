@@ -280,3 +280,24 @@
 + [ ] Complete remove feed.
 + [x] Stop should delete all sources.
 + [ ] Handle case when no scene is selected in GUI.
++ [ ] Following error thrown in the Ticker thread. find root cause
+    ```
+    Connected to OBS
+    150
+    Scene 6 -> Scene 3
+    play ticker
+    The Babylon Bee | 10 headlines | Feed data latest by Fri, 06 May 2022 16:37:01 -0400 | 887 characters long
+    Exception in thread Ticker thread:
+    Traceback (most recent call last):
+    File "/opt/homebrew/Cellar/python@3.9/3.9.12/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 973, in _bootstrap_inner
+        self.run()
+    File "/opt/homebrew/Cellar/python@3.9/3.9.12/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 910, in run
+        self._target(*self._args, **self._kwargs)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 275, in startTickerLoop
+        self.updateTextContainer(feed)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 246, in updateTextContainer
+        text = self.addPadding(feed.text.raw_string)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 252, in addPadding
+        padded_string = round(self.viewport_width/self.ssw)*' ' + string
+    TypeError: unsupported operand type(s) for /: 'NoneType' and 'NoneType'
+    ```

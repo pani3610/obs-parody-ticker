@@ -1,5 +1,8 @@
 {
-    "scene_checklist": [],
+    "scene_checklist": [
+        "Scene 4",
+        "Scene 5"
+    ],
     "feed_list": [
         "https://babylonbee.com/feed",
         "https://www.theonion.com/content/feeds/daily"
