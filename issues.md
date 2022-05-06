@@ -272,3 +272,5 @@
     + Issue solved by creating different buttons for play pause.
 + [x] Add default settings for the GUI to reset to.
 + [x] Same button for play/pause
++ [ ] Error when source already exists
++ [x] Reoder not required as positioning of all sources done only after all the sources are created.

@@ -138,10 +138,10 @@ class Ticker:
         # self.obs.disconnect()
 
     def addOBSSources(self):
-        self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
-        self.tickerlogo = self.obs.addSource('LOGO','image_source',{'file':abs_path(self.imgcontainer)})
         self.strip = self.obs.addSource('STRIP','image_source',{'file':abs_path('strip.png')})
+        self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
         self.circle = self.obs.addSource('CIRCLE','image_source',{'file':abs_path('circle.png')})
+        self.tickerlogo = self.obs.addSource('LOGO','image_source',{'file':abs_path(self.imgcontainer)})
 
     def repositionOBSSources(self):
         if self.text_direction == 1:
@@ -197,7 +197,7 @@ class Ticker:
         print(self.obs.getCurrentScene())
         self.addOBSSources()
         self.repositionOBSSources()
-        self.reorderOBSSources()
+        # self.reorderOBSSources()
         self.duplicateOBSSources()
         self.obs.setCurrentScene(self.ticker_scenes[0])
     
