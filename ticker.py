@@ -104,11 +104,18 @@ class Ticker:
         if (not self.obs.connected):
             return()
         #clear ticker text before all calculations
+        self.gui.exportData()
+        print('108')
         self.clearTextContainer() 
+        print('110')
         self.setBasicSettings()
+        print('112')
         self.setSourceSettingsfromGUI()
+        print('114')
         self.setSourceFiltersfromGUI()
+        print('116')
         self.createOBSResource()
+        print('118')
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed = abs(self.tickertext.getScrollSpeed())
@@ -124,7 +131,7 @@ class Ticker:
         self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
         # self.showOBSSources()
         self.showGraphics()
-        self.importTickerScenes()
+        # self.importTickerScenes()
         print('Ready to play')
         # self.play()
         # self.obs_quit_event.wait()
@@ -152,6 +159,18 @@ class Ticker:
         
         position = self.tickerlogo.getPosition()
         self.circle.repositionSource(position)
+    
+    def duplicateOBSSources(self): #order should be as per per required_order
+        for scene in self.ticker_scenes[1:]:
+            self.strip.duplicateSource(self.ticker_scenes[1:])
+            self.tickertext.duplicateSource(self.ticker_scenes[1:])
+            self.circle.duplicateSource(self.ticker_scenes[1:])
+            self.tickerlogo.duplicateSource(self.ticker_scenes[1:])
+        
+        for scene in self.ticker_scenes[1:]:
+            self.obs.setCurrentScene(scene)
+            self.repositionOBSSources()
+
 
     def showOBSSources(self):
         self.tickertext.showSource()
@@ -172,10 +191,16 @@ class Ticker:
             new_order.extend(list(filter(lambda item:item.get('name')==source,current_order)))
         
         print(self.obs.ws.call(requests.ReorderSceneItems(tuple(new_order))))
+
     def createOBSResource(self):
+        self.obs.setCurrentScene(self.ticker_scenes[0])
+        print(self.obs.getCurrentScene())
         self.addOBSSources()
         self.repositionOBSSources()
         self.reorderOBSSources()
+        self.duplicateOBSSources()
+        self.obs.setCurrentScene(self.ticker_scenes[0])
+    
     def createStrip(self):
         width = self.obs.getVideoBaseWidth()
         height = self.tickertext.getHeight()
@@ -244,6 +269,7 @@ class Ticker:
                 
         
     def play(self):
+        self.showOBSSources()
         self.pause_event.clear() #clearing stop event just in case you are restarting after stopping
         self.play_thread = Thread(target=self.startTickerLoop,name='Ticker thread') #reinitializing thread because a thread can be started only once.
         self.play_thread.start()

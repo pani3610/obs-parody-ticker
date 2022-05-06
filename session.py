@@ -28,12 +28,13 @@ class OBSSession:
             self.ws.connect()
             print('Connected to OBS')
             self.connected = True
+            self.registerEvents()
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             sys.exit()
     def registerEvents(self):
         self.scene_changed = Event()
-        self.ws.register(lambda: self.scene_changed.set(),events.ScenesChanged)
+        self.ws.register(lambda event: self.scene_changed.set(),events.SwitchScenes)
 
     def disconnect(self):
         self.ws.disconnect()
@@ -254,13 +255,19 @@ class OBSSource():
         # print(OBSdict)
         convertObjectToJson(OBSdict,filepath)
     
+    def duplicateSource(self,scene_list):
+        for scene in scene_list:
+            self.ws.call(requests.DuplicateSceneItem(self.name,None,scene))
+    
 def main():
     # test0()
     # test1()
     # test2()
     # test3()
     # test4()
-    test5()
+    # test5()
+    # test6()
+    test7()
     
 def test0():
     s= OBSSession()
@@ -323,6 +330,7 @@ def test4():
     source.stopScroll()
     sleep(3)
     source.startScroll()
+    s1.disconnect()
 
 def test5():
     s =OBSSession()
@@ -331,5 +339,27 @@ def test5():
     # response = s.ws.call(requests.GetSceneItemList())
     # source_list = [source.get('sourceName') for source in response.getSceneItems()]
     # print(source_list)
+    s.disconnect()
+def test6():
+    s = OBSSession()
+    s.connect()
+    print(s.getSceneList())
+    # for scene in s.getSceneList():
+    #     s.setCurrentScene(scene)
+    #     s.getCurrentScene()
+    s.setCurrentScene('Scene 5')
+    print(s.getCurrentScene())
+    s.setCurrentScene('Scene 3')
+    print(s.getCurrentScene())
+    s.setCurrentScene('Scene 4')
+    print(s.getCurrentScene())
+    # sleep(10)
+    s.disconnect()
+
+def test7():
+    s = OBSSession()
+    s.connect()
+    strip = s.addSource('STRIP','image_source',{'file':abs_path('strip.png')})
+    strip.duplicateSource(['Scene 5','Scene 6'])
 if __name__ == '__main__':
     main()
