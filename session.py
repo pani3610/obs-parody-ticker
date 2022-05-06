@@ -31,6 +31,10 @@ class OBSSession:
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             sys.exit()
+    def registerEvents(self):
+        self.scene_changed = Event()
+        self.ws.register(lambda: self.scene_changed.set(),events.ScenesChanged)
+
     def disconnect(self):
         self.ws.disconnect()
     
@@ -64,7 +68,7 @@ class OBSSession:
             response = self.ws.call(requests.GetSourceSettings(source))
             OBSsettings.update({source:response.getSourceSettings()})
         convertObjectToJson(OBSsettings,filepath)
-
+    
     def exportSourceFilters(self,filepath='source-filters.json'):
         OBSsettings = dict()
         for source in self.sources:
@@ -80,6 +84,23 @@ class OBSSession:
         response = self.ws.call(requests.GetVideoInfo())
         baseHeight = response.getBaseHeight()
         return(baseHeight)
+
+    def setCurrentScene(self,scenename):
+        if(scenename!=self.getCurrentScene()):
+            self.ws.call(requests.SetCurrentScene(scenename))
+            self.waitForUpdate(self.scene_changed)
+
+    def waitForUpdate(self,event:Event,timeout=None):
+        set_before_timeout = event.wait(timeout)
+        if not set_before_timeout:
+            print('Timed out')
+        event.clear()
+        return(set_before_timeout)
+        
+    def getCurrentScene(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        return(scenename)
     
 class OBSSource():
     def __init__(self,ws:obsws,name,type,settings=None,filters=None):
