@@ -164,7 +164,15 @@ class Ticker:
         for scene in scene_list:
             self.obs.setCurrentScene(scene)
             self.repositionOBSSources()
+            self.lockOBSSources()
             self.showOBSSources()
+           
+
+    def lockOBSSources(self):
+        self.tickertext.lockSource()
+        self.tickerlogo.lockSource()
+        self.strip.lockSource()
+        self.circle.lockSource()
 
 
     def showOBSSources(self):
