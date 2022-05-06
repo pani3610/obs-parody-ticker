@@ -274,3 +274,5 @@
 + [x] Same button for play/pause
 + [ ] Error when source already exists
 + [x] Reoder not required as positioning of all sources done only after all the sources are created.
++ Duplicated sources are not refreshed and the text resumes from the same place where left on the previous scene.
++ Duplicating source doesn't retain the position or lock values.
