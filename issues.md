@@ -272,7 +272,10 @@
     + Issue solved by creating different buttons for play pause.
 + [x] Add default settings for the GUI to reset to.
 + [x] Same button for play/pause
-+ [ ] Error when source already exists
++ [x] Error when source already exists.
+    + Duplicating will create sources even if source of same name exists.
 + [x] Reoder not required as positioning of all sources done only after all the sources are created.
 + Duplicated sources are not refreshed and the text resumes from the same place where left on the previous scene.
 + [x] Duplicating source doesn't retain the position or lock values.
++ [ ] Complete remove feed.
++ [ ] Stop should delete all sources.

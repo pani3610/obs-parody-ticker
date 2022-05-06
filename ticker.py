@@ -198,7 +198,7 @@ class Ticker:
 
     def createOBSResource(self):
         self.obs.setCurrentScene(self.ticker_scenes[0])
-        print(self.obs.getCurrentScene())
+        # print(self.obs.getCurrentScene())
         self.addOBSSources()
         self.repositionOBSSources()
         # self.reorderOBSSources()
@@ -361,7 +361,6 @@ class Ticker:
         self.tickerlogo.hideSource()
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
-        print(self.ticker_scenes)
         print(f'{transition_event.getFromScene()} -> {transition_event.getToScene()}')
         if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
             print('play ticker')

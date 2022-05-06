@@ -114,10 +114,12 @@ class OBSSource():
         self.registerEvents()
         if self.name not in self.getSourceList():
             self.createSource()
+        self.applySettings()
+        self.applyFilters()
+        self.lockSource()
 
-
-    def getSourceList(self): 
-        response = self.ws.call(requests.GetSceneItemList())
+    def getSourceList(self,scene=None): 
+        response = self.ws.call(requests.GetSceneItemList(scene))
         source_list = [source.get('sourceName') for source in response.getSceneItems()]
         return(source_list)
     
@@ -238,11 +240,12 @@ class OBSSource():
     def createSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        self.ws.call(requests.CreateSource(self.name,self.type,scenename,self.settings,False))
+        self.ws.call(requests.CreateSource(self.name,self.type,scenename,None,False))
         self.waitForUpdate(self.source_created,timeout=3)
-        self.lockSource()
-        self.applyFilters()
-        
+    
+    def applySettings(self):
+        self.ws.call(requests.SetSourceSettings(self.name,self.settings,self.type))
+
     def applyFilters(self):
         for filter in self.filters: 
             self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
@@ -263,7 +266,8 @@ class OBSSource():
     
     def duplicateSource(self,scene_list):
         for scene in scene_list:
-            self.ws.call(requests.DuplicateSceneItem(self.name,None,scene))
+            if self.name not in self.getSourceList(scene):
+                self.ws.call(requests.DuplicateSceneItem(self.name,None,scene))
     
 def main():
     # test0()
