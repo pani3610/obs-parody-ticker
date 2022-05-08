@@ -279,7 +279,6 @@
 + [x] Duplicating source doesn't retain the position or lock values.
 + [ ] Complete remove feed.
 + [x] Stop should delete all sources.
-+ [ ] Handle case when no scene is selected in GUI.
 + [ ] Following error thrown in the Ticker thread. find root cause
     ```
     Connected to OBS
@@ -301,3 +300,19 @@
         padded_string = round(self.viewport_width/self.ssw)*' ' + string
     TypeError: unsupported operand type(s) for /: 'NoneType' and 'NoneType'
     ```
++ [ ] Adjust logo size as per ticker font size.
++ [ ] Accomodate strip and circle creation.
++ Exception Handling:
+    + Feed
+        + [ ] No internet connection.
+        + [ ] invalid url
+        + [ ] incomplete data from url
+        + [ ] No feed logo from favicon
+    + GUI/Ticker
+        + [ ] OBS websocket not connected.
+        + [ ] Invalid password.
+        + [ ] No scene selected
+        + [ ] No feed entered
+        + [ ] Stop before stop
+        + [ ] Play before start
+        
