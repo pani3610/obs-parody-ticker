@@ -1,0 +1,16 @@
+{
+    "scene_checklist": [
+    ],
+    "feed_list": [
+        "https://babylonbee.com/feed",
+        "https://www.theonion.com/content/feeds/daily"
+    ],
+    "ticker_font": [
+        "Roboto Mono",
+        24,
+        "bold"
+    ],
+    "text_scroll_speed": 150,
+    "sleep_time_between_feeds": 2,
+    "text_direction": "Right to Left"
+}

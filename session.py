@@ -28,11 +28,21 @@ class OBSSession:
             self.ws.connect()
             print('Connected to OBS')
             self.connected = True
+            self.registerEvents()
         except exceptions.ConnectionFailure:
             print('Unable to connect to OBS')
             sys.exit()
+    def registerEvents(self):
+        self.scene_changed = Event()
+        self.ws.register(lambda event: self.scene_changed.set(),events.SwitchScenes)
+
     def disconnect(self):
         self.ws.disconnect()
+    
+    def getSceneList(self):
+        response = self.ws.call(requests.GetSceneList())
+        scene_list = [ scene.get('name') for scene in response.getScenes()]
+        return(scene_list)
     
     def addSource(self,name,type,settings=None,filters=None):
         source = OBSSource(self.ws,name,type,settings,filters)
@@ -59,7 +69,7 @@ class OBSSession:
             response = self.ws.call(requests.GetSourceSettings(source))
             OBSsettings.update({source:response.getSourceSettings()})
         convertObjectToJson(OBSsettings,filepath)
-
+    
     def exportSourceFilters(self,filepath='source-filters.json'):
         OBSsettings = dict()
         for source in self.sources:
@@ -75,6 +85,23 @@ class OBSSession:
         response = self.ws.call(requests.GetVideoInfo())
         baseHeight = response.getBaseHeight()
         return(baseHeight)
+
+    def setCurrentScene(self,scenename):
+        if(scenename!=self.getCurrentScene()):
+            self.ws.call(requests.SetCurrentScene(scenename))
+            self.waitForUpdate(self.scene_changed)
+
+    def waitForUpdate(self,event:Event,timeout=None):
+        set_before_timeout = event.wait(timeout)
+        if not set_before_timeout:
+            print('Timed out')
+        event.clear()
+        return(set_before_timeout)
+        
+    def getCurrentScene(self):
+        scene = self.ws.call(requests.GetCurrentScene())
+        scenename = scene.getName()
+        return(scenename)
     
 class OBSSource():
     def __init__(self,ws:obsws,name,type,settings=None,filters=None):
@@ -87,10 +114,12 @@ class OBSSource():
         self.registerEvents()
         if self.name not in self.getSourceList():
             self.createSource()
+        self.applySettings()
+        self.applyFilters()
+        self.lockSource()
 
-
-    def getSourceList(self): 
-        response = self.ws.call(requests.GetSceneItemList())
+    def getSourceList(self,scene=None): 
+        response = self.ws.call(requests.GetSceneItemList(scene))
         source_list = [source.get('sourceName') for source in response.getSceneItems()]
         return(source_list)
     
@@ -211,13 +240,20 @@ class OBSSource():
     def createSource(self):
         scene = self.ws.call(requests.GetCurrentScene())
         scenename = scene.getName()
-        self.ws.call(requests.CreateSource(self.name,self.type,scenename,self.settings,False))
+        self.ws.call(requests.CreateSource(self.name,self.type,scenename,None,False))
         self.waitForUpdate(self.source_created,timeout=3)
-        self.ws.call(requests.SetSceneItemProperties(self.name,locked=True))
+    
+    def applySettings(self):
+        self.ws.call(requests.SetSourceSettings(self.name,self.settings,self.type))
+
+    def applyFilters(self):
         for filter in self.filters: 
             self.ws.call(requests.AddFilterToSource(self.name,filter.get('name'),filter.get('type'),filter.get('settings')))
     def repositionSource(self,position):
         self.ws.call(requests.SetSceneItemProperties(self.name,position=position))
+    
+    def lockSource(self):
+        self.ws.call(requests.SetSceneItemProperties(self.name,locked=True))
 
     def exportSourceData(self,filepath):
         prop=self.ws.call(requests.GetSceneItemProperties(self.name))
@@ -228,13 +264,25 @@ class OBSSource():
         # print(OBSdict)
         convertObjectToJson(OBSdict,filepath)
     
+    def duplicateSource(self,scene_list):
+        for scene in scene_list:
+            if self.name not in self.getSourceList(scene):
+                self.ws.call(requests.DuplicateSceneItem(self.name,None,scene))
+    
+    def removeSourceFromScenes(self,scene_list):
+        for scene in scene_list:
+            if self.name in self.getSourceList(scene):
+                self.ws.call(requests.DeleteSceneItem(self.name,scene))
+    
 def main():
     # test0()
     # test1()
     # test2()
     # test3()
     # test4()
-    test5()
+    # test5()
+    # test6()
+    test7()
     
 def test0():
     s= OBSSession()
@@ -297,12 +345,36 @@ def test4():
     source.stopScroll()
     sleep(3)
     source.startScroll()
+    s1.disconnect()
 
 def test5():
     s =OBSSession()
     s.connect()
-    response = s.ws.call(requests.GetSceneItemList())
-    source_list = [source.get('sourceName') for source in response.getSceneItems()]
-    print(source_list)
+    print(s.getSceneList())
+    # response = s.ws.call(requests.GetSceneItemList())
+    # source_list = [source.get('sourceName') for source in response.getSceneItems()]
+    # print(source_list)
+    s.disconnect()
+def test6():
+    s = OBSSession()
+    s.connect()
+    print(s.getSceneList())
+    # for scene in s.getSceneList():
+    #     s.setCurrentScene(scene)
+    #     s.getCurrentScene()
+    s.setCurrentScene('Scene 5')
+    print(s.getCurrentScene())
+    s.setCurrentScene('Scene 3')
+    print(s.getCurrentScene())
+    s.setCurrentScene('Scene 4')
+    print(s.getCurrentScene())
+    # sleep(10)
+    s.disconnect()
+
+def test7():
+    s = OBSSession()
+    s.connect()
+    strip = s.addSource('STRIP','image_source',{'file':abs_path('strip.png')})
+    strip.duplicateSource(['Scene 5','Scene 6'])
 if __name__ == '__main__':
     main()

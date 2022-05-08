@@ -82,14 +82,25 @@
     + ~~Achieved externally through Shortcuts app on Mac.~~
 + [ ] OBS allows to run python from its Scripts tool. Try to integrate this as a obsscript. [Details here](https://github.com/obsproject/obs-studio/wiki/Getting-Started-With-OBS-Scripting)
     + [ ] It lets you provide inputs via GUI component. It can be used to provide options. Some feasible options maybe:
-        + [ ] Tickbox list of feed sources
-        + [ ] Name and url prompt to add your own feed sources.
-        + [ ] Slider to control scroll speed
-        + [ ] Font selection
-        + [ ] Checkbox of all scenes where to add the ticker
-        + [ ] Time between 2 feeds
-        + [ ] Text direction
-        + [ ] Start and Stop button
+        + [x] Tickbox list of feed sources
+        + [x] Name and url prompt to add your own feed sources.
+        + [x] Slider to control scroll speed
+        + [x] Font selection
+        + [x] Checkbox of all scenes where to add the ticker
+        + [x] Time between 2 feeds
+        + [x] Text direction
+        + [x] Start and Stop button
+        + [x] Reset button
++ Tkinter GUI Window
+    + Listbox : No Editable listbox built-in like in QT. Creating own with buttons. [Resource](https://www.pythontutorial.net/tkinter/tkinter-listbox/)
+        + Selectmode by default is single which allows user to highlight one item at a time. extended selectmode behaves as multiple selection in any order (normal)
+        + removing multiple selected involves either removing the bottom-most or the selected items.
+        + Has inherent scrolling.
+        + Sticking to packer layout as most responsive window resizing.
+    + Font selector : No built-in font selector like qt. Using option menu to select font. It has built-in search on keypress.
+    + Slider : Combination of Scale and Entrybox. Both governed by same variable.
+    + tkinter.tix has some extra widgets but cannot find good code examples online.
+    + RadioList [Resource](https://www.javatpoint.com/python-tkinter-radiobutton)
     + [ ] Also provides support for callback functions on events without websockets. To be integrated if feasible python-script possible.
     + [ ] It doesn't seem to support venv of Python3.9. The docs say in windows it supports 3.6. venv doesn't allow making environments of different versions.
         + Installing virtualenv which allows this feature but requires installation path to the version required, which means one has to install manually the version required.
@@ -176,6 +187,10 @@
         + Get headlines count from binary search
 + [ ] Add progress-bar for ticker switch.
 + [ ] Add GUI Element to set ticker properties before start
+    + Using QT to make dialog box as it has font selector built-in.
+        + Installing qt on m1 mac version is proving to be a hassle. Error being thrown while ```$ pip install pyqt5```. Trying tk.
+    + [ ] Load default values from default JSON.
+    + [ ] Save the changed properties and load it the next time the GUI bar is opened.
     + [ ] Show Sample ticker while tinkering with GUI elements. Update dynamically
 + [ ] Catch errors when no internet connection
 + [ ] Session must be outside ticker and not other way round. Maybe one OBS session can have multiple tickers with their own set of threads and events.
@@ -253,3 +268,51 @@
     + [x] Rectify abs_path to handle all situations.
         + If folder doesn't exist, create folders recursively.
         + Identify if provided string is absolute path or relative path.
++ [x] The GUI window becomes inactive when the feed waits for event. No option can be selected on the GUI window.[Resource](https://tkdocs.com/tutorial/eventloop.html)
+    + Issue solved by creating different buttons for play pause.
++ [x] Add default settings for the GUI to reset to.
++ [x] Same button for play/pause
++ [x] Error when source already exists.
+    + Duplicating will create sources even if source of same name exists.
++ [x] Reoder not required as positioning of all sources done only after all the sources are created.
++ Duplicated sources are not refreshed and the text resumes from the same place where left on the previous scene.
++ [x] Duplicating source doesn't retain the position or lock values.
++ [ ] Complete remove feed.
++ [x] Stop should delete all sources.
++ [ ] Following error thrown in the Ticker thread. find root cause
+    ```
+    Connected to OBS
+    150
+    Scene 6 -> Scene 3
+    play ticker
+    The Babylon Bee | 10 headlines | Feed data latest by Fri, 06 May 2022 16:37:01 -0400 | 887 characters long
+    Exception in thread Ticker thread:
+    Traceback (most recent call last):
+    File "/opt/homebrew/Cellar/python@3.9/3.9.12/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 973, in _bootstrap_inner
+        self.run()
+    File "/opt/homebrew/Cellar/python@3.9/3.9.12/Frameworks/Python.framework/Versions/3.9/lib/python3.9/threading.py", line 910, in run
+        self._target(*self._args, **self._kwargs)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 275, in startTickerLoop
+        self.updateTextContainer(feed)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 246, in updateTextContainer
+        text = self.addPadding(feed.text.raw_string)
+    File "/Users/pani3610/code/parody-ticker/ticker.py", line 252, in addPadding
+        padded_string = round(self.viewport_width/self.ssw)*' ' + string
+    TypeError: unsupported operand type(s) for /: 'NoneType' and 'NoneType'
+    ```
++ [ ] Adjust logo size as per ticker font size.
++ [ ] Accomodate strip and circle creation.
++ Exception Handling:
+    + Feed
+        + [ ] No internet connection.
+        + [ ] invalid url
+        + [ ] incomplete data from url
+        + [ ] No feed logo from favicon
+    + GUI/Ticker
+        + [ ] OBS websocket not connected.
+        + [ ] Invalid password.
+        + [ ] No scene selected
+        + [ ] No feed entered
+        + [ ] Stop before stop
+        + [ ] Play before start
+        

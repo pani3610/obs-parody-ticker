@@ -1,6 +1,7 @@
 from feed import *
 from session import OBSSession
 from graphics import Strip,Circle
+from gui import *
 from time import sleep,time
 from threading import Event,Thread,activeCount
 from obswebsocket import obsws,requests,exceptions,events
@@ -42,21 +43,77 @@ class Ticker:
         self.strip = None
         self.circle = None
 
+        self.gui = None
+        
+        self.status = 'not started'
+
     def connect(self,host=None,port=None,password=None):
         self.obs = OBSSession(host,port,password)
         self.obs.connect()
+        self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
+        self.obs.ws.register(lambda event: self.gui.destroy(),events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
     
+    def createGUI(self):
+        self.gui = GUIApp('OBS Ticker')
+        TickBoxList(self.gui,'Scene Checklist',self.obs.getSceneList())#
+        EditableListBox(self.gui,'Feed List')#
+        Font(self.gui,'Ticker Font')
+        Slider(self.gui,'Text Scroll Speed',0,500)
+        FloatEntry(self.gui,'Sleep time between feeds','seconds')#
+        RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
+        tk.Button(self.gui,text='Start',command=self.start).pack()
+        ToggleButton(self.gui,'⏸','▶️',lambda :self.pause(True),self.play).pack()
+        tk.Button(self.gui,text='Stop',command=self.stop).pack()
+        tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
+        tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
+        self.gui.onQuit(self.quit)
+        self.gui.mainloop()
+
+    def setBasicSettings(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        self.empty_time = gui_settings.get('sleep_time_between_feeds')
+        text_direction = gui_settings.get('text_direction')
+        self.text_direction = 1 if gui_settings.get('text_direction') == 'Right to Left' else -1
+        self.ticker_scenes = gui_settings.get('scene_checklist')
+        self.updateFeedList(gui_settings.get('feed_list'))
+
+    def setSourceSettingsfromGUI(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        font = {'face':gui_settings.get('ticker_font')[0],
+                        'size':gui_settings.get('ticker_font')[1],
+                        'style':gui_settings.get('ticker_font')[2].title()}
+        source_settings = {'TICKER':{'font':font,'from_file':True,'text_file':abs_path(self.textcontainer)}}
+        convertObjectToJson(source_settings,'source-settings.json')
     
+    def setSourceFiltersfromGUI(self):
+        gui_settings = convertJSONToDict('gui-data.json')
+        ticker_speed = gui_settings.get('text_scroll_speed')*{'Right to Left':1,'Left to Right':-1}[gui_settings.get('text_direction')]
+        print(ticker_speed)
+        filter_settings = {"TICKER":[{
+                                    "enabled:":True,
+                                    "name":"tickerscroll",
+                                    "settings":{
+                                        'loop':False,
+                                        'speed_x':ticker_speed
+                                    },
+                                    'type':"scroll_filter"
+                                    }]}
+        convertObjectToJson(filter_settings,'source-filters.json')
+        
+
     def start(self):
         #getOBSTickerObject details or create if required
 
         if (not self.obs.connected):
             return()
         #clear ticker text before all calculations
+        self.gui.exportData()
         self.clearTextContainer() 
-
+        self.setBasicSettings()
+        self.setSourceSettingsfromGUI()
+        self.setSourceFiltersfromGUI()
         self.createOBSResource()
-         
+        
         #calculateviewportwidth
         self.viewport_width = self.calculateViewportWidth()
         self.scroll_speed = abs(self.tickertext.getScrollSpeed())
@@ -67,21 +124,20 @@ class Ticker:
         self.checkAllFeedSize()
         # self.obs.startScroll()
 
-        self.obs.ws.register(self.playOrPauseTicker,events.TransitionBegin)
-        self.obs.ws.register(self.stop,events.Exiting)# register() passes events.Exiting as a parameter to stopSession()
-        print('Ready')
         # self.showOBSSources()
         self.showGraphics()
-        self.importTickerScenes()
-        self.play()
-        self.obs_quit_event.wait()
-        self.obs.disconnect()
+        # self.importTickerScenes()
+        self.status = 'started'
+        print('Ready to play')
+        # self.play()
+        # self.obs_quit_event.wait()
+        # self.obs.disconnect()
 
     def addOBSSources(self):
+        self.strip = self.obs.addSource('STRIP','image_source',{'file':abs_path('strip.png')})
         self.tickertext = self.obs.addSource('TICKER','text_ft2_source_v2',convertJSONToDict('source-settings.json').get('TICKER'),convertJSONToDict('source-filters.json').get('TICKER'))
-        self.tickerlogo = self.obs.addSource('LOGO','image_source',convertJSONToDict('source-settings.json').get('LOGO'))
-        self.strip = self.obs.addSource('STRIP','image_source',convertJSONToDict('source-settings.json').get('STRIP'))
-        self.circle = self.obs.addSource('CIRCLE','image_source',convertJSONToDict('source-settings.json').get('CIRCLE'))
+        self.circle = self.obs.addSource('CIRCLE','image_source',{'file':abs_path('circle.png')})
+        self.tickerlogo = self.obs.addSource('LOGO','image_source',{'file':abs_path(self.imgcontainer)})
 
     def repositionOBSSources(self):
         if self.text_direction == 1:
@@ -99,6 +155,26 @@ class Ticker:
         
         position = self.tickerlogo.getPosition()
         self.circle.repositionSource(position)
+    
+    def duplicateOBSSources(self,scene_list): #order should be as per per required_order
+        self.strip.duplicateSource(scene_list)
+        self.tickertext.duplicateSource(scene_list)
+        self.circle.duplicateSource(scene_list)
+        self.tickerlogo.duplicateSource(scene_list)
+        
+        for scene in scene_list:
+            self.obs.setCurrentScene(scene)
+            self.repositionOBSSources()
+            self.lockOBSSources()
+            self.showOBSSources()
+           
+
+    def lockOBSSources(self):
+        self.tickertext.lockSource()
+        self.tickerlogo.lockSource()
+        self.strip.lockSource()
+        self.circle.lockSource()
+
 
     def showOBSSources(self):
         self.tickertext.showSource()
@@ -107,6 +183,7 @@ class Ticker:
         self.circle.showSource()
 
     def showGraphics(self):
+        
         self.strip.showSource()
         self.circle.showSource()
 
@@ -119,10 +196,22 @@ class Ticker:
             new_order.extend(list(filter(lambda item:item.get('name')==source,current_order)))
         
         print(self.obs.ws.call(requests.ReorderSceneItems(tuple(new_order))))
+
     def createOBSResource(self):
+        self.obs.setCurrentScene(self.ticker_scenes[0])
+        # print(self.obs.getCurrentScene())
         self.addOBSSources()
         self.repositionOBSSources()
-        self.reorderOBSSources()
+        # self.reorderOBSSources()
+        self.duplicateOBSSources(self.ticker_scenes[1:])
+        self.obs.setCurrentScene(self.ticker_scenes[0])
+    
+    def removeOBSSources(self,scene_list):
+        self.strip.removeSourceFromScenes(scene_list)
+        self.tickertext.removeSourceFromScenes(scene_list)
+        self.circle.removeSourceFromScenes(scene_list)
+        self.tickerlogo.removeSourceFromScenes(scene_list)
+
     def createStrip(self):
         width = self.obs.getVideoBaseWidth()
         height = self.tickertext.getHeight()
@@ -215,6 +304,21 @@ class Ticker:
     
     def removeFeed(self,Feed):
         pass
+    
+    def updateFeedList(self,url_list):
+        self.feeds = []
+        threads =[]
+        for rss_url in url_list:
+            thread = Thread(target=self.addFeedToTicker,args=(rss_url,))
+            thread.start()
+            threads.append(thread)
+
+        for thread in threads:
+            thread.join()
+
+    def addFeedToTicker(self,url:str):
+        f = Feed(url)
+        self.addFeed(f)        
 
 
     def checkAllFeedSize(self):
@@ -256,14 +360,17 @@ class Ticker:
     def resizeFeedLogo(self,feed:Feed):
         feed.logo.resize(self.logo_size)
     
-    def pause(self):
-        # print('Stopping ticker')
+    def pause(self,hide_source=False):
+        if hide_source:
+            self.tickertext.hideSource()
+            self.tickerlogo.hideSource()
         self.pause_event.set()
         if self.play_thread != None:
             self.play_thread.join()
+        print('ticker paused')
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
-        # print(self.ticker_scenes)
+        print(f'{transition_event.getFromScene()} -> {transition_event.getToScene()}')
         if(transition_event.getFromScene() not in self.ticker_scenes and transition_event.getToScene() in self.ticker_scenes):
             print('play ticker')
             self.play()
@@ -272,11 +379,25 @@ class Ticker:
             self.pause()
 
 
-    def stop(self,obs_event):
-        print('OBS closed.')
-        self.pause()
+    def stop(self):
+        if self.status == 'started':
+            self.pause()
+            self.removeOBSSources(self.obs.getSceneList())
+            del self.tickertext
+            del self.tickerlogo
+            del self.strip
+            del self.circle
+            self.ticker_scenes = []
+            self.status = 'not started'
+            print('ticker stopped')
         # self.activateTickerLoop()
-        self.obs_quit_event.set()
+        # self.obs_quit_event.set()
+        
+    def quit(self):
+        self.stop()
+        self.obs.disconnect()
+        self.gui.destroy()
+        print('ticker quit')
 
     def activateTickerLoop(self):
         filters = convertJSONToDict('source-filters.json').get('TICKER')
@@ -308,6 +429,9 @@ def loadFromPickle(picklefile):
 
 def main():
     t =Ticker('feed_text_dev.txt','feed_img_dev.png')
+    t.connect()
+    t.createGUI()
+    return()
     pickled_feeds = loadFromPickle('feed_examples.pkl')
     f1 = next(pickled_feeds)
     f2 = next(pickled_feeds)
