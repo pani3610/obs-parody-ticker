@@ -62,7 +62,7 @@ class Ticker:
         FloatEntry(self.gui,'Sleep time between feeds','seconds')#
         RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
         tk.Button(self.gui,text='Start',command=self.start).pack()
-        ToggleButton(self.gui,'⏸','▶️',self.pause,self.play).pack()
+        ToggleButton(self.gui,'⏸','▶️',lambda :self.pause(True),self.play).pack()
         tk.Button(self.gui,text='Stop',command=self.stop).pack()
         tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
         tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
@@ -360,13 +360,14 @@ class Ticker:
     def resizeFeedLogo(self,feed:Feed):
         feed.logo.resize(self.logo_size)
     
-    def pause(self):
-        print('ticker paused')
+    def pause(self,hide_source=False):
+        if hide_source:
+            self.tickertext.hideSource()
+            self.tickerlogo.hideSource()
         self.pause_event.set()
         if self.play_thread != None:
             self.play_thread.join()
-        self.tickertext.hideSource()
-        self.tickerlogo.hideSource()
+        print('ticker paused')
 
     def playOrPauseTicker(self,transition_event:events.TransitionBegin):
         print(f'{transition_event.getFromScene()} -> {transition_event.getToScene()}')
