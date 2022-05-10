@@ -11,7 +11,7 @@ class GUIApp(tk.Tk):
         custom_widgets = {key:value for key,value in self.children.items() if not key.startswith('!')}
         return(custom_widgets)
 
-    def exportData(self,filename='gui-data.json'):
+    def exportData(self,filename):
         gui_data ={}
         for widget_name,widget_obj in self.getNamedChildren().items():
             gui_data[widget_name] = widget_obj.getData()
@@ -24,7 +24,10 @@ class GUIApp(tk.Tk):
             widget_obj.setData(gui_data.get(widget_name))
 
     def onQuit(self,function):
-        self.protocol('WM_DELETE_WINDOW',function)        
+        def quit_fn():
+            function()
+            self.destroy()
+        self.protocol('WM_DELETE_WINDOW',quit_fn)    
 
 
 class CustomWidget(tk.LabelFrame):

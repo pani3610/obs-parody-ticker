@@ -65,7 +65,7 @@ class Ticker:
         ToggleButton(self.gui,'⏸','▶️',lambda :self.pause(True),self.play).pack()
         tk.Button(self.gui,text='Stop',command=self.stop).pack()
         tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
-        tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
+        # tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
         self.gui.onQuit(self.quit)
         self.gui.mainloop()
 
@@ -107,7 +107,7 @@ class Ticker:
         if (not self.obs.connected):
             return()
         #clear ticker text before all calculations
-        self.gui.exportData()
+        self.gui.exportData('gui-data.json')
         self.clearTextContainer() 
         self.setBasicSettings()
         self.setSourceSettingsfromGUI()
@@ -396,7 +396,6 @@ class Ticker:
     def quit(self):
         self.stop()
         self.obs.disconnect()
-        self.gui.destroy()
         print('ticker quit')
 
     def activateTickerLoop(self):
