@@ -61,9 +61,10 @@ class Ticker:
         Slider(self.gui,'Text Scroll Speed',0,500)
         FloatEntry(self.gui,'Sleep time between feeds','seconds')#
         RadioList(self.gui,'Text Direction',['Right to Left','Left to Right'])#
-        tk.Button(self.gui,text='Start',command=self.start).pack()
+        # tk.Button(self.gui,text='Start',command=self.start).pack()
+        ToggleButton(self.gui,'Stop','Start',self.stop,self.start).pack()
         ToggleButton(self.gui,'⏸','▶️',lambda :self.pause(True),self.play).pack()
-        tk.Button(self.gui,text='Stop',command=self.stop).pack()
+        # tk.Button(self.gui,text='Stop',command=self.stop).pack()
         tk.Button(self.gui,text='Reset',command=lambda: self.gui.importData('default-gui-data.json')).pack()
         # tk.Button(self.gui,text='Save',command=self.gui.exportData).pack()
         self.gui.onQuit(self.quit)
