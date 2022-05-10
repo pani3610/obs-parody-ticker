@@ -11,18 +11,15 @@ This is a small project to create a news ticker-tape at the bottom of video stre
 List of known issues and TODO can be found in [issues.md](https://github.com/pani3610/obs-parody-ticker/blob/master/issues.md)
 
 ## Pre-requisites
-+ Written in Python 3.9.12
 + Mac(non-OBS script) : The following packages/librarires/binaries needs to be installed before running the program:  
     + obswebsocket
+        + create a .env file in this repo with line ```obswspass = <your-password-goes-here>``` . This is required to connect to OBS websocket.
     + tkinter
     + Python libraries listed in requirements.txt
 ## [main.py](https://github.com/pani3610/obs-parody-ticker/blob/master/main.py)
 + Run main.py to launch the program.
 ## [ticker.py](https://github.com/pani3610/obs-parody-ticker/blob/master/ticker.py)
 + Contains details about the Ticker class.
-+ This file creates the ticker text and stores in a text file. This text file is set as the source for the OBS Text(FreeType 2). This text has a filter of horizontal scroll which gives it the effect of ticker.
-+ This file also updates the image of the news source. 
-+ This file switches the ticker through multiple feeds depending on the size of the feeds.
 
 ## [feed.py](https://github.com/pani3610/obs-parody-ticker/blob/master/feed.py)
 + Contains details about the Feed and associated classes.  
@@ -34,4 +31,7 @@ List of known issues and TODO can be found in [issues.md](https://github.com/pan
 
 ## [graphics.py](https://github.com/pani3610/obs-parody-ticker/blob/master/graphics.py)
 + Responsible for the background graphics of the ticker.  
-+ Graphics are created using HTML/CSS are converted into PNG files.
++ Graphics are created using HTML/CSS and converted into PNG files.
+
+## [session.py](https://github.com/pani3610/obs-parody-ticker/blob/master/session.py)
++ Responsible for managing interface with OBS.
